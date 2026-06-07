@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>直播间营销图生成器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">BG</div>
+      <div>
+        <h1>直播间营销图生成器</h1>
+        <p>网页端快速合成 1080 获客素材</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="apiStatus" class="status-dot status-off">未设置 API</span>
+      <button id="historyBtn" class="ghost-btn" type="button">历史记录</button>
+      <button id="settingsBtn" class="ghost-btn" type="button">API 设置</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="panel panel-input">
+      <div class="panel-head">
+        <span class="step">1</span>
+        <div>
+          <h2>产品图</h2>
+          <p>拖入产品照片，网页端会把产品放进直播间营销图。</p>
+        </div>
+      </div>
+
+      <div id="productDrop" class="dropzone" role="button" tabindex="0">
+        <input id="productInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <div class="drop-hint">
+          <span class="drop-icon">+</span>
+          <strong>上传产品图</strong>
+          <small>JPG / PNG / WEBP，支持 Ctrl+V 粘贴</small>
+        </div>
+        <div id="productPreview" class="preview" hidden>
+          <button id="clearProductBtn" class="icon-btn clear-btn" type="button" title="清除产品图">×</button>
+          <img alt="产品图预览">
+          <span class="file-name"></span>
+        </div>
+      </div>
+      <div class="paste-actions">
+        <button id="pasteProductBtn" class="mini-btn" type="button">粘贴产品图</button>
+        <span>也可以先点击上传区，再按 Ctrl+V</span>
+      </div>
+
+      <div class="section-title">
+        <h3>营销文案</h3>
+        <span>由网页端真实字体渲染，不交给生图 API</span>
+      </div>
+      <div class="copy-grid">
+        <label>
+          <span>顶部标题</span>
+          <input id="titleInput" type="text" value="直播间专享好物" placeholder="例如：厨房清洁直播专场">
+        </label>
+        <label>
+          <span>副标题</span>
+          <input id="subtitleInput" type="text" value="产品实拍展示 · 场景化讲解" placeholder="例如：食品用洗洁精家庭囤货装">
+        </label>
+        <label>
+          <span>价格 / 权益</span>
+          <input id="priceInput" type="text" value="直播间权益价" placeholder="例如：到手价 ¥39.9">
+        </label>
+        <label>
+          <span>左侧徽章</span>
+          <input id="badgeInput" type="text" value="爆款推荐｜限时福利｜现货速发" placeholder="用｜分隔 2-3 个徽章">
+        </label>
+        <label class="full-field">
+          <span>卖点文案</span>
+          <textarea id="sellingPointsInput" rows="3" placeholder="每行一个卖点">清爽洁净不油腻
+家庭日常高频使用
+直播间组合更划算</textarea>
+        </label>
+        <label class="full-field">
+          <span>底部服务栏</span>
+          <input id="serviceInput" type="text" value="官方优选｜快速发货｜售后无忧" placeholder="例如：官方优选｜快速发货｜售后无忧">
+        </label>
+      </div>
+
+      <div class="preset-head">
+        <label class="field-label" for="promptInput">设计备注</label>
+        <button id="editPresetsBtn" class="mini-btn" type="button">编辑预设</button>
+      </div>
+      <textarea id="promptInput" class="prompt-box" rows="3" placeholder="例如：背景更偏暖色、右侧权益卡更突出..."></textarea>
+      <div class="preset-compose">
+        <input id="presetInput" class="preset-input" list="presetList" type="text" placeholder="选择预设，或直接输入一段新指令">
+        <datalist id="presetList"></datalist>
+        <button id="applyPresetBtn" class="mini-btn" type="button">追加</button>
+      </div>
+      <div class="chip-row" id="promptChips"></div>
+
+      <details class="test-cases" hidden>
+        <summary>测试用例</summary>
+        <div id="testCaseButtons" class="test-case-grid">
+          <button type="button" data-test-case="visual-inset">测试：视觉内缩</button>
+          <button type="button" data-test-case="product-scale-medium">测试：产品缩小</button>
+          <button type="button" data-test-case="local-edit-product-smaller">测试：局部修改</button>
+          <button type="button" data-test-case="side-margin-locked">左右边缘内缩测试</button>
+        </div>
+      </details>
+
+      <div class="design-controls" aria-label="生成控制">
+        <label class="number-control">
+          <span>内缩参考</span>
+          <input id="safeMarginInput" type="number" min="0" max="180" step="10" value="90">
+        </label>
+        <label class="number-control">
+          <span>产品大小</span>
+          <input id="productSizeInput" type="number" min="12" max="36" step="1" value="22">
+        </label>
+        <label class="number-control">
+          <span>产品左右</span>
+          <input id="productXInput" type="number" min="-30" max="30" step="1" value="0">
+        </label>
+        <label class="number-control">
+          <span>产品上下</span>
+          <input id="productYInput" type="number" min="-30" max="30" step="1" value="0">
+        </label>
+        <div class="segmented-control">
+          <span>产品比例</span>
+          <div id="productScaleControl" class="segment-row">
+            <button type="button" data-scale="small">小</button>
+            <button type="button" data-scale="medium">中</button>
+            <button type="button" data-scale="large">大</button>
+          </div>
+        </div>
+        <label class="toggle-control" hidden>
+          <input id="topBottomLockInput" type="checkbox" checked>
+          <span>上下不变</span>
+        </label>
+        <label class="toggle-control" hidden>
+          <input id="autoAuditInput" type="checkbox" checked>
+          <span>自动审核</span>
+        </label>
+        <label class="toggle-control" hidden>
+          <input id="autoRetryInput" type="checkbox" checked>
+          <span>自动重试</span>
+        </label>
+        <label class="toggle-control">
+          <input id="safeLineInput" type="checkbox">
+          <span>边缘预览</span>
+        </label>
+      </div>
+
+      <button id="generateBtn" class="primary-btn generate-btn" type="button" disabled>生成营销图</button>
+    </section>
+
+    <section class="panel panel-template">
+      <div class="panel-head">
+        <span class="step">2</span>
+        <div>
+          <h2>参考模板</h2>
+          <p>上传参考图，或从种子素材库选择一个空间风格。</p>
+        </div>
+      </div>
+
+      <div id="templateDrop" class="dropzone compact" role="button" tabindex="0">
+        <input id="templateInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <div class="drop-hint">
+          <span class="drop-icon">+</span>
+          <strong>上传参考模板图</strong>
+          <small>上传后优先使用图片参考，支持 Ctrl+V 粘贴</small>
+        </div>
+        <div id="templatePreview" class="preview" hidden>
+          <button id="clearTemplateBtn" class="icon-btn clear-btn" type="button" title="清除模板图">×</button>
+          <img alt="模板图预览">
+          <span class="file-name"></span>
+        </div>
+      </div>
+      <div class="paste-actions">
+        <button id="pasteTemplateBtn" class="mini-btn" type="button">粘贴模板图</button>
+        <span>也可以先点击上传区，再按 Ctrl+V</span>
+      </div>
+
+      <div class="section-title">
+        <h3>内置模板库</h3>
+        <span>作为网页合成的直播间背景</span>
+      </div>
+      <div id="templateGrid" class="template-grid"></div>
+      <input id="customTemplateInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+    </section>
+
+    <section class="panel panel-output">
+      <div class="panel-head output-head">
+        <div>
+          <h2 id="outputTitle">生成结果</h2>
+          <p id="outputSubtitle">完成后可下载 1080 PNG，或调整文案和产品位置后重新生成。</p>
+        </div>
+        <div id="sizeChoices" class="size-choices" aria-label="图片尺寸" hidden>
+          <button type="button" data-size="1088x1920">1080</button>
+        </div>
+        <span id="elapsedBadge" class="elapsed" hidden>0.0s</span>
+      </div>
+
+      <div id="outputArea" class="output-area">
+        <div class="empty-state">
+          <div class="empty-icon">+</div>
+          <strong>上传产品图 + 填写文案</strong>
+          <span>上传产品图、选择模板、填写文案后生成 1080 竖图</span>
+        </div>
+      </div>
+
+      <div id="resultActions" class="action-row" hidden>
+        <button id="downloadBtn" class="primary-btn" type="button">下载 PNG</button>
+        <button id="editBtn" class="ghost-btn" type="button" hidden>局部修复（后续）</button>
+        <button id="regenerateBtn" class="ghost-btn" type="button">重新生成</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card" aria-labelledby="settingsTitle" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h2 id="settingsTitle">API 设置</h2>
+        <button class="icon-btn" type="button" data-close-modal title="关闭">×</button>
+      </div>
+      <div class="settings-grid">
+        <label>
+          <span>API Key</span>
+          <input id="apiKeyInput" type="password" autocomplete="off" placeholder="sk-...">
+        </label>
+        <label>
+          <span>API Base URL</span>
+          <input id="apiBaseInput" type="text" placeholder="https://dm-fox.rjj.cc/codex">
+        </label>
+        <label>
+          <span>模型</span>
+          <select id="modelInput">
+            <option value="gpt-image-2">gpt-image-2</option>
+            <option value="gpt-image-1.5">gpt-image-1.5</option>
+            <option value="gpt-image-1">gpt-image-1</option>
+            <option value="gpt-image-1-mini">gpt-image-1-mini</option>
+          </select>
+        </label>
+        <label>
+          <span>质量</span>
+          <select id="qualityInput">
+            <option value="high">high</option>
+            <option value="medium">medium</option>
+            <option value="low">low</option>
+            <option value="auto">auto</option>
+          </select>
+        </label>
+        <label class="wide">
+          <span>指令预设</span>
+          <textarea id="promptPresetsInput" rows="8" placeholder="每行一个预设：名称=指令内容"></textarea>
+        </label>
+      </div>
+      <p class="note">当前使用本地代理读取本机配置文件里的 API，Key 不写入前端页面源码。需要临时覆盖时，也可以在这里填写新的 API 设置。</p>
+      <div class="modal-actions">
+        <button class="ghost-btn" type="button" data-close-modal>取消</button>
+        <button id="saveSettingsBtn" class="primary-btn" type="button">保存设置</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js?v=20260512-acquisition-canvas" defer></script>
+</body>
+</html>

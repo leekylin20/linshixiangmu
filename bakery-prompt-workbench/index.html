@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>烘焙提示词工作台</title>
+  <style>
+    :root {
+      --bg: #f7f3ed;
+      --panel: #fffaf2;
+      --ink: #2b241f;
+      --muted: #76695e;
+      --line: #e3d7c7;
+      --wood: #8a5a32;
+      --cream: #fff7e8;
+      --pass: #2f7a52;
+      --fail: #ae4747;
+      --shadow: 0 14px 36px rgba(55, 38, 25, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, rgba(255,250,242,0.86), rgba(247,243,237,0.97)), var(--bg);
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 22px 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 { margin: 0; font-size: clamp(24px, 3vw, 36px); line-height: 1.18; letter-spacing: 0; }
+    .route { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+    .status {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-weight: 800;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status.pass { color: var(--pass); background: rgba(47,122,82,0.08); border-color: rgba(47,122,82,0.25); }
+    .status.fail { color: var(--fail); background: rgba(174,71,71,0.08); border-color: rgba(174,71,71,0.25); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(310px, 390px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,250,242,0.95);
+      box-shadow: var(--shadow);
+    }
+
+    .controls { position: sticky; top: 18px; padding: 16px; }
+    .output { padding: 16px; display: grid; gap: 14px; }
+    .panel-title { font-weight: 900; margin-bottom: 12px; }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf8;
+      color: var(--ink);
+      outline: none;
+    }
+
+    select, input { min-height: 42px; padding: 9px 11px; }
+    textarea { min-height: 280px; padding: 10px 11px; resize: vertical; line-height: 1.45; }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      background: var(--wood);
+      color: #fff;
+      font-weight: 900;
+    }
+    button.secondary { background: #efe5d8; color: var(--ink); border: 1px solid var(--line); }
+
+    .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .prompt-box { font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; white-space: pre-wrap; }
+    .is-hidden { display: none; }
+
+    .audit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+    .check { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fffdf8; font-size: 12px; }
+    .ok { color: var(--pass); font-weight: 900; }
+    .bad { color: var(--fail); font-weight: 900; }
+
+    @media (max-width: 960px) {
+      .layout, .prompt-grid { grid-template-columns: 1fr; }
+      .controls { position: static; }
+      .topbar { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>烘焙提示词工作台</h1>
+        <div class="route">bakery_bread_video_master_unbranded_v01</div>
+      </div>
+      <div id="status" class="status">等待生成</div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <div class="panel-title">变量控制</div>
+
+        <label for="spaceDirection">空间方向</label>
+        <select id="spaceDirection"></select>
+
+        <label for="productFocus">产品重点</label>
+        <select id="productFocus"></select>
+
+        <label for="imageVersion">画面版本</label>
+        <select id="imageVersion"></select>
+
+        <label for="colorMood">色调</label>
+        <select id="colorMood"></select>
+
+        <label for="titleInput">标题</label>
+        <input id="titleInput" value="鲜烤面包专场">
+
+        <label for="subtitleInput">副标题</label>
+        <input id="subtitleInput" value="新鲜现烤 多款可选">
+
+        <label for="leftSignInput">左侧小牌</label>
+        <input id="leftSignInput" value="每日现烤 香气满屋">
+
+        <div class="button-row">
+          <button id="generateBtn" type="button">生成提示词</button>
+          <button id="generateBatchBtn" type="button">生成 30 份</button>
+          <button id="copyPositiveBtn" class="secondary" type="button">复制正向</button>
+          <button id="copyNegativeBtn" class="secondary" type="button">复制负向</button>
+          <button id="copyCurrentFullBtn" class="secondary" type="button">复制当前完整方案</button>
+          <button id="copyJsonBtn" class="secondary" type="button">复制 JSON</button>
+        </div>
+      </aside>
+
+      <section class="panel output">
+        <div id="batchPicker" class="is-hidden">
+          <label for="itemSelect">批量方案</label>
+          <select id="itemSelect"></select>
+        </div>
+        <div>
+          <div class="panel-title">审计结果</div>
+          <div id="auditOutput" class="audit-grid"></div>
+        </div>
+        <div class="prompt-grid">
+          <div>
+            <label for="positiveOut">正向提示词</label>
+            <textarea id="positiveOut" class="prompt-box" readonly></textarea>
+          </div>
+          <div>
+            <label for="negativeOut">负向提示词</label>
+            <textarea id="negativeOut" class="prompt-box" readonly></textarea>
+          </div>
+        </div>
+        <div>
+          <label for="jsonOut">JSON 输出</label>
+          <textarea id="jsonOut" class="prompt-box" readonly></textarea>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./workbench.js"></script>
+  <script>
+    const wb = window.BakeryPromptWorkbench;
+    const statusEl = document.getElementById("status");
+    const positiveOut = document.getElementById("positiveOut");
+    const negativeOut = document.getElementById("negativeOut");
+    const jsonOut = document.getElementById("jsonOut");
+    const auditOutput = document.getElementById("auditOutput");
+    const batchPicker = document.getElementById("batchPicker");
+    const itemSelect = document.getElementById("itemSelect");
+    let current = null;
+    let selectedItem = null;
+
+    const auditLabels = {
+      status: "状态",
+      unbrandedPass: "无品牌规则",
+      safeAreaPass: "安全区",
+      cameraPerspectivePass: "机位透视",
+      bakeryProductPass: "烘焙产品",
+      foregroundTablePass: "前景桌台",
+      personOrEmptyRoomPass: "人物/空场",
+      textPass: "文字区",
+      lightingPass: "灯光",
+      layerFriendlyPass: "拆层友好",
+      negativePromptPass: "负面词",
+      independentImagePass: "独立单图",
+      productDisplayPass: "产品陈列",
+      tablePass: "桌台规则",
+      textAndStickerPass: "文字与贴画",
+      notes: "备注"
+    };
+
+    function fillSelect(id, values, labels) {
+      const select = document.getElementById(id);
+      select.innerHTML = "";
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = labels && labels[value] ? labels[value] : value;
+        select.appendChild(option);
+      });
+    }
+
+    function init() {
+      fillSelect("spaceDirection", Object.keys(wb.VARIABLES.spaceDirections), {
+        warm_bakery_store: "温暖面包店门店",
+        handmade_bakery_workshop: "手作烘焙工坊",
+        french_bakery: "法式面包店",
+        japanese_fresh_bakery: "日式清新烘焙店",
+        european_country_bakery: "欧式乡村烘焙店",
+        premium_dessert_bakery: "高端甜品烘焙空间",
+        bakery_storefront: "烘焙门前场景"
+      });
+      fillSelect("productFocus", wb.VARIABLES.productFocus);
+      fillSelect("imageVersion", wb.VARIABLES.imageVersions);
+      fillSelect("colorMood", Object.keys(wb.VARIABLES.colorMoods), {
+        cream_light_wood: "奶油浅木",
+        brick_warm_orange: "红砖暖橙",
+        premium_cream_gray: "高级奶油灰",
+        japanese_light_green: "日式浅绿",
+        european_dark_wood: "欧式深木",
+        french_cream_white: "法式米白"
+      });
+      generate();
+    }
+
+    function generate() {
+      current = wb.generatePrompt({
+        spaceDirection: document.getElementById("spaceDirection").value,
+        productFocus: document.getElementById("productFocus").value,
+        imageVersion: document.getElementById("imageVersion").value,
+        colorMood: document.getElementById("colorMood").value,
+        title: document.getElementById("titleInput").value,
+        subtitle: document.getElementById("subtitleInput").value,
+        leftSign: document.getElementById("leftSignInput").value
+      });
+      selectedItem = current;
+      batchPicker.classList.add("is-hidden");
+      renderCurrent();
+    }
+
+    function generateBatch() {
+      current = wb.generateBatchPrompts(30);
+      batchPicker.classList.remove("is-hidden");
+      itemSelect.innerHTML = current.items.map((item, index) => {
+        return `<option value="${index}">${String(index + 1).padStart(2, "0")}｜${item.schemeName}｜${item.audit.status}</option>`;
+      }).join("");
+      itemSelect.value = "0";
+      selectedItem = current.items[0];
+      renderCurrent();
+    }
+
+    function renderCurrent() {
+      const auditTarget = selectedItem || current;
+      positiveOut.value = auditTarget.positivePrompt || "";
+      negativeOut.value = auditTarget.negativePrompt || "";
+      jsonOut.value = JSON.stringify(current, null, 2);
+      const status = current.items
+        ? (current.items.every((item) => item.audit.status === "pass") ? "pass" : "fail")
+        : auditTarget.audit.status;
+      statusEl.className = `status ${status === "pass" ? "pass" : "fail"}`;
+      statusEl.textContent = current.items
+        ? (status === "pass" ? "30 份审计通过" : "批量存在失败")
+        : (status === "pass" ? "审计通过" : "审计失败");
+      auditOutput.innerHTML = Object.entries(auditTarget.audit).map(([key, value]) => {
+        const pass = value === true || value === "pass" || (Array.isArray(value) && value.length === 0);
+        const label = auditLabels[key] || key;
+        const text = value === true ? "通过" : value === false ? "未通过" : value === "pass" ? "通过" : value === "fail" ? "失败" : Array.isArray(value) ? (value.length ? value.join("，") : "无") : String(value);
+        return `<div class="check"><strong>${label}</strong><span class="${pass ? "ok" : "bad"}">${text}</span></div>`;
+      }).join("");
+    }
+
+    async function copy(value) {
+      await navigator.clipboard.writeText(value);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generate);
+    document.getElementById("generateBatchBtn").addEventListener("click", generateBatch);
+    document.getElementById("copyPositiveBtn").addEventListener("click", () => copy(positiveOut.value));
+    document.getElementById("copyNegativeBtn").addEventListener("click", () => copy(negativeOut.value));
+    document.getElementById("copyCurrentFullBtn").addEventListener("click", () => copy(selectedItem && selectedItem.formattedText ? selectedItem.formattedText : `${positiveOut.value}\n\n【负面提示词】\n${negativeOut.value}`));
+    document.getElementById("copyJsonBtn").addEventListener("click", () => copy(jsonOut.value));
+    itemSelect.addEventListener("change", () => {
+      selectedItem = current.items[Number(itemSelect.value || 0)];
+      renderCurrent();
+    });
+    ["spaceDirection", "productFocus", "imageVersion", "colorMood", "titleInput", "subtitleInput", "leftSignInput"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", generate);
+    });
+    init();
+  </script>
+</body>
+</html>

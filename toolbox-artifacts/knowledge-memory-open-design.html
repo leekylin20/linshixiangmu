@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>knowledge-memory 本地记忆层 - Open Design 交付说明页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201d;
+      --muted: #5d6661;
+      --paper: #f5f3eb;
+      --panel: #ffffff;
+      --line: #d7d1c4;
+      --blue: #245f9d;
+      --blue-soft: #e7eef8;
+      --green: #167a54;
+      --green-soft: #e7f3ec;
+      --violet: #5a4fcf;
+      --violet-soft: #eeeafd;
+      --amber: #9a650c;
+      --amber-soft: #f5ead4;
+      --shadow: 0 18px 48px rgba(23, 32, 29, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand strong {
+      font-size: 15px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #b8d8c7;
+    }
+
+    .badge.blue {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-color: #b9cce4;
+    }
+
+    .badge.violet {
+      color: var(--violet);
+      background: var(--violet-soft);
+      border-color: #d2c9f1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+      gap: 28px;
+      align-items: start;
+      padding: 34px 0 28px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 740px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quick-item,
+    .panel,
+    .map-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .quick-item {
+      min-height: 108px;
+      padding: 14px;
+    }
+
+    .quick-item span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .quick-item strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.28;
+    }
+
+    .map-panel {
+      padding: 18px;
+    }
+
+    .map-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .memory-map {
+      display: grid;
+      gap: 10px;
+    }
+
+    .map-node {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfaf6;
+    }
+
+    .map-node strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .map-node p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .connector {
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin-bottom: 14px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .panel h3 {
+      margin: 18px 0 10px;
+      font-size: 15px;
+    }
+
+    .file-grid,
+    .layer-grid,
+    .priority-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .file-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .layer-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .priority-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .file-card,
+    .layer-card,
+    .priority-card,
+    .rule-list li,
+    .checks li,
+    .flow-step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfaf6;
+      padding: 11px 12px;
+    }
+
+    .file-card span,
+    .layer-card span,
+    .priority-card span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .file-card strong,
+    .layer-card strong,
+    .priority-card strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .rule-list,
+    .checks,
+    .flow-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li,
+    .checks li,
+    .flow-step p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .flow-step b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .checks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .check-dot {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .check-dot::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      transform: rotate(-45deg);
+    }
+
+    code,
+    pre {
+      font-family: Consolas, "SFMono-Regular", "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 1px 5px;
+      border: 1px solid #d8d3c7;
+      border-radius: 4px;
+      background: #eeeadf;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 14px;
+      border-radius: 8px;
+      background: #17201d;
+      color: #f7f4ec;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .layer-grid,
+      .priority-grid,
+      .file-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 18px 14px 32px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .lead {
+        font-size: 15px;
+      }
+
+      .quick,
+      .layer-grid,
+      .priority-grid,
+      .file-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar" aria-label="交付状态">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">KM</div>
+        <div>
+          <strong>Open Design 样例交付 03</strong>
+          <span>个人工具箱工作台 / knowledge-memory</span>
+        </div>
+      </div>
+      <div class="status-row">
+        <span class="badge green">verified</span>
+        <span class="badge green">low risk</span>
+        <span class="badge blue">markdown/jsonl</span>
+        <span class="badge violet">internal artifact</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Knowledge Memory Layer</p>
+        <h1 id="page-title">本地记忆层导航页</h1>
+        <p class="lead">
+          <code>knowledge-memory</code> 是叠加在 <code>E:\临时项目</code> 上的轻量结构化记忆层。
+          它不替代 Obsidian 主库，也不改动原项目目录；它负责把当前任务、召回规则、schema、JSONL 记录和执行日志整理成后续 agent 可读的索引。
+        </p>
+        <div class="quick" aria-label="工具概览">
+          <div class="quick-item">
+            <span>入口</span>
+            <strong><code>active-memory.md</code></strong>
+          </div>
+          <div class="quick-item">
+            <span>机器记录</span>
+            <strong><code>memory-records.jsonl</code> 4 行可解析</strong>
+          </div>
+          <div class="quick-item">
+            <span>安全边界</span>
+            <strong>只读索引，不污染主库</strong>
+          </div>
+        </div>
+      </div>
+
+      <aside class="map-panel" aria-label="记忆层关系图">
+        <div class="map-title">
+          <span>关系总览</span>
+          <span>workspace → memory → main knowledge base</span>
+        </div>
+        <div class="memory-map">
+          <div class="map-node">
+            <strong>E:\临时项目</strong>
+            <p>工具、脚本、临时产物和执行现场。</p>
+          </div>
+          <div class="connector">↓</div>
+          <div class="map-node">
+            <strong>knowledge-memory</strong>
+            <p>active memory、schema、JSONL、执行日志和召回规则。</p>
+          </div>
+          <div class="connector">↓</div>
+          <div class="map-node">
+            <strong>Obsidian 主库</strong>
+            <p>人工整理后的长期知识库；只有可复用规则才建议迁移。</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="文件结构与召回流程">
+      <article class="panel">
+        <h2>核心文件</h2>
+        <div class="file-grid">
+          <div class="file-card"><span>总说明</span><strong>README.md</strong></div>
+          <div class="file-card"><span>主入口</span><strong>active-memory.md</strong></div>
+          <div class="file-card"><span>字段规范</span><strong>memory-schema.md</strong></div>
+          <div class="file-card"><span>样本模板</span><strong>image-sample-template.md</strong></div>
+          <div class="file-card"><span>机器记录</span><strong>memory-records.jsonl</strong></div>
+          <div class="file-card"><span>执行留痕</span><strong>执行日志.md</strong></div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <h2>召回流程</h2>
+        <ol class="flow-list">
+          <li class="flow-step"><b>1</b><span><strong>读活动记忆</strong><p>先看当前任务、高优先记忆和默认触发词。</p></span></li>
+          <li class="flow-step"><b>2</b><span><strong>读 schema</strong><p>按字段抽取样本、项目模块或流程规则。</p></span></li>
+          <li class="flow-step"><b>3</b><span><strong>反查主库</strong><p>根据图片或任务标签召回 Obsidian 对应专题。</p></span></li>
+          <li class="flow-step"><b>4</b><span><strong>区分写入</strong><p>单次观察写 JSONL，可复用规律再进入主库。</p></span></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="记忆层级与优先记忆">
+      <article class="panel">
+        <h2>MemoryCoreClaw 兼容层级</h2>
+        <div class="layer-grid">
+          <div class="layer-card"><span>working</span><strong>当前图片、任务和短期判断</strong></div>
+          <div class="layer-card"><span>episodic</span><strong>单张图片样本或一次拆解</strong></div>
+          <div class="layer-card"><span>semantic</span><strong>可复用框架、规则和模块</strong></div>
+          <div class="layer-card"><span>procedural</span><strong>分析流程、写入规范和检查清单</strong></div>
+          <div class="layer-card"><span>relation</span><strong>样本、框架、风险之间的关系</strong></div>
+        </div>
+
+        <h3>JSONL 校验</h3>
+        <pre><code>memory-records.jsonl
+line_count: 4
+parsed_count: 4
+error_count: 0
+known_ids: PM-20260506-001 / PD-20260506-001 / KB-20260506-001</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>高优先记忆</h2>
+        <ul class="rule-list">
+          <li>M001：复杂光影放背景，人物脸部保持干净。</li>
+          <li>M002：直播图必须虚构化，避免真实平台、真实用户名、真实交易数据。</li>
+          <li>M003：人物一致性先锁脸、眼睛、发型识别点和年龄感。</li>
+          <li>M004：夜场低光要保护五官，不吸收低俗语义。</li>
+          <li>M005：美颜调试图重点看发丝边缘、妆面厚度、皮肤质感和补光方式。</li>
+          <li>M006：图片分析结果要反查现有框架，不重新发明提示词。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="边界与写入规则">
+      <article class="panel">
+        <h2>写入边界</h2>
+        <div class="priority-grid">
+          <div class="priority-card"><span>允许</span><strong>可复用提示词框架、光影、构图、妆发和流程规则</strong></div>
+          <div class="priority-card"><span>只写 JSONL</span><strong>一次性样本观察和低优先级记录</strong></div>
+          <div class="priority-card"><span>禁止</span><strong>未授权真人身份复刻、真实交易、真实背书和平台伪造数据</strong></div>
+        </div>
+
+        <h3>重要性评分</h3>
+        <pre><code>0-2  一次性观察，不写主库
+3-5  有局部复用价值，写 memory-records
+6-8  可形成框架，追加到对应专题库
+9-10 改变顶层结构，追加到 Layer 架构或主写法库</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>审核边界</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>本页是静态说明页，不读取、改写或追加 JSONL。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不读取 secret、API key、Cookie 或账号登录态。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不上传文件，不联网，不调用外部服务。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不污染 Obsidian 主库；对外展示前需脱敏本地路径。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>本轮只做只读核对和 Open Design artifact 交付。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="终审和交付">
+      <article class="panel">
+        <h2>适合做样例 03 的原因</h2>
+        <ul class="rule-list">
+          <li>它验证了第三类交付形态：不是工具说明页，也不是工作台说明页，而是知识索引导航页。</li>
+          <li>风险面清楚：Markdown/JSONL、本地只读、无联网、无 secret、无自动执行。</li>
+          <li>它和个人工具箱工作台天然相关，可以作为 manifest 和记忆层之间的说明桥梁。</li>
+          <li>它能把“临时记忆层”和“长期主知识库”的边界讲清楚，避免污染主库。</li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>终审 checklist</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>用途限定为内部 artifact。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>无 <code>script</code>、无 <code>form</code>、无交互输入、无外部 HTTP/HTTPS 资源。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>若对外展示，先移除本地绝对路径和主库路径。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>运行记录需说明未追加 JSONL、未改 Obsidian 主库、未读取 secret。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="交付文件">
+      <article class="panel">
+        <h2>交付文件</h2>
+        <ul class="rule-list">
+          <li>页面：<code>toolbox-artifacts/knowledge-memory-open-design.html</code></li>
+          <li>闭环文档：<code>toolbox-artifacts/low-risk-closures/knowledge-memory-closure.md</code></li>
+          <li>入口文档：<code>knowledge-memory/active-memory.md</code></li>
+          <li>机器记录：<code>knowledge-memory/memory-records.jsonl</code></li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>后续可扩展</h2>
+        <ul class="rule-list">
+          <li>给个人工具箱工作台增加“记忆层来源”标识。</li>
+          <li>为 JSONL 记录生成只读索引表，不提供直接写入按钮。</li>
+          <li>把主库边界和写入审批规则纳入后续工具箱审核机制。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span>生成日期：2026-05-17</span>
+      <span>交付类型：Open Design prototype / doc artifact</span>
+      <span>安全边界：内部静态说明页，仅呈现只读核对结果</span>
+    </footer>
+  </main>
+</body>
+</html>

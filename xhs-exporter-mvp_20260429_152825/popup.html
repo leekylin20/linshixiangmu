@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小红书导出 MVP</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>小红书导出 MVP</h1>
+        <p class="sub">仅采集当前页面已渲染且用户可见的主页卡片</p>
+      </header>
+
+      <section class="status-card">
+        <div><span class="label">页面类型</span><span id="pageType">-</span></div>
+        <div><span class="label">采集数量</span><span id="count">0</span></div>
+        <div><span class="label">正文数量</span><span id="contentCount">0</span></div>
+        <div><span class="label">当前页面</span><span id="pageUrl" class="url">-</span></div>
+      </section>
+
+      <section class="actions">
+        <button id="collectBtn" class="primary">开始采集</button>
+        <button id="openNextBtn">打开下一条</button>
+        <button id="downloadMediaBtn">下载当前媒体</button>
+        <button id="exportJsonBtn">导出 JSON</button>
+        <button id="exportCsvBtn">导出 CSV</button>
+        <button id="clearBtn" class="danger">清空数据</button>
+      </section>
+
+      <section class="message" id="message">准备就绪</section>
+
+      <section class="preview-section">
+        <div class="preview-title">预览（前 10 条）</div>
+        <ul id="previewList" class="preview-list"></ul>
+      </section>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

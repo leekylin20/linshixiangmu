@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InvestmentMemoryRecord",
+  "type": "object",
+  "required": ["id", "memory_type", "date", "source", "title", "summary", "entities", "tags"],
+  "properties": {
+    "id": {"type": "string"},
+    "memory_type": {
+      "type": "string",
+      "enum": ["company_profile", "industry_profile", "topic_profile", "event", "research_note", "signal", "query_note"]
+    },
+    "date": {"type": "string"},
+    "source": {"type": "string"},
+    "title": {"type": "string"},
+    "summary": {"type": "string"},
+    "entities": {
+      "type": "object",
+      "properties": {
+        "symbols": {"type": "array", "items": {"type": "string"}},
+        "companies": {"type": "array", "items": {"type": "string"}},
+        "industries": {"type": "array", "items": {"type": "string"}},
+        "topics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "event_type": {"type": "string"},
+    "impact": {"type": "string", "enum": ["positive", "negative", "neutral", "unknown"]},
+    "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "raw_ref": {"type": "string"},
+    "metadata": {"type": "object"}
+  }
+}
+

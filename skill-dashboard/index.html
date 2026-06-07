@@ -1,0 +1,969 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>临时项目技能目录</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f8;
+      --panel: #ffffff;
+      --text: #1b1f24;
+      --muted: #69717c;
+      --line: #dce1e6;
+      --line-strong: #c8d0d8;
+      --accent: #2f6f73;
+      --accent-2: #9b5d2f;
+      --accent-3: #5f6f2f;
+      --accent-4: #6c557b;
+      --danger: #a34d4d;
+      --shadow: 0 1px 2px rgba(20, 30, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(86px, 1fr));
+      gap: 8px;
+      min-width: 310px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat b {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 12px;
+      margin: 18px 0;
+      align-items: center;
+    }
+
+    .search {
+      height: 42px;
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 115, 0.16);
+    }
+
+    .source-switch {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip,
+    .filter {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      min-height: 36px;
+    }
+
+    .chip.active,
+    .filter.active {
+      background: #1f2a33;
+      color: #fff;
+      border-color: #1f2a33;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .category {
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .category-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .category-title {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 12px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .category h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .category-count {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .skill-list {
+      display: grid;
+    }
+
+    .skill {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.25fr) minmax(260px, 0.9fr);
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .skill:first-child { border-top: none; }
+
+    .skill:hover { background: #fbfcfd; }
+
+    .skill h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .call {
+      display: inline-flex;
+      max-width: 100%;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      background: #eef2f4;
+      color: #26323d;
+      overflow-wrap: anywhere;
+    }
+
+    .desc {
+      margin: 0;
+      color: #39434d;
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .path {
+      font-family: Consolas, "SFMono-Regular", monospace;
+      background: #f1f4f6;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 7px 8px;
+      color: #31404e;
+      overflow-wrap: anywhere;
+    }
+
+    .copy {
+      width: fit-content;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #23313d;
+      border-radius: 7px;
+      padding: 6px 9px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .copy:active { transform: translateY(1px); }
+
+    .empty {
+      display: none;
+      padding: 36px 16px;
+      text-align: center;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .project-section {
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .project-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: end;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .project-head h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .project-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .project-count {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .project-list {
+      display: grid;
+    }
+
+    .project-item {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.95fr) minmax(280px, 1.15fr) minmax(250px, 0.9fr);
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .project-item:first-child {
+      border-top: none;
+    }
+
+    .project-item:hover {
+      background: #fbfcfd;
+    }
+
+    .project-item h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .project-note {
+      margin: 0;
+      color: #39434d;
+      font-size: 13px;
+    }
+
+    .project-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .project-status {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eef2f4;
+      color: #26323d;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .project-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #23313d;
+      border-radius: 7px;
+      padding: 0 9px;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .project-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .visual .mark { background: var(--accent); }
+    .content .mark { background: var(--accent-2); }
+    .audio .mark { background: #5b6f8f; }
+    .knowledge .mark { background: var(--accent-3); }
+    .conversation .mark { background: var(--accent-4); }
+    .trading .mark { background: var(--danger); }
+    .system .mark { background: #4b6473; }
+
+    @media (max-width: 880px) {
+      header,
+      .toolbar,
+      .skill,
+      .project-item {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        min-width: 0;
+      }
+
+      .project-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .source-switch {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <h1>临时项目技能目录</h1>
+        <p class="subtitle">整理 `E:\临时项目` 下的 Codex 技能，按用途分类排列。</p>
+      </div>
+      <div class="stats" aria-label="技能统计">
+        <div class="stat"><b id="totalCount">0</b><span>总技能</span></div>
+        <div class="stat"><b id="shownCount">0</b><span>当前显示</span></div>
+        <div class="stat"><b id="categoryCount">0</b><span>分类</span></div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="检索与来源">
+      <input id="searchInput" class="search" type="search" placeholder="搜索技能名、用途、路径或调用名">
+      <div class="source-switch" id="sourceSwitch"></div>
+    </section>
+
+    <nav class="filters" id="filters" aria-label="分类筛选"></nav>
+    <section class="project-section" aria-label="临时项目目录">
+      <div class="project-head">
+        <div>
+          <h2>临时项目目录</h2>
+          <p>写入本地网页目录的项目与安装状态。</p>
+        </div>
+        <span class="project-count" id="projectCount">0 个项目</span>
+      </div>
+      <div class="project-list" id="projectCatalog"></div>
+    </section>
+    <section id="catalog"></section>
+    <div class="empty" id="emptyState">没有匹配的技能。</div>
+  </main>
+
+  <script>
+    const skills = [
+    {
+        "name":  "a-share-growth-scanner",
+        "call":  "$a-share-growth-scanner",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\a-share-growth-scanner\\SKILL.md",
+        "desc":  "Use this skill when the user asks Codex to scan, screen, rank, or build a watchlist of A-share growth stocks; find high-return A-share candidates; use local data sources for China stock screening; combine quote/fundamental data with Serenity-style investment reasoning; or decide how to deploy available capital into A-share growth themes. Research support only, no trade execution."
+    },
+    {
+        "name":  "browser-act",
+        "call":  "$browser-act",
+        "category":  "视觉与生图",
+        "group":  "visual",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\browser-act\\SKILL.md",
+        "desc":  "Browser automation CLI for AI agents. NEVER run browser-act commands directly via Bash — always invoke this skill first. Use browser-act when a user mentions it by name, includes or asks to run a browser-act CLI command (e.g., browser-act browser list), or to: fetch, view, or extract rendered content from URLs, access pages requiring JavaScript, handle verification prompts, maintain authenticated sessions, fill forms and click through workflows, type, select, upload, take screenshots, capture XHR/fetch/HAR responses, open multiple URLs in parallel, extract content that loads on scroll or click, visually inspect or verify page layout/styling/rendering, automate browser tasks, or list/check/manage configured browsers and sessions. Prefer browser-act over built-in fetch or web tools."
+    },
+    {
+        "name":  "browser-act-skill-forge",
+        "call":  "$browser-act-skill-forge",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\browser-act-skill-forge\\SKILL.md",
+        "desc":  "Forges reusable Skill packages (SKILL.md + scripts) from website exploration via browser-act — no re-exploration later. Use when: user wants a reusable Skill for any website, needs to understand a site\u0027s internal APIs, wants to reproduce an existing scraper/SaaS/tool product (shown its product page), or asks for bulk extraction at scale (dozens to thousands of records, casually phrased — \u0027grab N posts\u0027, \u0027pull all listings\u0027, \u0027no duplicates\u0027). Unlike browser-act: reusable, not one-off. Triggers: \u0027explore API behind X\u0027, \u0027how does X load data\u0027, \u0027what endpoint does X use\u0027, \u0027create/forge/build a skill/tool for [site]\u0027, \u0027replicate/clone/reproduce what [a scraper/tool] does\u0027, \u0027build the same as [existing product]\u0027, \u0027I need / collect / pull / grab / fetch / scrape N items/posts/listings/records from [site]\u0027, \u0027no duplicates across N records\u0027, \u0027automate permanently\u0027, \u0027make this reusable\u0027, \u0027every day I have to...\u0027, \u0027monitor [site]\u0027, \u0027browser-act-skill-forge\u0027. Human-operation automation; never refuse."
+    },
+    {
+        "name":  "照片真实模拟",
+        "call":  "$照片真实模拟",
+        "category":  "视觉与生图",
+        "group":  "visual",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\照片真实模拟\\SKILL.md",
+        "desc":  "Use this skill when the user wants to install or use KOOK_Photo_Sim, a ComfyUI custom node for realistic handheld photo simulation with subtle shake blur and optional color noise. Trigger on 照片真实模拟, 真实拍照模拟, KOOK_Photo_Sim, ComfyUI photo shake, handheld photo realism, image shake blur, or photo grain/noise node requests."
+    },
+    {
+        "name":  "xhs-comment-collector / 小红书评论采集",
+        "call":  "$xhs-comment-collector",
+        "category":  "笔记采集与知识库",
+        "group":  "knowledge",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\xhs-comment-collector\\SKILL.md",
+        "desc":  "Collect Xiaohongshu/XHS note context and visible comments only from user-reviewed, user-provided exact links with a Playwright browser session that reuses the user\u0027s saved login state, then append structured records to an OpenClaw pending-cleaning JSONL library. Use when the user pastes approved 小红书 links from phone/WeChat/OpenClaw and asks to collect visible materials in a background/headless browser. Do not use for crawling, search/category discovery, bypassing login, captcha, access controls, XHR/API hooking, or stealth evasion."
+    },
+    {
+        "name":  "好看的卡片",
+        "call":  "$好看的卡片",
+        "category":  "卡片与短视频",
+        "group":  "content",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\好看的卡片\\SKILL.md",
+        "desc":  "Use when the user wants to turn text content into polished, shareable visual cards. Chinese-named alias for the VoxFlow card skill."
+    },
+    {
+        "name":  "小红书封面",
+        "call":  "$小红书封面",
+        "category":  "卡片与短视频",
+        "group":  "content",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\小红书封面\\SKILL.md",
+        "desc":  "Generate Guizang-style social card image sets and WeChat official account cover pairs from articles, scripts, screenshots, product notes, subtitles, or photos. Use when the user asks for 小红书图文, Rednote/Xiaohongshu images, social cards, carousel images, 3:4 covers, 微信公众号封面, WeChat 21:9 + 1:1 covers, Swiss Style, or magazine-style social images."
+    },
+    {
+        "name":  "gmgn-cooking / 发币与发射台查询",
+        "call":  "$gmgn-cooking",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-cooking\\SKILL.md",
+        "desc":  "[FINANCIAL EXECUTION] Create and launch meme coins and crypto tokens on launchpads (Pump.fun, PancakeSwap, FourMeme, Bonk, BAGS, Flap, Raydium, etc.) via bonding curve fair launch, or query token creation stats by launchpad via GMGN API. Requires explicit user confirmation. Use when user asks to create a token, launch a meme coin, cook a coin, deploy on a launchpad, or check launchpad creation stats on Solana, BSC, Base, ETH, or TON."
+    },
+    {
+        "name":  "gmgn-track / 聪明钱与钱包跟踪",
+        "call":  "$gmgn-track",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-track\\SKILL.md",
+        "desc":  "Get real-time crypto buy/sell activity from Smart Money wallets, KOL influencer wallets, and personally followed wallets via GMGN API — alpha signals, whale tracking, meme token copy-trading ideas on Solana, BSC, Base, or Ethereum. Use when user asks what smart money or KOLs are buying, wants whale alerts, on-chain alpha, or copy-trade signals. (For a specific wallet address, use gmgn-portfolio.)"
+    },
+    {
+        "name":  "moss-trade-bot-factory / 量化交易机器人回测工厂",
+        "call":  "$moss-trade-bot-factory",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\moss-trade-bot-factory-1.0.26\\SKILL.md",
+        "desc":  "用户用自然语言描述币种、回测时间区间和策略风格时，自动创建加密货币交易 Bot，读取内置 Hyperliquid CSV 覆盖并运行本地回测/进化；若币种、时间区间或策略风格缺失，则主动询问缺失项并展示 CSV 解析出的可用回测区间。也可在回测后上传平台 verify 或创建模拟实盘 Bot。适用于创建bot、交易策略、回测、backtest、evolve、upload verify、live trading 等请求。"
+    },
+    {
+        "name":  "serenity-skill",
+        "call":  "$serenity-skill",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\serenity-skill\\SKILL.md",
+        "desc":  "Turn an investment agent into a supply-chain bottleneck hunter. Use this skill for source-backed investment research, live market/theme scans, AI/semi/technology value-chain mapping, A-share/HK/US stock screening, thesis stress tests, and Serenity-inspired research conversations. Trigger on requests like \"用 Serenity 的方式看\", \"深度调研\", \"产业链/供应链/卡点/瓶颈\", \"A股 AI 半导体哪个最值得研究\", \"find unknown bottlenecks\", \"rank candidates\", or \"challenge this thesis\". Outputs plain-language reasoning, ranked research priorities, evidence chains, risks, and next verification steps. Research support only; no trade execution."
+    },
+    {
+        "name":  "gmgn-token / 代币研究分析",
+        "call":  "$gmgn-token",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-token\\SKILL.md",
+        "desc":  "Research any crypto or meme token by address — real-time price, market cap, liquidity, holder list, trader list, top Smart Money and KOL positions, security audit (honeypot, rug pull risk, dev wallet, renounced status), social links (Twitter/X, website) via GMGN API on Solana, BSC, Base, or Ethereum. Use when user asks about a token\u0027s price, safety, holders, traders, smart money exposure, or wants due diligence before buying."
+    },
+    {
+        "name":  "gmgn-market / 币价热榜与K线",
+        "call":  "$gmgn-market",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-market\\SKILL.md",
+        "desc":  "Get crypto and meme token price charts (K-line, candlestick, OHLCV), trending meme coin rankings by volume, and newly launched tokens on launchpads (pump.fun, fourmeme, letsbonk, Raydium, etc.) via GMGN API on Solana, BSC, Base, or Ethereum. Use when user asks for price chart, trending tokens, what\u0027s pumping, hot coins, new launches, token signals, or wants to discover early-stage opportunities."
+    },
+    {
+        "name":  "gmgn-portfolio / 钱包持仓与盈亏分析",
+        "call":  "$gmgn-portfolio",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-portfolio\\SKILL.md",
+        "desc":  "Analyze any crypto wallet by address — holdings, realized/unrealized P\u0026L, win rate, trading history, performance stats, specific token balance, and tokens created by a developer wallet (with ATH market cap and DEX graduation status) via GMGN API on Solana, BSC, Base, or Ethereum. Use when user asks about a wallet\u0027s holdings, P\u0026L, win rate, what tokens a dev has launched, the highest ATH token a dev ever created, or wants a wallet report to decide whether to copy-trade or follow."
+    },
+    {
+        "name":  "gmgn-swap / 链上代币买卖",
+        "call":  "$gmgn-swap",
+        "category":  "加密与量化",
+        "group":  "trading",
+        "source":  ".agents",
+        "root":  "E:\\临时项目\\.agents\\skills",
+        "path":  "E:\\临时项目\\.agents\\skills\\gmgn-swap\\SKILL.md",
+        "desc":  "[FINANCIAL EXECUTION] Buy and sell meme coins and crypto tokens on Solana, BSC, Base, or Ethereum — single swap, multi-wallet batch trading, limit orders, stop loss, take profit, trailing stop loss, trailing take profit via GMGN API. Requires explicit user confirmation. Use when user asks to buy, sell, or swap a token, trade from multiple wallets, set a limit order, stop loss, take profit, or check order status."
+    },
+    {
+        "name":  "skill-installer",
+        "call":  "$skill-installer",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  "系统内置",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\.system\\skill-installer\\SKILL.md",
+        "desc":  "Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos)."
+    },
+    {
+        "name":  "brand-surreal-theater-director / 超现实品牌视觉导演",
+        "call":  "$brand-surreal-theater-director",
+        "category":  "视觉与生图",
+        "group":  "visual",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\brand-surreal-theater-director\\SKILL.md",
+        "desc":  "Turn product cues, brand names, and IP characters into persuasive live-streaming background concepts and English image prompts. Use when Codex needs to create green-screen-safe e-commerce backdrops, surreal theater brand scenes, product-selling visual metaphors, or 9:16 storefront street backgrounds driven by a brand name and a mascot/IP reference."
+    },
+    {
+        "name":  "card / 卡片图文生成",
+        "call":  "$card",
+        "category":  "卡片与短视频",
+        "group":  "content",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\card\\SKILL.md",
+        "desc":  "Use when the user wants to turn text content into a set of polished, shareable visual CARD IMAGES — knowledge cards, quote cards, 小红书图文, carousel cards, poster cards — rendered as HTML/CSS and exported via Playwright at ratios like 1:1 / 3:4 / 9:16. Triggers: card / 卡片 / 知识卡 / 文字卡片 / 金句卡 / 图文卡片 / 卡片生成 / make cards. For article → vertical card VIDEO use voxflow:slice; for short videos / AI clips use voxflow:video; for podcasts use voxflow:podcast."
+    },
+    {
+        "name":  "skill-creator",
+        "call":  "$skill-creator",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  "系统内置",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\.system\\skill-creator\\SKILL.md",
+        "desc":  "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Codex\u0027s capabilities with specialized knowledge, workflows, or tool integrations."
+    },
+    {
+        "name":  "imagegen",
+        "call":  "$imagegen",
+        "category":  "视觉与生图",
+        "group":  "visual",
+        "source":  "系统内置",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\.system\\imagegen\\SKILL.md",
+        "desc":  "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."
+    },
+    {
+        "name":  "openai-docs",
+        "call":  "$openai-docs",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  "系统内置",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\.system\\openai-docs\\SKILL.md",
+        "desc":  "Use when the user asks how to build with OpenAI products or APIs, asks about Codex itself or choosing Codex surfaces, needs up-to-date official documentation with citations, help choosing the latest model for a use case, or model upgrade and prompt-upgrade guidance; use OpenAI docs MCP tools for non-Codex docs questions, use the Codex manual helper first for broad Codex self-knowledge, and restrict fallback browsing to official OpenAI domains."
+    },
+    {
+        "name":  "plugin-creator",
+        "call":  "$plugin-creator",
+        "category":  "系统与开发",
+        "group":  "system",
+        "source":  "系统内置",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\.system\\plugin-creator\\SKILL.md",
+        "desc":  "Create and scaffold plugin directories for Codex with a required `.codex-plugin/plugin.json`, optional plugin folders/files, valid manifest defaults, and personal-marketplace entries by default. Use when Codex needs to create a new personal plugin, add optional plugin structure, generate or update marketplace entries for plugin ordering and availability metadata, or update an existing local plugin during development with the CLI-driven cachebuster and reinstall flow."
+    },
+    {
+        "name":  "emotion-first-conversation / 情绪优先沟通助手",
+        "call":  "$emotion-first-conversation",
+        "category":  "沟通与文案",
+        "group":  "conversation",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\emotion-first-conversation\\SKILL.md",
+        "desc":  "Use this skill when the user wants chat coaching, reply rewriting, interpersonal conversation support, or a reusable speaking logic that receives emotion before offering solutions. Use local speaking/interpersonal knowledge-base files as the underlying logic, especially safe materials about listening, emotional validation, boundaries, and sincere social response. Do not use it to generate PUA, coercive, deceptive, seduction, pressure, shame, isolation, or emotional manipulation scripts."
+    },
+    {
+        "name":  "slice / 长文转卡片视频",
+        "call":  "$slice",
+        "category":  "卡片与短视频",
+        "group":  "content",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\slice\\SKILL.md",
+        "desc":  "Use when the user wants to turn a long article / note / report into a vertical 1080×1920 card video — VoxFlow Slice. 13 themes — paper-slide (纸面), editorial-mag (编辑刊), bold-poster (大字海报), notion-card (Notion 卡), brutalist (粗野), glass-dark (玻璃夜), editorial-stencil (编辑·海报), broadsheet (财经刊), blueprint (蓝晒图), daisy-pastel (雏菊), showa-catalog (昭和目录), photo-feature (摄影刊), atmospheric (深夜刊). Triggers — Slice / slice video / 切片视频 / 文章转视频 / 知识卡片视频 / 抖音知识号 / 小红书图文转视频 / 知乎长文转视频 / 公众号转视频 / PaperSlide / paperslide / paper-slide (legacy name)."
+    },
+    {
+        "name":  "transcribe / 音视频转写翻译",
+        "call":  "$transcribe",
+        "category":  "语音音频与转写",
+        "group":  "audio",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\transcribe\\SKILL.md",
+        "desc":  "Use when the user wants to transcribe audio/video (including 30-min+ files with word-level timestamps via Azure Batch), translate subtitles, dub a video from SRT, run end-to-end video translation, summarize spoken content, or publish a finished translated video for Skill/agent orchestration. Covers asr, asr-jobs, translate, dub, video-translate, summarize, and publish CLI commands."
+    },
+    {
+        "name":  "video / AI短视频生成",
+        "call":  "$video",
+        "category":  "卡片与短视频",
+        "group":  "content",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\video\\SKILL.md",
+        "desc":  "Use when the user wants AI-generated short-form video — knowledge cards (picstory / 小红书 / TikTok / Reels), narrated explainers, presentations, AI clips, or slides — covering picstory, present, slides, explain, and image generation. For article-to-card reels (Slice — 6 themes including paper-slide), use voxflow:slice."
+    },
+    {
+        "name":  "podcast / AI播客生成",
+        "call":  "$podcast",
+        "category":  "语音音频与转写",
+        "group":  "audio",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\podcast\\SKILL.md",
+        "desc":  "Use when the user wants to produce a multi-speaker AI podcast from a topic, URL, or script — covers the full CLI workflow from LLM dialogue generation to per-speaker TTS synthesis and final audio export (MP3/WAV)."
+    },
+    {
+        "name":  "female-portrait-director",
+        "call":  "$female-portrait-director",
+        "category":  "视觉与生图",
+        "group":  "visual",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\female-portrait-director\\SKILL.md",
+        "desc":  "Generate, visually expand, optimize, diagnose, and route structured AI image prompts for adult female portraits. Use for lifestyle, curve-focused, fashion, oriental, fantasy, studio, sport, travel, and e-commerce portrait requests; parameter recommendations; prompt rewrites; image-to-prompt preparation; direct image generation; or identity- and product-preserving edits from authorized reference images. Preserve explicit user parameters and locked reference subjects while creating a coherent photography-directed scene."
+    },
+    {
+        "name":  "Get笔记",
+        "call":  "$Get笔记",
+        "category":  "笔记采集与知识库",
+        "group":  "knowledge",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\getnote\\SKILL.md",
+        "desc":  "Get笔记 - 保存、搜索、管理个人笔记和知识库。 **当以下情况时使用此 Skill**： (1) 用户要保存内容到笔记：发链接、发图片、说「记一下」「存到笔记」「保存」「收藏」"
+    },
+    {
+        "name":  "hub / 语音与VoxFlow入口",
+        "call":  "$hub",
+        "category":  "语音音频与转写",
+        "group":  "audio",
+        "source":  "E 盘技能",
+        "root":  "E:\\临时项目\\_system\\codex-skills",
+        "path":  "E:\\临时项目\\_system\\codex-skills\\hub\\SKILL.md",
+        "desc":  "Use when the user wants to read text aloud (TTS), search VoxFlow voices, sample AI stories, or set up VoxFlow install/auth/quota — the entry-point voice toolkit. For podcasts use voxflow:podcast; for short videos / AI clips use voxflow:video; for article-to-card reels (Slice) use voxflow:slice; for transcription / dubbing / subtitle translation use voxflow:transcribe."
+    }
+];
+
+    const categoryOrder = [
+      "全部",
+      "视觉与生图",
+      "卡片与短视频",
+      "语音音频与转写",
+      "笔记采集与知识库",
+      "沟通与文案",
+      "加密与量化",
+      "系统与开发"
+    ];
+    const sourceOrder = ["全部来源", "E 盘技能", ".agents", "系统内置"];
+    let activeCategory = "全部";
+    let activeSource = "全部来源";
+    const searchInput = document.getElementById("searchInput");
+    const catalog = document.getElementById("catalog");
+    const filters = document.getElementById("filters");
+    const sourceSwitch = document.getElementById("sourceSwitch");
+    const emptyState = document.getElementById("emptyState");
+
+    function normalize(text) {
+      return String(text).toLowerCase();
+    }
+
+    function matches(skill) {
+      const query = normalize(searchInput.value.trim());
+      const haystack = normalize([skill.name, skill.call, skill.category, skill.source, skill.path, skill.desc].join(" "));
+      const categoryOk = activeCategory === "全部" || skill.category === activeCategory;
+      const sourceOk = activeSource === "全部来源" || skill.source === activeSource;
+      const queryOk = !query || haystack.includes(query);
+      return categoryOk && sourceOk && queryOk;
+    }
+
+    function createButton(label, active, onClick, className) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `${className} ${active ? "active" : ""}`;
+      button.textContent = label;
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    function renderControls() {
+      filters.innerHTML = "";
+      categoryOrder.forEach(category => {
+        const count = category === "全部" ? skills.length : skills.filter(skill => skill.category === category).length;
+        filters.appendChild(createButton(`${category} ${count}`, activeCategory === category, () => {
+          activeCategory = category;
+          render();
+        }, "filter"));
+      });
+
+      sourceSwitch.innerHTML = "";
+      sourceOrder.forEach(source => {
+        const count = source === "全部来源" ? skills.length : skills.filter(skill => skill.source === source).length;
+        sourceSwitch.appendChild(createButton(`${source} ${count}`, activeSource === source, () => {
+          activeSource = source;
+          render();
+        }, "chip"));
+      });
+    }
+
+    function renderSkill(skill) {
+      const article = document.createElement("article");
+      article.className = "skill";
+      article.dataset.category = skill.category;
+      article.dataset.source = skill.source;
+      article.innerHTML = `
+        <div>
+          <h3>${escapeHtml(skill.name)}</h3>
+          <span class="call">${escapeHtml(skill.call)}</span>
+        </div>
+        <p class="desc">${escapeHtml(skill.desc)}</p>
+        <div class="meta">
+          <div>${escapeHtml(skill.source)} · ${escapeHtml(skill.category)}</div>
+          <div class="path">${escapeHtml(skill.path)}</div>
+          <button class="copy" type="button" data-copy="${escapeAttr(skill.path)}">复制路径</button>
+        </div>
+      `;
+      return article;
+    }
+
+    function render() {
+      renderControls();
+      const visible = skills.filter(matches);
+      const byCategory = new Map();
+      visible.forEach(skill => {
+        if (!byCategory.has(skill.category)) byCategory.set(skill.category, []);
+        byCategory.get(skill.category).push(skill);
+      });
+
+      catalog.innerHTML = "";
+      categoryOrder.slice(1).forEach(category => {
+        const categorySkills = byCategory.get(category);
+        if (!categorySkills || categorySkills.length === 0) return;
+        const section = document.createElement("section");
+        const group = categorySkills[0].group;
+        section.className = `category ${group}`;
+        section.innerHTML = `
+          <div class="category-head">
+            <div class="category-title">
+              <span class="mark" aria-hidden="true"></span>
+              <h2>${escapeHtml(category)}</h2>
+            </div>
+            <span class="category-count">${categorySkills.length} 个技能</span>
+          </div>
+          <div class="skill-list"></div>
+        `;
+        const list = section.querySelector(".skill-list");
+        categorySkills.forEach(skill => list.appendChild(renderSkill(skill)));
+        catalog.appendChild(section);
+      });
+
+      document.getElementById("totalCount").textContent = skills.length;
+      document.getElementById("shownCount").textContent = visible.length;
+      document.getElementById("categoryCount").textContent = new Set(skills.map(skill => skill.category)).size;
+      emptyState.style.display = visible.length ? "none" : "block";
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    document.addEventListener("click", async event => {
+      const button = event.target.closest("[data-copy]");
+      if (!button) return;
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy);
+        const oldText = button.textContent;
+        button.textContent = "已复制";
+        setTimeout(() => button.textContent = oldText, 1000);
+      } catch {
+        button.textContent = "复制失败";
+        setTimeout(() => button.textContent = "复制路径", 1000);
+      }
+    });
+
+    searchInput.addEventListener("input", render);
+    render();
+
+    const projects = [
+      {
+        name: "Muse-UI",
+        repo: "https://github.com/museui/muse-ui",
+        path: "E:\\临时项目\\muse-ui",
+        status: "已克隆并完成本地依赖安装",
+        stack: "Vue 2 · Material Design · 旧版组件库",
+        note: "经典 Muse-UI 仓库，README 标注不再维护。适合做 Vue2 组件参考、样式复用和本地实验。"
+      },
+      {
+        name: "muse-ui-fabric",
+        repo: "https://github.com/zhouxianjun/muse-ui-fabric",
+        path: "E:\\临时项目\\muse-ui-fabric",
+        status: "画布工作台已安装并启动",
+        stack: "Vue 2 · Muse-UI 3 · Fabric.js",
+        note: "真正的 Muse UI 画布/海报编辑工作台；本地入口 http://127.0.0.1:8092/，启动脚本 run_workbench.ps1。"
+      }
+    ];
+
+    const projectCatalog = document.getElementById("projectCatalog");
+    const projectCount = document.getElementById("projectCount");
+
+    function renderProjects() {
+      if (!projectCatalog) return;
+      projectCatalog.innerHTML = "";
+      projects.forEach(project => {
+        const article = document.createElement("article");
+        article.className = "project-item";
+        article.innerHTML = `
+          <div>
+            <h3>${escapeHtml(project.name)}</h3>
+            <div class="project-status">${escapeHtml(project.status)}</div>
+          </div>
+          <p class="project-note">${escapeHtml(project.note)}</p>
+          <div class="project-meta">
+            <div class="path">${escapeHtml(project.path)}</div>
+            <div class="project-links">
+              <a class="project-link" href="${escapeAttr(project.repo)}" target="_blank" rel="noreferrer">GitHub</a>
+              <button class="copy" type="button" data-copy="${escapeAttr(project.path)}">复制路径</button>
+            </div>
+            <div>${escapeHtml(project.stack)}</div>
+          </div>
+        `;
+        projectCatalog.appendChild(article);
+      });
+      if (projectCount) {
+        projectCount.textContent = `${projects.length} 个项目`;
+      }
+    }
+
+    renderProjects();
+  </script>
+</body>
+</html>
+
+
+
+
+

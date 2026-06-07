@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>通用品类绿幕直播间获客素材提示词生成器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f1;
+      --panel: #ffffff;
+      --ink: #202626;
+      --muted: #64706c;
+      --line: #dbe0d7;
+      --green: #356f53;
+      --blue: #3f6f8c;
+      --rose: #a75e70;
+      --gold: #9b773c;
+      --pass: #28794f;
+      --fail: #b34949;
+      --shadow: 0 14px 38px rgba(34, 44, 39, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(245,246,241,0.96)),
+        radial-gradient(circle at 8% 9%, rgba(53,111,83,0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(63,111,140,0.13), transparent 28%),
+        var(--bg);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1500px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 22px 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .route {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .status-pill.pass {
+      color: var(--pass);
+      border-color: rgba(40,121,79,0.28);
+      background: rgba(40,121,79,0.08);
+    }
+
+    .status-pill.fail {
+      color: var(--fail);
+      border-color: rgba(179,73,73,0.28);
+      background: rgba(179,73,73,0.08);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 410px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.95);
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 18px;
+      padding: 16px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input,
+    select {
+      min-height: 42px;
+      padding: 9px 11px;
+    }
+
+    textarea {
+      min-height: 68px;
+      padding: 10px 11px;
+      resize: vertical;
+      line-height: 1.46;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(53,111,83,0.68);
+      box-shadow: 0 0 0 3px rgba(53,111,83,0.12);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      color: white;
+      background: var(--green);
+      font-weight: 800;
+    }
+
+    button.secondary {
+      color: var(--ink);
+      background: #e9ede6;
+      border: 1px solid var(--line);
+    }
+
+    button.blue {
+      background: var(--blue);
+    }
+
+    .output-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .output-panel {
+      padding: 16px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+      padding: 12px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .metric strong {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .prompt-box {
+      min-height: 320px;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      max-height: 520px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fbfcfa;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .check {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(219,224,215,0.8);
+      padding: 6px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .check:first-child {
+      border-top: 0;
+    }
+
+    .check strong {
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .ok {
+      color: var(--pass);
+      font-weight: 900;
+    }
+
+    .bad {
+      color: var(--fail);
+      font-weight: 900;
+    }
+
+    @media (max-width: 980px) {
+      .layout,
+      .prompt-grid,
+      .metrics,
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+
+      .topbar {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>通用品类绿幕直播间获客素材提示词生成器</h1>
+        <div class="route">generic-category-greenscreen-live-room-workbench / v1.0</div>
+      </div>
+      <div id="globalStatus" class="status-pill">等待生成</div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <div class="panel-title">生成控制</div>
+
+        <div class="row">
+          <div>
+            <label for="categorySelect">品类</label>
+            <select id="categorySelect">
+              <option value="all">全部品类</option>
+            </select>
+          </div>
+          <div>
+            <label for="countInput">每类数量</label>
+            <input id="countInput" type="number" min="1" max="10" value="10">
+          </div>
+        </div>
+
+        <label for="sceneModeSelect">场景风格模式</label>
+        <select id="sceneModeSelect"></select>
+
+        <label for="productCategory">产品品类</label>
+        <input id="productCategory" type="text" placeholder="留空则自动按品类选择">
+
+        <label for="packagingType">包装形态</label>
+        <input id="packagingType" type="text" placeholder="例：stand-up pouch / pump bottle">
+
+        <label for="mainColors">主色体系</label>
+        <input id="mainColors" type="text" placeholder="例：cream white, fresh green">
+
+        <label for="flavorOrType">口味 / 类型</label>
+        <input id="flavorOrType" type="text" placeholder="例：原味 / 清爽型 / 多口味">
+
+        <label for="comboSpec">规格组合</label>
+        <input id="comboSpec" type="text" placeholder="例：3-5 piece category display set">
+
+        <label for="genericSellingPoints">简短卖点</label>
+        <textarea id="genericSellingPoints" placeholder="用逗号分隔，留空则使用品类默认卖点"></textarea>
+
+        <label for="forbiddenBrandWords">需要清洗的品牌词</label>
+        <textarea id="forbiddenBrandWords" placeholder="用逗号、顿号或换行分隔"></textarea>
+
+        <div class="button-row">
+          <button id="generateBtn" type="button">生成批量提示词</button>
+          <button id="copyPositiveBtn" class="secondary" type="button">复制正向</button>
+          <button id="copyNegativeBtn" class="secondary" type="button">复制负向</button>
+          <button id="copyJsonBtn" class="secondary" type="button">复制 JSON</button>
+          <button id="exportJsonBtn" class="blue" type="button">导出 JSON</button>
+        </div>
+      </aside>
+
+      <section class="output-stack">
+        <section class="panel output-panel">
+          <div class="panel-title">批量概览</div>
+          <div class="metrics">
+            <div class="metric"><span>总条数</span><strong id="metricCount">0</strong></div>
+            <div class="metric"><span>通过</span><strong id="metricPass">0</strong></div>
+            <div class="metric"><span>失败</span><strong id="metricFail">0</strong></div>
+            <div class="metric"><span>品类数</span><strong id="metricCategories">0</strong></div>
+          </div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">单条预览</div>
+          <label for="itemSelect">Prompt 条目</label>
+          <select id="itemSelect"></select>
+          <div class="prompt-grid">
+            <div>
+              <label for="positiveOut">正向提示词</label>
+              <textarea id="positiveOut" class="prompt-box" readonly></textarea>
+            </div>
+            <div>
+              <label for="negativeOut">负向提示词</label>
+              <textarea id="negativeOut" class="prompt-box" readonly></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">审计结果</div>
+          <div id="auditOutput" class="audit-grid"></div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">JSON 输出</div>
+          <pre id="jsonOut"></pre>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="./workbench.js"></script>
+  <script>
+    const wb = window.GenericGreenscreenWorkbench;
+    const productFields = ["productCategory", "packagingType", "mainColors", "flavorOrType", "comboSpec", "genericSellingPoints", "forbiddenBrandWords"];
+    const categorySelect = document.getElementById("categorySelect");
+    const countInput = document.getElementById("countInput");
+    const sceneModeSelect = document.getElementById("sceneModeSelect");
+    const itemSelect = document.getElementById("itemSelect");
+    const positiveOut = document.getElementById("positiveOut");
+    const negativeOut = document.getElementById("negativeOut");
+    const jsonOut = document.getElementById("jsonOut");
+    const auditOutput = document.getElementById("auditOutput");
+    const globalStatus = document.getElementById("globalStatus");
+    const metricCount = document.getElementById("metricCount");
+    const metricPass = document.getElementById("metricPass");
+    const metricFail = document.getElementById("metricFail");
+    const metricCategories = document.getElementById("metricCategories");
+
+    let currentResult = null;
+
+    const auditLabels = {
+      status: "状态",
+      category: "品类成立",
+      unbrandedPass: "无品牌规则",
+      noPricePass: "无价格规则",
+      noPlatformUIPass: "无平台 UI",
+      safeAreaPass: "安全区规则",
+      cameraPerspectivePass: "直播机位透视",
+      hostPass: "主播规则",
+      tablePass: "前景桌台",
+      productDisplayPass: "产品陈列",
+      textDensityPass: "文字密度",
+      categoryScenePass: "品类场景差异",
+      layerFriendlyPass: "拆层友好",
+      forbiddenClaimsDetected: "禁用功效词",
+      forbiddenBrandTermsDetected: "品牌词残留",
+      notes: "备注"
+    };
+
+    function initOptions() {
+      wb.CATEGORY_ORDER.forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+      });
+
+      Object.entries(wb.SCENE_MODE_STYLES).forEach(([key, value]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = `${value.label}（${key}）`;
+        sceneModeSelect.appendChild(option);
+      });
+    }
+
+    function collectProfile() {
+      return productFields.reduce((profile, field) => {
+        profile[field] = document.getElementById(field).value.trim();
+        return profile;
+      }, {});
+    }
+
+    function generate() {
+      currentResult = wb.generateBatch({
+        category: categorySelect.value,
+        countPerCategory: Number(countInput.value || 10),
+        sceneMode: sceneModeSelect.value,
+        productProfile: collectProfile()
+      });
+      renderResult();
+    }
+
+    function renderResult() {
+      const passCount = currentResult.items.filter((item) => item.audit.status === "pass").length;
+      const failCount = currentResult.items.length - passCount;
+      metricCount.textContent = currentResult.count;
+      metricPass.textContent = passCount;
+      metricFail.textContent = failCount;
+      metricCategories.textContent = new Set(currentResult.items.map((item) => item.category)).size;
+      globalStatus.className = `status-pill ${failCount === 0 ? "pass" : "fail"}`;
+      globalStatus.textContent = failCount === 0 ? "审计全通过" : "存在失败项";
+      jsonOut.textContent = JSON.stringify(currentResult, null, 2);
+
+      itemSelect.innerHTML = currentResult.items.map((item, index) => {
+        const label = `${String(index + 1).padStart(2, "0")}｜${item.category}｜${item.sceneVariant}｜${item.audit.status}`;
+        return `<option value="${index}">${escapeHtml(label)}</option>`;
+      }).join("");
+      renderSelectedItem();
+    }
+
+    function renderSelectedItem() {
+      if (!currentResult || !currentResult.items.length) return;
+      const item = currentResult.items[Number(itemSelect.value || 0)];
+      positiveOut.value = item.positivePrompt;
+      negativeOut.value = item.negativePrompt;
+      auditOutput.innerHTML = renderAudit(item);
+    }
+
+    function renderAudit(item) {
+      return Object.entries(item.audit).map(([key, value]) => {
+        const pass = value === true || value === "pass" || (Array.isArray(value) && value.length === 0);
+        return `
+          <div class="check">
+            <strong>${auditLabels[key] || key}</strong>
+            <span class="${pass ? "ok" : "bad"}">${formatAuditValue(value)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function formatAuditValue(value) {
+      if (value === true) return "通过";
+      if (value === false) return "未通过";
+      if (value === "pass") return "通过";
+      if (value === "fail") return "失败";
+      if (Array.isArray(value)) return value.length ? value.join("，") : "无";
+      return escapeHtml(String(value));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    async function copyText(value) {
+      await navigator.clipboard.writeText(value);
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(currentResult, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "generic-category-greenscreen-batch-prompts.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generate);
+    document.getElementById("copyPositiveBtn").addEventListener("click", () => copyText(positiveOut.value));
+    document.getElementById("copyNegativeBtn").addEventListener("click", () => copyText(negativeOut.value));
+    document.getElementById("copyJsonBtn").addEventListener("click", () => copyText(jsonOut.textContent));
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    itemSelect.addEventListener("change", renderSelectedItem);
+    categorySelect.addEventListener("change", generate);
+    countInput.addEventListener("change", generate);
+    sceneModeSelect.addEventListener("change", generate);
+
+    initOptions();
+    sceneModeSelect.value = "auto";
+    generate();
+  </script>
+</body>
+</html>

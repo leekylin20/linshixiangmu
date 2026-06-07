@@ -1,0 +1,58 @@
+{
+  "projectName": "高端大牌彩妆直播间提示词工作台｜前景成交骨架锁定版｜35mm",
+  "version": "premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0",
+  "category": "premium_makeup",
+  "sceneType": "seated_livestream",
+  "corePrinciple": "只锁定前景直播成交关系，不锁死背景空间；背景可以多样化，但主播、黑镜桌台、中央主推眼影盘、35mm 正面坐播机位必须稳定成立。",
+  "lockedForegroundDNA": [
+    "竖版 9:16",
+    "中国抖音坐播直播间画面",
+    "Camera Geometry Lock｜透视母版锁定模块放在每条正向提示词最前面",
+    "Foreground Anchor Lock｜前景锚点锁定模块放在透视母版之后",
+    "35mm equivalent lens, normal front-facing seated livestream perspective",
+    "摄像机高度固定 125cm",
+    "轻微下俯 2°",
+    "单一正面一点透视",
+    "桌台前沿水平，位于画面下方 15%-20%",
+    "人物肩线水平，主播眼线在画面中上区域",
+    "桌面可见比例 25%-30%",
+    "所有产品、亚克力、刷具和辅助彩妆位于同一桌面平面",
+    "背景垂直线保持垂直，跟随同一正面坐播透视",
+    "成年女性高端品牌彩妆顾问，年龄感 28-35 岁",
+    "黑色西装或高级黑色顾问服",
+    "黑色高光镜面直播讲解桌台",
+    "中央主推高端眼影盘为第一主角",
+    "左右少量辅助彩妆",
+    "透明亚克力、黑镜、银色金属细节",
+    "背景只锁高端大牌彩妆调性，不锁具体结构"
+  ],
+  "sceneThemes": [
+    "eyeshadow_palette_special｜眼影盘专场"
+  ],
+  "backgroundRoutes": [
+    "flagship_black_wall｜旗舰黑墙品牌型",
+    "pro_backstage_mirror｜专业后台化妆镜型",
+    "arc_architecture_counter｜弧形建筑专柜型",
+    "black_gold_evening_eye｜黑金晚宴眼妆型",
+    "mirror_luxury_counter｜镜面奢华柜台型",
+    "minimal_brand_lab｜极简品牌实验室型",
+    "low_density_wall_niche｜低密度壁龛陈列型"
+  ],
+  "backgroundRandomModes": [
+    "fixed｜关闭随机（固定）",
+    "route_random｜背景路由随机",
+    "route_balanced｜背景路由均衡打散"
+  ],
+  "outputSchema": {
+    "category": "premium_makeup",
+    "sceneType": "seated_livestream",
+    "templateVersion": "premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0",
+    "mainProduct": "eyeshadow_palette",
+    "mainProductCn": "高端眼影盘",
+    "backgroundRoute": "英文背景路由 ID",
+    "backgroundRouteCn": "中文背景路由名",
+    "prompt": "positivePrompt 的别名",
+    "positivePrompt": "正向生图提示词",
+    "negativePrompt": "负面提示词"
+  }
+}

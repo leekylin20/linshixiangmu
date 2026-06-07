@@ -1,0 +1,2395 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>女装直播间视觉生成系统</title>
+  <style>
+    :root{
+      --bg:#f1f2ee;--panel:#fbfaf6;--panel2:#e7ece8;--ink:#202624;--muted:#66706c;
+      --line:#cfd7d2;--accent:#3f766d;--accent2:#9b6658;--gold:#b89455;--dark:#25302d;
+      --shadow:0 18px 50px rgba(29,41,37,.10);
+      font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",system-ui,sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);background:linear-gradient(120deg,rgba(63,118,109,.12),transparent 34%),linear-gradient(300deg,rgba(184,148,85,.14),transparent 38%),linear-gradient(180deg,#f7f6f0,var(--bg));min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    .app{width:min(1540px,calc(100% - 32px));margin:0 auto;padding:24px 0 30px}
+    .topbar{display:grid;grid-template-columns:minmax(280px,1fr) auto;gap:16px;align-items:end;margin-bottom:16px}
+    h1{margin:0;font-size:clamp(28px,4vw,52px);line-height:1.06;letter-spacing:0;font-weight:820}
+    .subtitle{margin:10px 0 0;max-width:960px;color:var(--muted);line-height:1.75;font-size:15px}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);min-height:38px;padding:9px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+    .btn:hover{transform:translateY(-1px);border-color:#9aaba5}
+    .btn.primary{background:var(--dark);color:#fbfaf6;border-color:var(--dark)}
+    .btn.mini{min-height:30px;padding:5px 9px;font-size:12px}
+    .btn svg{width:17px;height:17px;stroke-width:2}
+    .layout{display:grid;grid-template-columns:minmax(400px,590px) minmax(0,1fr);gap:16px;align-items:start}
+    .panel{background:rgba(251,250,246,.92);border:1px solid rgba(207,215,210,.95);border-radius:8px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .form-panel{position:sticky;top:16px;overflow:hidden;max-height:calc(100vh - 32px);overflow-y:auto}
+    .visual{display:grid;grid-template-columns:126px 1fr;gap:14px;padding:16px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(231,236,232,.92),rgba(251,250,246,.62))}
+    .room-mark{min-height:154px;border-radius:6px;overflow:hidden;border:1px solid #bbc9c4;position:relative;background:linear-gradient(90deg,transparent 0 18%,rgba(255,255,255,.45) 18% 20%,transparent 20% 80%,rgba(255,255,255,.42) 80% 82%,transparent 82%),linear-gradient(180deg,#e8e4dc 0 40%,#cfd9d5 40% 41%,#f5f2ea 41% 100%)}
+    .room-mark::before{content:"";position:absolute;width:48px;height:98px;left:39px;top:31px;border-radius:18px 18px 7px 7px;background:linear-gradient(180deg,#262827,#4b4b45);box-shadow:0 0 0 7px rgba(184,148,85,.16)}
+    .room-mark::after{content:"";position:absolute;left:13px;right:13px;bottom:15px;height:16px;border-radius:999px;background:rgba(63,118,109,.18);box-shadow:0 -42px 0 -4px rgba(255,255,255,.45),0 -86px 0 -6px rgba(37,48,45,.12)}
+    .visual h2{margin:0 0 9px;font-size:18px;letter-spacing:0}
+    .visual p{margin:0;color:var(--muted);font-size:13px;line-height:1.75}
+    .status-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .status{border:1px solid #c7d0cd;border-radius:6px;padding:8px;background:rgba(255,255,255,.48);min-height:50px}
+    .status b{display:block;font-size:17px;color:var(--accent)}
+    .status span{color:var(--muted);font-size:12px}
+    form{padding:14px;display:grid;gap:14px}
+    details{border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.36);overflow:hidden}
+    details[open]{background:rgba(255,255,255,.58)}
+    summary{padding:12px 13px;cursor:pointer;font-weight:780;color:#2a3432;list-style:none;display:flex;align-items:center;justify-content:space-between}
+    summary::-webkit-details-marker{display:none}
+    summary::after{content:"+";color:var(--accent);font-weight:800;font-size:18px}
+    details[open] summary::after{content:"-"}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 13px 13px}
+    .field.full{grid-column:1 / -1}
+    label{display:block;font-size:12px;color:#4b5653;margin-bottom:6px;font-weight:760}
+    input,select,textarea{width:100%;border:1px solid #c7d0cd;border-radius:7px;background:rgba(255,255,255,.82);color:var(--ink);outline:none;padding:10px 11px;min-height:40px;transition:border-color .16s ease,box-shadow .16s ease}
+    textarea{min-height:74px;resize:vertical;line-height:1.65}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(63,118,109,.14)}
+    .custom{margin-top:7px}
+    .hint{color:var(--muted);font-size:12px;line-height:1.55;margin-top:6px}
+    .checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .chip{display:inline-flex;align-items:center;gap:7px;min-height:34px;border:1px solid #c7d0cd;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.56);color:#394441;font-size:12px;cursor:pointer;user-select:none}
+    .chip input{width:14px;height:14px;min-height:0;accent-color:var(--accent);padding:0}
+    .output-panel{padding:16px;display:grid;gap:14px}
+    .output-header{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .output-header h2{margin:0;font-size:20px;letter-spacing:0}
+    .sections{display:grid;gap:12px}
+    .output-section{border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.62);overflow:hidden}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line);background:rgba(231,236,232,.68)}
+    .section-title h3{margin:0;font-size:15px;letter-spacing:0}
+    .section-title span{color:var(--muted);font-size:12px}
+    .title-actions{display:flex;gap:8px;align-items:center}
+    .content{padding:13px;line-height:1.82;color:#26302e;white-space:pre-wrap;word-break:break-word;font-size:14px}
+    .prompt{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;background:#f4f3ec;color:#202624}
+    .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .review-item{border:1px solid #d4d9d7;border-radius:7px;padding:8px 9px;background:rgba(255,255,255,.6);min-height:62px}
+    .review-item strong{display:block;color:#36413f;font-size:12px;margin-bottom:5px}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:760;margin-right:5px;border:1px solid transparent}
+    .badge.locked{color:#3d655d;border-color:rgba(75,116,103,.32);background:rgba(75,116,103,.12)}
+    .badge.auto{color:#7b5d50;border-color:rgba(155,102,88,.34);background:rgba(155,102,88,.12)}
+    .copy-buffer{width:100%;min-height:160px;border:1px solid var(--accent);border-radius:8px;background:#fff;color:#202624;padding:12px;line-height:1.65;resize:vertical;display:none}
+    .toast{position:fixed;right:18px;bottom:18px;background:var(--dark);color:#fbfaf6;border-radius:8px;padding:10px 13px;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:min(360px,calc(100% - 36px));z-index:10}
+    .toast.show{opacity:1;transform:translateY(0)}
+    @media (max-width:1080px){.layout,.topbar{grid-template-columns:1fr}.toolbar{justify-content:flex-start}.form-panel{position:static;max-height:none}}
+    @media (max-width:640px){.app{width:min(100% - 20px,1540px);padding-top:14px}.fields,.review-grid,.visual,.checks{grid-template-columns:1fr}.room-mark{min-height:170px}.output-header{grid-template-columns:1fr}.toolbar{width:100%}.btn{flex:1;justify-content:center}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>女装直播间视觉生成系统</h1>
+        <p class="subtitle">通过表单参数生成稳定、可复用、可直接用于 AI 图片生成的女装直播间提示词，重点控制衣服展示、空间搭建和透视关系。</p>
+      </div>
+      <div class="toolbar">
+        <button class="btn" type="button" id="sampleBtn" title="填入 Demo 参数"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18M3 12h18"/></svg>Demo</button>
+        <button class="btn" type="button" id="resetBtn" title="重置默认值"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>重置</button>
+        <button class="btn primary" type="button" id="generateBtn" title="生成提示词"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l2.2 6.8H21l-5.5 4 2.1 6.8-5.6-4.1-5.6 4.1 2.1-6.8L3 8.8h6.8z"/></svg>生成</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel form-panel">
+        <div class="visual">
+          <div class="room-mark" aria-hidden="true"></div>
+          <div>
+            <h2>字段结构 V2</h2>
+            <p>模块：输出目标、销售、直播、服装、场景、空间复用、稳定出图、负面限制。</p>
+            <div class="status-strip">
+              <div class="status"><b id="lockedCount">0</b><span>locked</span></div>
+              <div class="status"><b id="autoCount">0</b><span>auto/empty</span></div>
+              <div class="status"><b id="fillCount">0</b><span>补全项</span></div>
+            </div>
+          </div>
+        </div>
+        <form id="promptForm"></form>
+      </aside>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <div>
+            <h2>生成结果</h2>
+            <p class="subtitle">六个结果卡片：空间方向判断、推荐空间母版、可复用空间元素、镜头与透视要求、完整生成提示词、负面限制词。</p>
+          </div>
+          <button class="btn primary" type="button" id="copyBtn" title="复制完整结果"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制全部</button>
+        </div>
+        <div class="sections" id="outputSections"></div>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const moduleTitles = {
+      output:'输出目标层', sales:'直播销售层', live:'直播类型层', clothing:'服装商品层',
+      scene:'场景包装层', reusableSpace:'空间复用元素库',
+      camera:'稳定出图层', negative:'负面限制层'
+    };
+    const demo = {
+      outputMode:'主播讲解试穿图', layoutMode:'单张竖版直播间图', includePerson:'有主播/模特', commercialUse:'女装直播间主视觉',
+      salesType:'店播实卖直播', activityNode:'秋冬上新', benefitInfo:['7天无理由','30天保价'], functionSellingPoints:['保暖','轻量','高蓬松度'],
+      liveRoomType:'站播试穿直播间', framingRange:'七分身讲解', tryOnMode:'正面讲解', hostRole:'品牌主播', hostAction:'轻扶衣服细节',
+      season:'冬季', fashionStyle:'质感通勤', clothingCategory:'羽绒服', clothingColor:'米白', material:'鹅绒填充', silhouette:'适度蓬松', layering:'外套 + 下装 + 鞋履完整造型', stylingItems:['围巾','靴子'], displayFocus:['上身效果','功能卖点'],
+      liveRoomSpaceType:'真实居家直播间', sceneStyle:'大空间转角居家感直播间 large-corner-home-live-room', sceneLayoutVariant:'side_window_corner', materialPalette:'warm_wood_cream', sceneStyleDirection:'木质暖调风', spaceMode:'真实可搭建空间', themePackaging:'秋冬橱窗主题', backgroundStructure:'转角墙面', softProps:['窗帘','沙发','落地灯','绿植'], sideDisplay:'无', designIntensity:'低：接近真实直播间', realismLevel:'强写实，低 AI 味',
+      spaceTemplate:'暖调家居冬装直播间', wallElements:['暖米大白墙','深木饰面背景墙'], lightingElements:['隐藏灯带','顶部暖光洗墙'], furnitureElements:['沙发','边桌'], artElements:['挂画'], plantElements:['盆栽绿植'], fabricElements:['窗帘','地毯'],
+      aspectRatio:'9:16', focalLength:'全画幅 35mm', cameraLevel:'严格水平机位', cameraHeight:'1.25m–1.35m 站播平视机位', perspectiveMode:'轻转角室内透视', verticalRule:'所有墙面、窗框、背景板、柜体、屏幕边缘、门框、窗帘边缘保持垂直', spatialAxisRule:'地面、背景墙、家具、灯具、软装和人物脚下落点服从同一个室内空间轴线'
+    };
+    const initialLocked = {
+      aspectRatio:'9:16',
+      focalLength:'全画幅 35mm',
+      cameraLevel:'严格水平机位',
+      verticalRule:'所有墙面、窗框、背景板、柜体、屏幕边缘、门框、窗帘边缘保持垂直',
+      spatialAxisRule:'地面、背景墙、家具、灯具、软装和人物脚下落点服从同一个室内空间轴线'
+    };
+    const fields = {
+      outputMode:f('outputMode','输出模式','output',['主播讲解试穿图','半身细节讲解图','模特 look 展示图','生活方式种草图','空场景底图','场景提案图','场景 moodboard 拼图']),
+      layoutMode:f('layoutMode','画面组织方式','output',['单张竖版直播间图','单张空场景图','多格拼贴提案图','左右对比图','带手机壳直播截图图']),
+      includePerson:f('includePerson','是否包含人物','output',['有主播/模特','无人物，仅空场景','先生成带人图','先生成空场景底图']),
+      commercialUse:f('commercialUse','商业用途','output',['女装直播间主视觉','直播间背景底图','客户提案图','直播间搭建参考图','女装带货演示图','小红书种草封面','抖音直播截图']),
+      salesType:f('salesType','直播间销售类型','sales',['品牌官方专场','达人实卖直播','店播实卖直播','反季清仓直播','新品上新直播','高端形象直播','功能型服装讲解直播']),
+      activityNode:f('activityNode','活动节点','sales',['无节点','上新日','春夏上新','秋冬上新','618','双11','双12','七夕','中秋','年货节','反季限时购','品牌专场']),
+      benefitInfo:mf('benefitInfo','权益信息','sales',['不显示','7天无理由','30天保价','质保90天','顺丰包邮','赠运费险','官方正品','拍1发3','支持试穿']),
+      functionSellingPoints:mf('functionSellingPoints','功能卖点','sales',['保暖','防风','防水','轻量','防晒','透气','高蓬松度','科技面料','重磅真丝','垂感','显瘦','舒适']),
+      liveRoomType:f('liveRoomType','直播间类型','live',['站播试穿直播间','坐播讲解直播间','半身细节讲解直播间','全身走播直播间','品牌上新直播间','大促活动直播间','轻布景女装直播间','家居感女装直播间','精品店式女装直播间']),
+      framingRange:f('framingRange','出镜范围','live',['全身试穿','七分身讲解','半身细节讲解','上半身材质展示','空场景无人物']),
+      tryOnMode:f('tryOnMode','试穿展示方式','live',['全身站播试穿','半身近距离讲解','走位展示','正面讲解','侧身展示版型','手指指向细节','轻扶衣服细节','搭配包包展示','手持衣服讲解']),
+      hostRole:f('hostRole','主播角色','live',['品牌主播','门店导购','达人主播','试穿模特','品牌主理人感','生活方式博主感']),
+      hostAction:f('hostAction','主播动作','live',['正面站立讲解','自然走位','轻扶衣领','指向面料细节','手持主推服装','拿包搭配展示','挥手互动','双手自然垂落']),
+      season:f('season','季节','clothing',['春季','夏季','初秋','深秋','冬季','春夏上新','秋冬上新','反季冬装','年货节冬季']),
+      fashionStyle:f('fashionStyle','女装风格','clothing',['都市通勤','韩系温柔','法式轻复古','新中式','轻熟贵气','都市丽人','质感通勤','度假松弛','高级居家','小香风','国风改良','礼服感轻奢','运动户外']),
+      clothingCategory:f('clothingCategory','服装品类','clothing',['羽绒服','鹅绒服','冲锋衣','防晒衣','大衣','风衣',{label:'牛仔裤',value:'denim_jeans'},{label:'高腰牛仔裤',value:'high_waist_denim'},{label:'阔腿牛仔裤',value:'wide_leg_denim'},{label:'微喇牛仔裤',value:'micro_flare_denim'},{label:'直筒牛仔裤',value:'straight_denim'},{label:'丹宁裤',value:'denim_pants'},'连衣裙','半裙','裤装','上衣','针织衫','衬衫','马甲','小香风外套','内衣','套装','吊带']),
+      denimFit:f('denimFit','牛仔裤裤型','clothing',['非牛仔裤','直筒牛仔裤','阔腿牛仔裤','微喇牛仔裤','高腰牛仔裤','烟管牛仔裤','工装牛仔裤','黑灰牛仔裤']),
+      denimColor:f('denimColor','牛仔颜色','clothing',['非牛仔裤','浅水洗蓝','中蓝','深蓝','黑灰','灰蓝','复古水洗蓝']),
+      clothingColor:f('clothingColor','服装颜色','clothing',['黑色','白色','米白','奶油色','驼色','浅灰','深灰','棕色','墨绿','酒红','粉色','浅蓝','紫色']),
+      material:f('material','面料材质','clothing',['哑光尼龙','防风科技面料','鹅绒填充','羊毛','呢料','针织','真丝','重磅真丝','蕾丝','雪纺','棉麻','缎面','皮革']),
+      silhouette:f('silhouette','版型廓形','clothing',['修身','宽松','适度蓬松','H 型','A 字型','X 型收腰','直筒','包臀','垂顺']),
+      layering:f('layering','穿搭层次','clothing',['单品试穿','外套 + 内搭','上衣 + 下装','套装完整搭配','外套 + 下装 + 鞋履完整造型','礼服完整造型']),
+      stylingItems:mf('stylingItems','搭配单品','clothing',['包包','靴子','高跟鞋','乐福鞋','运动鞋','帽子','围巾','项链','耳饰','腰带']),
+      displayFocus:mf('displayFocus','展示重点','clothing',['整体搭配','上身效果','面料质感','版型显瘦','功能卖点','细节工艺','季节氛围']),
+      liveRoomSpaceType:f('liveRoomSpaceType','直播间空间类型','scene',['轻布景女装直播间','真实居家直播间','品牌专场直播间','精品店式直播间','主题包装直播间','户外感室内场景','空场景底图']),
+      sceneStyle:f('sceneStyle','房间样式 / Scene Style','scene',['大空间转角居家感直播间 large-corner-home-live-room','女装层次窗景假景直播间 layered-window-scenic-live-room','默认真实服装直播间 default-clean-live-room']),
+      sceneLayoutVariant:f('sceneLayoutVariant','Scene Layout Variant','scene',[{label:'L 型构图',value:'l_shape_corner_layout'},'side_window_corner','side_cabinet_corner','diagonal_empty_floor','soft_living_corner','soft_home_window_scenic_corner','clean_brand_room_box','side_back_window_corner','diagonal_arch_with_side_rack','recessed_lightbox_wall','partial_window_with_living_corner','soft_room_box_with_side_scenic_panel']),
+      materialPalette:f('materialPalette','Material Palette','scene',['warm_wood_cream','beige_stone_linen','soft_gray_oak','deep_wood_home','warm_white_rattan','cream_warm_wood','beige_linen_stone','light_microcement']),
+      sceneStyleDirection:f('sceneStyleDirection','直播间风格化方向','scene',['奶油家居风','韩系温柔风','法式复古风','都市通勤风','极简白墙风','木质暖调风','轻奢黑金风','精品店品牌墙风','秋冬窗景风','复古宫廷风','新中式雅致风','地中海白蓝风','森系自然风','美式复古街景风']),
+      spaceMode:f('spaceMode','空间模式','scene',['真实可搭建空间','主题包装空间','品牌专场空间','活动节点空间','场景提案空间']),
+      themePackaging:f('themePackaging','主题场景包装','scene',['无明显主题，普通试穿直播间','季节主题包装','品牌上新主题','大促活动主题','法式花园主题','春意主题','森系自然主题','宫廷礼服主题','秋冬橱窗主题','雪山科技主题','地中海度假主题','装置艺术主题']),
+      backgroundStructure:f('backgroundStructure','背景结构','scene',['干净背景墙','转角墙面','品牌墙','背景大屏','窗景','拱门','弧形门洞','格栅墙','木饰面墙','窗帘背景','货架背景']),
+      softProps:mf('softProps','软装道具','scene',['沙发','单椅','地毯','落地灯','边桌','绿植','花艺','窗帘','挂画','壁灯','壁炉','屏风','小圆桌','户外折叠椅']),
+      sideDisplay:f('sideDisplay','侧边商品辅助陈列','scene',['无','右侧挂杆','左侧挂杆','单件主推衣架','小型挂衣架','搭配单品架','局部商品架','模特服装 + 旁侧单品辅助']),
+      designIntensity:f('designIntensity','场景设计强度','scene',['低：接近真实直播间','中：品牌化直播间','高：主题化专场直播间']),
+      realismLevel:f('realismLevel','写实程度','scene',['强写实，低 AI 味','写实中带轻设计感','写实品牌化','主题视觉化但仍要真实']),
+      spaceTemplate:f('spaceTemplate','空间母版','reusableSpace',['常规轻布景试穿直播间','真实家居质感直播间','新中式极简雅致','东方静奢展厅','复古戏剧花艺空间','暗调华丽礼服空间','地中海白蓝庭院','度假海岛拱门空间','白蓝花园式直播间','雪山科技品牌专场','暖调家居冬装直播间','深木帘幕质感直播间','中性灰极简陈列空间','深木牛仔品牌展厅','暖灰家居牛仔裤直播间','都市机能牛仔裤空间','美式复古街景空间']),
+      wallElements:mf('wallElements','墙面结构元素','reusableSpace',['暖米大白墙','深木饰面背景墙','胡桃木柜体墙','中性灰微水泥墙','暖灰墙面','炭灰背景墙','局部深色背景块','线性层板墙','低密度陈列背景墙','灰咖窗帘背景','深色挂杆背景','深色情绪墙','白色拱门墙','弧形门洞','格栅装饰墙','发光灯格墙','木质护墙板','品牌墙']),
+      lightingElements:mf('lightingElements','灯光装置元素','reusableSpace',['壁灯','隐藏灯带','顶部暖光洗墙','顶部筒灯','侧向窗光','陈列层板洗墙灯','极简落地灯','低反差轮廓光','中性建筑柔光','柔和轨道灯','竖向发光灯格','戏剧型局部照明','落地灯','水晶灯','柔和窗光']),
+      furnitureElements:mf('furnitureElements','软装家具元素','reusableSpace',['细腿边桌','木质玄关桌','中式条案','小圆桌','壁炉台','单椅','深色单椅','黑色单椅','小边柜','胡桃木柜','低矮展示台','层板陈列架','深色挂杆','鞋履陈列','包袋陈列','靠椅','户外折叠椅','小型边柜','沙发','地毯','暖灰地毯','低反光木地板','中性灰微水泥地面','低反光石材地面']),
+      artElements:mf('artElements','装饰艺术元素','reusableSpace',['东方挂画','水墨画','动物油画','花卉装饰画','抽象画','花器','雕塑摆件','白色格栅','屏风','门洞内景']),
+      plantElements:mf('plantElements','植物花艺元素','reusableSpace',['盆栽绿植','热带大叶植物','花枝探入顶部','桌面花艺','落地花丛','花器组合','园艺边角','藤蔓','花拱门']),
+      fabricElements:mf('fabricElements','织物元素','reusableSpace',['厚重深色窗帘','灰咖窗帘','米灰窗帘','深色帘幕','暖灰地毯','深色局部地毯','白色轻纱','布幔','柔软帘幕','地毯','靠垫']),
+      aspectRatio:f('aspectRatio','画幅比例','camera',['9:16','4:5','3:4','1:1','16:9']),
+      focalLength:f('focalLength','焦段效果','camera',['全画幅 35mm','全画幅 40mm','全画幅 50mm','全画幅 24-28mm 空间广角','手机主摄等效 24-28mm']),
+      cameraLevel:f('cameraLevel','相机水平状态','camera',['严格水平机位','轻微平视','不可俯拍','不可仰拍']),
+      cameraHeight:f('cameraHeight','镜头高度','camera',['1.10m–1.20m 坐播机位','1.25m–1.35m 站播平视机位','1.35m–1.45m 半身讲解机位','24–35mm 空场景空间视角']),
+      perspectiveMode:f('perspectiveMode','室内透视模式','camera',['正面平视直播透视','轻转角室内透视','正面橱窗式透视','空场景空间透视','方案展示拼贴视图']),
+      verticalRule:f('verticalRule','垂直线规则','camera',['所有墙面、窗框、背景板、柜体、屏幕边缘、门框、窗帘边缘保持垂直']),
+      spatialAxisRule:f('spatialAxisRule','空间轴线规则','camera',['地面、背景墙、家具、灯具、软装和人物脚下落点服从同一个室内空间轴线']),
+      generalNegative:mf('generalNegative','通用负面限制','negative',['不要低清晰度','不要画面脏乱','不要廉价感','不要低端商拍感','不要强烈 AI 假感','不要插画感','不要卡通感']),
+      personNegative:mf('personNegative','人物负面限制','negative',['不要过度性感化','不要低俗擦边','不要人体展示优先','不要影楼写真感','不要网红滤镜过重','不要蜡像皮肤','不要手部变形','不要腿部过度拉长']),
+      clothingNegative:mf('clothingNegative','服装负面限制','negative',['不要服装结构错误','不要版型塌陷','不要材质失真','不要压线混乱','不要穿搭关系混乱','不要服装主次不清']),
+      sceneNegative:mf('sceneNegative','场景负面限制','negative',['不要杂乱背景','不要 AI 展厅感','不要纯商业海报感','不要空间空得发假','不要道具堆砌','不要陈列过满','不要背景喧宾夺主']),
+      perspectiveNegative:mf('perspectiveNegative','透视负面限制','negative',['不要拼接空间','不要多个消失点混乱','不要超广角畸变','不要地面过度拉伸','不要墙面歪斜','不要柜体透视错误','不要屏幕边缘倾斜','不要人物漂浮','不要空间比例失控'])
+    };
+    const moduleOrder = ['output','sales','live','clothing','scene','reusableSpace','camera','negative'];
+    const groups = moduleOrder.map(module => ({module, title:moduleTitles[module], fields:Object.keys(fields).filter(key => fields[key].module === module)}));
+
+    function f(key,label,module,options){return {key,label,module,options:['自动',...options],multi:false,allowCustom:true}}
+    function mf(key,label,module,options){return {key,label,module,options:['自动',...options],multi:true,allowCustom:true}}
+    const form = document.querySelector('#promptForm');
+    const outputSections = document.querySelector('#outputSections');
+    const lockedCount = document.querySelector('#lockedCount');
+    const autoCount = document.querySelector('#autoCount');
+    const fillCount = document.querySelector('#fillCount');
+    const toast = document.querySelector('#toast');
+
+    function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    function valueText(v){return Array.isArray(v) ? v.join('、') : v}
+    function optionValue(option){return option && typeof option === 'object' ? option.value : option}
+    function optionLabel(option){return option && typeof option === 'object' ? option.label : option}
+    const LAYERED_WINDOW_SCENIC_ID = 'layered-window-scenic-live-room';
+    const LARGE_CORNER_HOME_ID = 'large-corner-home-live-room';
+    const largeCornerKeywords = [
+      '大空间转角','转角居家感','居家感直播间','大空间直播间','l型转角','L型转角','转角构图','侧向窗光','侧窗光','侧窗直播间','家居感站播','生活方式直播间','真实室内直播间','低密度陈列','大面积地面','室内房间盒子','大空间室内盒子','转角服装直播间','大空间女装直播间','大空间男装直播间',
+      'large corner live room','l-shaped room','corner composition','home-style live room','large indoor room box','side window light','spacious fashion live room','lifestyle live-commerce room','angled live camera view','large floor depth','low-density garment display'
+    ];
+    const sceneStyleKeywords = [
+      '层次假景','层次窗景','层次窗景假景','仿真窗景','仿真窗户','假窗景','景框窗','拱门窗景','拱窗景','室内仿户外','花园窗景','海景窗景','草坪窗景','窗外感','法式窗景','生活方式场景','软膜灯箱','软膜灯箱窗景','卡布灯箱','卡布灯箱远景','独立灯箱远景','前中后景层次','女装层次','女装窗景','女装假景','女装氛围场景',
+      'layered scenic','faux window view','framed window backdrop','arched window view','indoor faux outdoor','lifestyle scenic live room','backlit fabric scenic backdrop','seg fabric lightbox','window-scene fashion livestream set'
+    ];
+    const sceneStyleDisableKeywords = ['普通真实直播间','不要假景','不要窗景','不要窗外','无窗景','no faux scenery','no faux window','no window view','normal realistic live room'];
+    const sceneStylePositiveFragmentText = `This is an indoor live-commerce room box with a layered window-scenic set, not a real garden, not a photo studio garden, and not a wedding backdrop. The scenic window is a designed set element: a framed arch or window structure with a backlit fabric lightbox / SEG fabric scenic panel behind it, plus real side props and foreground floor layers. The center must remain a clean livestream selling zone for the host and garment.
+
+The scenic window must be built as a layered indoor set: front physical wall or arch frame, mid-layer real props such as side plants, curtains, steps, or small scenic elements, and a rear backlit fabric lightbox / SEG scenic panel as the distant faux outdoor view. The scene uses clear foreground, midground and far-background layers inside a visible indoor floor and wall structure. The framed scenic window is a set element, not a full natural garden. The far background appears through an arched window, framed opening or scenic backdrop. The far view may be a backlit fabric lightbox, SEG fabric lightbox, printed scenic panel or faux window-view backdrop, softly glowing and not looking like a flat poster.
+
+For large scenic window live rooms, use a slight corner composition or angled live-camera view. Show part of side wall / side structure / side curtain / side rack, so the room reads as an L-shaped or boxed indoor space. Avoid a flat full-frontal centered window portrait composition.
+
+The midground must keep a central clean selling zone for livestream selling. The host stands in the midground presentation zone with real floor contact, correct scale, contact shadows and enough clear space for clothing explanation. The garment must be fully visible. Scenic props stay at sides and rear.
+
+The foreground and side layers are physical set props: low plants, light floor texture, simple rug, small side rack, soft curtain or modular wall panel. They create depth but stay away from the central garment display.
+
+The overall mood is soft, feminine, clean, premium and lifestyle-oriented, suitable for women’s fashion livestream selling. Use soft French lifestyle mood, cream wall, simple arch window, light greenery and subtle flowers at the sides when a French mood is needed. Avoid romantic flowers, lush flowers, fairy garden, beautiful garden, wedding-like floral arch and large flower wall.`;
+    const sceneStyleCompactFragmentText = `This is a large indoor women’s fashion live-commerce room box with a layered scenic-window module, not a real outdoor garden, not a wedding set, not a photo studio portrait set, not an offline fitting room, and not a small recessed niche. The scenic window is a large designed scenic module embedded within a broader livestream room: a framed arch, French faux window, floor-to-ceiling scenic frame, or SEG / backlit fabric lightbox scenic panel, plus real side props and foreground floor layers. The center must remain a clean livestream selling zone for the host and garment. Use integrated architectural lighting only, hidden cove lighting, ceiling downlights, wall lamps and warm ambient interior lighting; livestream identity comes only from the host’s product explanation, a small wireless lavalier microphone, and the room organization. Use a large-space corner composition or angled live camera view, showing side wall / side structure / side curtain / one small low-density side display, so the space reads as an L-shaped or boxed indoor room with breathing room, not a narrow hole-like arch, alcove, tiny recess, or flat full-frontal centered window portrait. Visible indoor floor and wall structure, floor depth, side breathing space, framed scenic module as a set element, physical side props, not full natural garden. Host stands in the clean midground selling zone, garment fully visible, not surrounded by racks and not framed tightly by the window. The foreground and side layers are physical set props: low plants, light floor texture, simple rug, one small point-display garment sample, soft curtain or modular wall panel. They create depth but stay away from the central garment display. Scenic plants, window frames and foreground props stay mainly at the sides and rear, leaving the host and garment fully visible in the central selling area.`;
+    const sceneStyleNegativeFragmentText = `offline boutique fitting room, plain clothing store, store try-on photo, normal clothing store display, photo studio backdrop, photo studio portrait set, wedding photo backdrop, wedding set, wedding backdrop, floral wedding arch, heavy event installation, theme park decoration, homestay promo photo, boutique showroom, flat backdrop only, flat scenic wall, flat printed poster, full frontal centered window portrait, real outdoor location, real garden, romantic garden portrait, bridal studio, wedding floral arch, fashion editorial window shoot, lookbook shoot, model posing, premium try-on photo, lifestyle photoshoot, decorative scene overpowering host, too many flowers, full flower wall, no live-commerce room box, no room-box structure, no indoor set structure, no side wall, no corner composition, scenic window only with no physical set layers, host pasted against window, host lost in scenery, garment secondary to background, no foreground depth, no midground presentation zone, no clean selling zone, no clean standing space, props blocking host, plants blocking garment, furniture overload, cluttered garden scene, subject pasted onto background, floating subject, no floor contact, chaotic perspective, scenic props dominating clothing, scenery dominating clothing, landscape bigger than product, no live-selling function, no visible light stand, no softbox, no panel light, no led video light, no studio lighting equipment, no filming setup, no production gear, no narrow niche, no alcove-like window, no recessed wall niche, no small hole-like scenic opening, no cramped corner, no tiny arch recess, no one full row of clothes rack, no full rail of hanging garments, no store rack lineup, no boutique display wall, no showroom clothing rail, no fitting-room retail layout`;
+    const layeredWindowInheritsLargeCornerLockText = `When using layered-window-scenic-live-room, always inherit the large-corner-home-live-room spatial lock first: large room-box, L-shaped corner composition, visible side wall, large floor depth, clean midground selling zone, integrated architectural lighting only, a broad scenic module with breathing room, and one small low-density side garment sample at most. The faux window, framed window, arch window, soft-membrane lightbox, SEG fabric lightbox and layered scenery are optional scenic modules built inside the large corner room, not an independent frontal window portrait set.`;
+    const hostAestheticLockText = `The host should look like a natural Chinese women’s fashion livestream seller, friendly, grounded and commercial, with realistic domestic live-selling aesthetics. Avoid overly Korean fashion model styling, overly delicate K-beauty makeup, idol-like face, glossy influencer portrait look, or fashion lookbook model expression. The host should feel like a real livestream seller explaining products, not a Korean-style catalog model.`;
+    const hostAestheticNegativeText = `Korean fashion model look, K-beauty makeup, idol-like face, glossy influencer portrait, Korean catalog model, overly delicate makeup, fashion lookbook face, model-like expression, overly polished portrait, soft Korean boutique aesthetic`;
+    const nonRepetitiveLayoutLockText = `Do not repeat the same centered cream arch-window layout every time. Vary the room structure, window placement, side wall, rack position, floor material and scenic panel shape according to the selected layout variant. The scene should not look like the same room with only clothes changed.`;
+    const nonRepetitiveNegativeText = `same centered arch-window room, repetitive cream arch layout, identical room structure, fixed central window, same Korean boutique room, all scenes look the same, generic Korean fashion live room`;
+    const sceneLayoutVariants = {
+      side_back_window_corner:'LayoutVariant side_back_window_corner: Window scenic element placed toward side-back area. Show one side wall, floor depth and a diagonal room corner. Host stands in midground selling zone, not centered directly against the window. Suitable for denim, commuter womenswear and sun-protection clothing.',
+      diagonal_arch_with_side_rack:'LayoutVariant diagonal_arch_with_side_rack: Use an angled arch or framed scenic opening, with only one small low-density side garment sample or point-display rack on one side and a clean center selling zone. The arch is not perfectly centered. Camera slightly diagonal. Suitable for dresses, French womenswear and cotton-linen womenswear.',
+      recessed_lightbox_wall:'LayoutVariant recessed_lightbox_wall: Backlit fabric scenic panel is integrated into a broad framed wall module, not a narrow recessed wall niche. Foreground has floor texture and minimal side plants. More commercial and less romantic. Suitable for brand live rooms, seasonal sessions and campaign live rooms.',
+      partial_window_with_living_corner:'LayoutVariant partial_window_with_living_corner: Only part of the window or scenic view is visible. Add side shelf, small chair, low cabinet or soft curtain as lifestyle corner. Keep host and garment central. Suitable for home-like womenswear, knitwear, cotton-linen and mature feminine style.',
+      soft_room_box_with_side_scenic_panel:'LayoutVariant soft_room_box_with_side_scenic_panel: A real indoor room-box structure with a side scenic panel, not a big central window and not a small niche. The scenic panel sits behind or beside the host, creating depth but not dominating. Suitable for denim, menswear and basic standing live rooms.'
+    };
+    const materialPalettes = {
+      cream_warm_wood:'MaterialPalette cream_warm_wood: cream wall, light warm wood floor, soft neutral textile and simple warm wooden rack.',
+      soft_gray_oak:'MaterialPalette soft_gray_oak: soft gray wall, oak floor, restrained neutral curtain and matte clothing rack.',
+      beige_linen_stone:'MaterialPalette beige_linen_stone: beige linen curtain, stone-texture floor, soft fabric props and low-reflection side display.',
+      light_microcement:'MaterialPalette light_microcement: light microcement wall and floor, clean metal clothing rack, minimal modern side props.',
+      warm_white_rattan:'MaterialPalette warm_white_rattan: warm white wall, natural rattan or woven accents, light floor texture and soft lifestyle props.'
+    };
+    const largeCornerPositiveFragmentText = `Vertical 9:16 realistic indoor fashion live-commerce room, large indoor room-box space, L-shaped corner composition, slight angled live-camera view. Show a real visible side wall, main background wall, large foreground floor depth and a clean midground presentation zone. This is a real spacious indoor livestream selling room, not an offline boutique fitting room, not a narrow window niche, not a photo studio backdrop, and not a store try-on space.
+
+Use a real standing livestream camera perspective, camera height around the host’s waist to chest level, stable and natural. The host stands naturally in the midground, with real floor contact and real room distance behind the host, speaking toward the live camera as if explaining the product to online viewers.
+
+The room must first work as a believable interior space: foreground floor extends from camera to the host’s feet and continues into the background; side wall, main wall, window area, floor and furniture all follow one coherent indoor perspective system.
+
+Use integrated architectural lighting only: ceiling downlights, hidden light strips, wall lamps, practical warm interior lighting and soft window light, with all lighting integrated into the architecture and kept outside the visual focus.
+
+Background should feel like a clean home-like fashion live room: one small low-density side display, subtle cabinet or sideboard, small decor, soft curtains, controlled styling, and a spacious uncluttered atmosphere. Garment display stays point-like, secondary and supportive, leaving the central selling zone open.
+
+The center remains open and usable for livestream selling. Background elements stay at the rear or sides and support the scene without dominating the host or product.`;
+    const largeCornerNegativeFragmentText = `offline boutique fitting room, store try-on photo, fitting room selfie, clothing store display wall, dense clothing racks, a whole row of hanging garments, full row of clothes rack, full rail of hanging garments, boutique showroom, warehouse-like stock area, equipment-heavy live room, visible softbox, visible light stand, visible filming light, LED panel light, reflector, production gear, photography studio setup, photo studio backdrop, narrow niche set, cramped window alcove, recessed niche, small window hole, flat front-facing backdrop, centered poster composition, centered window background, no side wall, no L-shaped room, no corner composition, no floor depth, host pasted against wall, host standing directly against background, floating feet, giant host, overlong legs, chaotic perspective, cluttered props, full wall racks, furniture blocking legs, table blocking full-body display`;
+    const largeCornerLayoutVariants = {
+      l_shape_corner_layout:'LayoutVariant l_shape_corner_layout: L-shaped corner composition is selected for template routing and debug visibility only. The final prompt template already carries the L-shaped corner semantics; do not append extra layout rule text into compactImagePrompt.',
+      side_window_corner:'LayoutVariant side_window_corner: side window or side-rear window area provides spatial extension and soft natural light. Host stands in the midground; main wall and side wall form a clear L-shaped corner relationship.',
+      side_cabinet_corner:'LayoutVariant side_cabinet_corner: one side has a low cabinet, sideboard, artwork or lifestyle display, while the other side remains a clean main wall, forming a real corner room.',
+      diagonal_empty_floor:'LayoutVariant diagonal_empty_floor: emphasize large foreground floor depth and diagonal perspective, clean midground host zone, and only minimal background lifestyle layer.',
+      soft_living_corner:'LayoutVariant soft_living_corner: include one single chair, round rug, side table, curtains or soft props, but keep low density and never block the garment.',
+      soft_home_window_scenic_corner:'LayoutVariant soft_home_window_scenic_corner: Use the soft_home_window_scenic_corner layout variant under a large-corner-home-live-room spatial framework. This is a real indoor fashion live-commerce room box with an L-shaped corner composition, visible side wall, main wall, large foreground floor depth and a clean midground selling zone. Add a soft home-style window-scenic corner: a side-back arched window or partial scenic window module, soft curtains, subtle plants, low-density lifestyle props such as a small chair, side table, low cabinet, fireplace-like niche or warm wall lamp. The scenic window stays toward the side-back area and supports the room depth. It must not become a centered portrait backdrop or a flat scenic wall. The host stands naturally in the midground selling zone, not directly against the window and not pasted onto the background. The garment remains fully visible. Use integrated architectural lighting only, such as ceiling downlights, hidden cove lighting, wall lamps, warm ambient interior lighting and soft window light, with lighting treated as part of the room architecture. Use only one small point-like supporting garment display at the side, keeping the central livestream selling zone clear. The room should feel like a soft home-style women’s fashion livestream selling room, with lifestyle atmosphere, but still clearly usable for live-commerce selling.',
+      clean_brand_room_box:'LayoutVariant clean_brand_room_box: restrained brand live room box with low decoration, strong spatial clarity, large floor depth and a clean selling zone.'
+    };
+    const softHomeWindowScenicCornerNegativeText = `centered arched window portrait, full frontal window backdrop, centered large window background, flat scenic wall, host standing directly against window, host pasted against window, narrow window niche, cramped scenic alcove, small window hole, wedding window set, bridal studio window scene, romantic photo studio, Korean soft boutique window room, Korean lifestyle catalog room, homestay promo photo, photo studio portrait set, visible softbox, visible light stand, LED panel light, film set equipment, full row of clothes rack, dense retail rack, showroom clothing rail, furniture blocking garment, scenic props dominating host, window scenery overpowering garment`;
+    const largeCornerMaterialPalettes = {
+      warm_wood_cream:'MaterialPalette warm_wood_cream: warm wood floor, cream wall, linen curtain and soft home-style interior texture.',
+      beige_stone_linen:'MaterialPalette beige_stone_linen: beige stone-texture floor tile, linen curtain, low-reflection furniture and warm neutral interior.',
+      soft_gray_oak:'MaterialPalette soft_gray_oak: soft gray wall, oak floor, simple side cabinet and restrained home-like styling.',
+      deep_wood_home:'MaterialPalette deep_wood_home: deep wood veneer, warm hidden light strips, low-density supporting display and calm premium home feeling.',
+      warm_white_rattan:'MaterialPalette warm_white_rattan: warm white wall, rattan or woven accents, soft lifestyle props and natural home atmosphere.'
+    };
+    const largeCornerLayoutKeywordMap = [
+      {key:'l_shape_corner_layout', terms:['L 型构图','L型构图','l_shape_corner_layout','L-shaped corner composition','l-shaped corner composition','L-shaped layout','l-shaped layout']},
+      {key:'soft_home_window_scenic_corner', terms:['居家软装窗景','软装窗景','窗景软装','法式窗景','居家窗景','生活方式窗景','拱窗直播间','软帘窗景','女装窗景生活方式','窗边居家感','客厅感窗景','壁炉窗景','单椅窗景','柔和窗景','侧后方窗景','soft home window scenic corner','home-style window-scenic corner','arched window lifestyle room','side-back arched window','soft curtain window scene','living room window scenic set','lifestyle window corner']},
+      {key:'clean_brand_room_box', terms:['干净品牌感','品牌感','clean brand','brand room box']},
+      {key:'diagonal_empty_floor', terms:['男装','大面积地面','真实站播','diagonal empty floor','menswear']},
+      {key:'side_cabinet_corner', terms:['棉麻','低密度陈列','自然讲解','侧柜','side cabinet']},
+      {key:'side_window_corner', terms:['侧窗光','侧向窗光','侧窗直播间','暖木地板','side window']},
+      {key:'soft_living_corner', terms:['生活方式感','生活方式直播间','居家感','soft living','lifestyle']}
+    ];
+    const largeCornerMaterialKeywordMap = [
+      {key:'deep_wood_home', terms:['深木','深木质感','深木饰面','deep wood']},
+      {key:'beige_stone_linen', terms:['米色石纹','米色石纹地面','石纹地面','beige stone']},
+      {key:'soft_gray_oak', terms:['干净品牌感','柔灰','灰橡木','clean brand','soft gray']},
+      {key:'warm_white_rattan', terms:['棉麻','藤编','草编','暖白','rattan']},
+      {key:'warm_wood_cream', terms:['暖木','暖木地板','奶油墙','warm wood']}
+    ];
+    function hashIndex(text, length){
+      const str = String(text || '');
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+      return length ? hash % length : 0;
+    }
+    function resolveSceneLayoutVariant(ctx, selectedSceneStyle){
+      const p = ctx.state || {};
+      const input = flattenStateText(p);
+      const lowerInput = input.toLowerCase();
+      const variants = selectedSceneStyle === LARGE_CORNER_HOME_ID ? Object.keys(largeCornerLayoutVariants) : Object.keys(sceneLayoutVariants);
+      const manual = String(p.sceneLayoutVariant || '').trim();
+      const matched = variants.find(key => manual === key || input.includes(`layoutVariant=${key}`) || input.includes(key));
+      const keywordRecord = selectedSceneStyle === LARGE_CORNER_HOME_ID
+        ? largeCornerLayoutKeywordMap.find(item => item.terms.some(term => lowerInput.includes(term.toLowerCase())))
+        : null;
+      const keywordMatched = keywordRecord?.key || '';
+      const matchedLayoutVariantKeywords = keywordRecord ? keywordRecord.terms.filter(term => lowerInput.includes(term.toLowerCase())) : [];
+      const selectedSceneLayoutVariant = keywordMatched || matched || (selectedSceneStyle === LARGE_CORNER_HOME_ID ? 'side_window_corner' : variants[hashIndex(input, variants.length)]);
+      return {selectedSceneLayoutVariant, matchedLayoutVariantKeywords};
+    }
+    function resolveMaterialPalette(ctx, selectedSceneStyle){
+      const p = ctx.state || {};
+      const input = flattenStateText(p);
+      const lowerInput = input.toLowerCase();
+      const palettes = selectedSceneStyle === LARGE_CORNER_HOME_ID ? Object.keys(largeCornerMaterialPalettes) : Object.keys(materialPalettes);
+      const manual = String(p.materialPalette || '').trim();
+      const matched = palettes.find(key => manual === key || input.includes(`materialPalette=${key}`) || input.includes(key));
+      const keywordMatched = selectedSceneStyle === LARGE_CORNER_HOME_ID
+        ? largeCornerMaterialKeywordMap.find(item => item.terms.some(term => lowerInput.includes(term.toLowerCase())))?.key
+        : '';
+      const selectedMaterialPalette = matched || keywordMatched || (selectedSceneStyle === LARGE_CORNER_HOME_ID ? 'warm_wood_cream' : palettes[hashIndex(`${input}:material`, palettes.length)]);
+      return {selectedMaterialPalette};
+    }
+    function flattenStateText(state){
+      return Object.values(state || {}).flatMap(value => Array.isArray(value) ? value : [value]).join(' ');
+    }
+    function resolveSceneStyle(ctx){
+      const p = ctx.state || {};
+      const input = flattenStateText(p).toLowerCase();
+      const manual = String(p.sceneStyle || '').toLowerCase();
+      const disabled = sceneStyleDisableKeywords.filter(keyword => input.includes(keyword.toLowerCase()));
+      const matchedLargeKeywords = largeCornerKeywords.filter(keyword => input.includes(keyword.toLowerCase()));
+      const matchedLayeredKeywords = disabled.length ? [] : sceneStyleKeywords.filter(keyword => input.includes(keyword.toLowerCase()));
+      const manualSelected = manual.includes(LAYERED_WINDOW_SCENIC_ID) || manual.includes('层次窗景假景');
+      const manualLarge = manual.includes(LARGE_CORNER_HOME_ID) || manual.includes('大空间转角居家感');
+      const selectedScenicModule = manualSelected || matchedLayeredKeywords.length ? LAYERED_WINDOW_SCENIC_ID : '';
+      const selected = LARGE_CORNER_HOME_ID;
+      return {
+        selectedSceneStyle:selected,
+        selectedScenicModule,
+        sceneStyleFallback:false,
+        matchedSceneStyleKeywords:matchedLargeKeywords,
+        matchedScenicModuleKeywords:matchedLayeredKeywords,
+        disabledSceneStyleKeywords:disabled
+      };
+    }
+    function hasLayeredWindowSceneStyle(state){
+      return state.selectedSceneStyle === LAYERED_WINDOW_SCENIC_ID || state.selectedScenicModule === LAYERED_WINDOW_SCENIC_ID;
+    }
+    function hasLargeCornerHomeSceneStyle(state){
+      return state.selectedSceneStyle === LARGE_CORNER_HOME_ID;
+    }
+    function sceneStyleCategoryGuard(state){
+      const p = state.state || {};
+      if (p.clothingCategory === '连衣裙') {
+        return 'For dress scenes, avoid bridal, wedding, photo-studio and romantic portrait feeling. The dress should be presented as a livestream selling garment, not a bridal portrait or fashion editorial. The host speaks to the live camera with a product explanation gesture.';
+      }
+      if (isDenimState(p)) {
+        return 'For denim scenes, avoid premium window try-on photo. The jeans remain the main product: waistband, fly front, pockets, hip fit, leg silhouette, hems and shoes must be fully visible. The window scenic set must not make the image look like a lifestyle photoshoot.';
+      }
+      return '';
+    }
+    function sceneStylePositiveFragment(state){
+      if (hasLargeCornerHomeSceneStyle(state)) {
+        return [
+          largeCornerPositiveFragmentText,
+          largeCornerLayoutVariants[state.selectedSceneLayoutVariant],
+          largeCornerMaterialPalettes[state.selectedMaterialPalette],
+          hasLayeredWindowSceneStyle(state) ? layeredWindowInheritsLargeCornerLockText : '',
+          hasLayeredWindowSceneStyle(state) ? sceneStylePositiveFragmentText : '',
+          hasLayeredWindowSceneStyle(state) ? nonRepetitiveLayoutLockText : '',
+          hostAestheticLockText,
+          sceneStyleCategoryGuard(state)
+        ].filter(Boolean).join('\n\n');
+      }
+      if (hasLayeredWindowSceneStyle(state)) {
+        return [
+          sceneStylePositiveFragmentText,
+          sceneLayoutVariants[state.selectedSceneLayoutVariant],
+          materialPalettes[state.selectedMaterialPalette],
+          hostAestheticLockText,
+          nonRepetitiveLayoutLockText,
+          sceneStyleCategoryGuard(state)
+        ].filter(Boolean).join('\n\n');
+      }
+      return '';
+    }
+    function sceneStyleCompactFragment(state){
+      if (hasLargeCornerHomeSceneStyle(state)) {
+        return [
+          largeCornerPositiveFragmentText,
+          largeCornerLayoutVariants[state.selectedSceneLayoutVariant],
+          largeCornerMaterialPalettes[state.selectedMaterialPalette],
+          hasLayeredWindowSceneStyle(state) ? layeredWindowInheritsLargeCornerLockText : '',
+          hasLayeredWindowSceneStyle(state) ? sceneStyleCompactFragmentText : '',
+          hasLayeredWindowSceneStyle(state) ? nonRepetitiveLayoutLockText : '',
+          hostAestheticLockText,
+          sceneStyleCategoryGuard(state)
+        ].filter(Boolean).join(' ');
+      }
+      if (hasLayeredWindowSceneStyle(state)) {
+        return [
+          sceneStyleCompactFragmentText,
+          sceneLayoutVariants[state.selectedSceneLayoutVariant],
+          materialPalettes[state.selectedMaterialPalette],
+          hostAestheticLockText,
+          nonRepetitiveLayoutLockText,
+          sceneStyleCategoryGuard(state)
+        ].filter(Boolean).join(' ');
+      }
+      return '';
+    }
+    function sceneStyleNegativeFragment(state){
+      if (hasLargeCornerHomeSceneStyle(state)) {
+        return [
+          largeCornerNegativeFragmentText,
+          state.selectedSceneLayoutVariant === 'soft_home_window_scenic_corner' ? softHomeWindowScenicCornerNegativeText : '',
+          hasLayeredWindowSceneStyle(state) ? sceneStyleNegativeFragmentText : '',
+          hasLayeredWindowSceneStyle(state) ? nonRepetitiveNegativeText : '',
+          hostAestheticNegativeText
+        ].filter(Boolean).join(', ');
+      }
+      if (hasLayeredWindowSceneStyle(state)) return [sceneStyleNegativeFragmentText, hostAestheticNegativeText, nonRepetitiveNegativeText].join(', ');
+      return '';
+    }
+    function resolveProductSceneStrategy(input){
+      const category = input.category || '';
+      const seasonText = input.seasonText || '';
+      const materialText = input.materialText || '';
+      const allText = `${category} ${seasonText} ${materialText}`;
+      const isSunProtection = /防晒|UPF|轻薄外套|透气|清爽/.test(allText);
+      const isDenim = isDenimCategoryValue(category) || /牛仔|丹宁|denim|jeans/.test(allText);
+      const isLinen = /棉麻|亚麻|舒适/.test(allText);
+      const isDress = category === '连衣裙' || /连衣裙|裙装/.test(allText);
+      const isWinter = /冬|秋冬|羽绒|鹅绒|保暖|大衣|羊毛/.test(allText);
+      const isSummer = /夏|清凉|透气|度假/.test(allText);
+      if (isSunProtection || isSummer) {
+        return {
+          resolvedSceneStrategyPriority:'sun-protection-summer-first',
+          seasonDirection:'夏季清凉通透',
+          productMood:'清爽、轻盈、透气、实穿、防晒通勤',
+          sceneColorStrategy:'浅色、通透、干净、自然窗光',
+          spaceLayerStrategy:'大空间转角、可见侧墙、大面积地面纵深、低密度陈列',
+          valueAddedElements:['浅木地板','暖白墙','亚麻窗帘','小绿植','低密度陈列'],
+          propsStrategy:'少量植物、亚麻或浅木小件即可，不使用厚重奢华摆件'
+        };
+      }
+      if (isDenim) {
+        const isLightDenim = /浅|浅水洗|清爽|夏/.test(allText);
+        return {
+          resolvedSceneStrategyPriority:'denim-specialized',
+          seasonDirection:isLightDenim ? '夏季清爽丹宁' : '秋冬或四季通勤丹宁',
+          productMood:isLightDenim ? '清爽丹宁、实穿显瘦、轻生活方式感' : '都市通勤丹宁、显瘦、沉稳质感',
+          sceneColorStrategy:isLightDenim ? '浅木、米白墙、亚麻软装，避免蓝光污染' : '暖木或深木、灰墙、低反光背景托住牛仔蓝',
+          spaceLayerStrategy:'大空间转角、可见侧墙、大面积地面纵深、克制低密度陈列',
+          valueAddedElements:isLightDenim ? ['侧向窗光','清爽植物','亚麻软装','低密度挂样'] : ['皮质单椅','小型边柜','少量金属元素','克制低密度陈列'],
+          propsStrategy:'先保证裤型、腰线、裤脚和丹宁纹理，小摆件不能遮挡裤腿'
+        };
+      }
+      if (isLinen) {
+        return {
+          resolvedSceneStrategyPriority:'linen-comfort-specialized',
+          seasonDirection:'清爽舒适自然',
+          productMood:'自然、舒适、松弛、棉麻肌理感',
+          sceneColorStrategy:'暖白墙、原木、藤编、亚麻、柔和生活方式背景',
+          spaceLayerStrategy:'大空间转角、可见侧墙、大面积地面纵深、低密度陈列',
+          valueAddedElements:['藤编点缀','原木柜','低矮软装','生活方式角落'],
+          propsStrategy:'只用少量自然材质小件，避免样板房杂货间'
+        };
+      }
+      if (isDress) {
+        return {
+          resolvedSceneStrategyPriority:'dress-selling-presentation',
+          seasonDirection:'女装柔和生活方式',
+          productMood:'柔和、完整展示、直播讲解、商业呈现',
+          sceneColorStrategy:'米白、暖木、亚麻、柔和低饱和背景',
+          spaceLayerStrategy:'大空间转角、干净中景讲解区、侧后方生活层',
+          valueAddedElements:['软帘','小边几','单椅','少量植物'],
+          propsStrategy:'弱化浪漫写真摆件，优先直播讲解和裙摆完整'
+        };
+      }
+      if (isWinter) {
+        return {
+          resolvedSceneStrategyPriority:'winter-fallback',
+          seasonDirection:'秋冬温暖质感',
+          productMood:'温暖、稳重、有价格感和材质信任',
+          sceneColorStrategy:'暖木、深木、灰墙、低饱和暖光背景',
+          spaceLayerStrategy:'大空间转角、可见侧墙、大面积地面纵深、低密度陈列',
+          valueAddedElements:['深木柜','皮质单椅','边柜','艺术画','暖色灯带'],
+          propsStrategy:'摆件少而准，优先质感家具和材质层次，不堆杂货'
+        };
+      }
+      return {
+        resolvedSceneStrategyPriority:'default-product-first',
+        seasonDirection:'四季通勤稳定',
+        productMood:'干净实穿、真实直播成交感',
+        sceneColorStrategy:'稳定中性色主色，低反光背景，长期承载品类',
+        spaceLayerStrategy:'大空间转角、可见侧墙、大面积地面纵深、低密度陈列',
+        valueAddedElements:['低密度侧边陈列','干净地面','真实中景讲解区'],
+        propsStrategy:'小摆件最后考虑，只少量使用，不能抢服装主体'
+      };
+    }
+    function productDrivenSceneDecision(p){
+      const category = p.clothingCategory || '';
+      const seasonText = `${p.season || ''} ${p.activityNode || ''} ${valueText(p.functionSellingPoints)}`;
+      const materialText = `${p.material || ''} ${p.denimColor || ''} ${p.clothingColor || ''} ${p.fashionStyle || ''}`;
+      const isPremiumMaterial = /真丝|羊绒|羊毛|鹅绒|皮|重磅|小香风|轻奢|高蓬松/.test(materialText);
+      const isValueBasic = /基础|低价|性价比|拍1发3/.test(`${p.fashionStyle || ''} ${valueText(p.benefitInfo)}`);
+      const priceTier = isValueBasic ? '低客单价 / 基础款'
+        : (isPremiumMaterial || /品牌|官方|质感|通勤/.test(`${p.salesType || ''} ${p.fashionStyle || ''}`) ? '中高客单价' : '中客单价');
+      const strategy = resolveProductSceneStrategy({category, seasonText, materialText});
+      if (priceTier === '低客单价 / 基础款') {
+        strategy.valueAddedElements = ['干净背景', '低密度挂样', '明亮地面', '实穿讲解区'];
+        strategy.propsStrategy = '不强行堆奢华元素，强调实穿、好搭和性价比';
+      }
+      return {
+        productDrivenSceneRule:true,
+        productCategory:category,
+        resolvedSceneStrategyPriority:strategy.resolvedSceneStrategyPriority,
+        seasonDirection:strategy.seasonDirection,
+        priceTier,
+        productMood:strategy.productMood,
+        sceneColorStrategy:strategy.sceneColorStrategy,
+        spaceLayerStrategy:strategy.spaceLayerStrategy,
+        valueAddedElements:strategy.valueAddedElements,
+        propsStrategy:strategy.propsStrategy,
+        audiencePreferenceNotPrimary:true
+      };
+    }
+    function productDrivenSceneText(state){
+      const d = state.productDrivenSceneDecision;
+      if (!d) return '';
+      const raw = [
+        '【Product-Driven Scene Design Rule】',
+        'Scene design follows the product first, not abstract audience labels. Audience preference may adjust texture and price-tier polish, but it must not override product category, season, material, product mood or display logic.',
+        `Product category: ${d.productCategory}. Season direction: ${d.seasonDirection}. Price tier: ${d.priceTier}. Product mood: ${d.productMood}.`,
+        `Scene color strategy: ${d.sceneColorStrategy}. Space layer strategy: ${d.spaceLayerStrategy}. Value-added elements: ${d.valueAddedElements.join(', ')}. Props strategy: ${d.propsStrategy}.`
+      ].join('\n');
+    }
+    function qualityControlLocks(state){
+      const p = state.state || {};
+      const price = state.priceSanitizer || {priceProvidedByUser:false, detectedPriceTokens:[], sanitizedPriceTokens:[]};
+      return {
+        noFakePriceLock:true,
+        noHeavyPromoBoardLock:true,
+        lowDensityDisplayCountLock:true,
+        productSceneMatch:true,
+        priceProvidedByUser:price.priceProvidedByUser,
+        detectedPriceTokens:price.detectedPriceTokens || [],
+        sanitizedPriceTokens:price.sanitizedPriceTokens || [],
+        allowedVisibleTextType:'generic product feature only',
+        category:p.clothingCategory || ''
+      };
+    }
+    function qualityControlPatchText(state){
+      const p = state.state || {};
+      const base = [
+        '【Quality Control Patch V1】',
+        'Visible text, when needed, stays generic, minimal and secondary, using only product feature wording or user-provided commercial text. The image should not invent numeric sale labels.',
+        'Use at most one small side display with only 1-3 visible garments. The side display must stay secondary, occupy limited space, and never look like a retail clothing rack lineup.'
+      ];
+      if (p.clothingCategory === '连衣裙') {
+        base.push('For dress scenes, the host should clearly act as a livestream seller explaining the dress to online viewers, not as a fashion portrait model. Use natural product explanation gestures. Keep the dress fully visible and commercially presented. The room should remain a live-selling space, not a romantic lifestyle photoshoot.');
+      }
+      if (p.clothingCategory === '防晒衣' || /防晒/.test(`${p.clothingCategory || ''} ${p.material || ''} ${valueText(p.functionSellingPoints)}`)) {
+        base.push('For sun-protection clothing, the scene should feel clean, bright, breathable and summer-oriented. Use side window daylight, light floor, pale wall, small green plant and minimal fresh styling. The product should communicate lightness, breathability, commuting, outdoor daily use and sun-protection practicality, without turning into a sportswear studio or medical protective suit.');
+      }
+      if (isDenimState(p)) {
+        base.push('For mid-to-high price denim jeans, use subtle value-added elements such as deep wood, warm gray wall, leather chair, framed art, low cabinet, small handbag or metal detail. These elements must stay secondary, premium and product-supportive.');
+      }
+      return base.join('\n');
+    }
+    function qualityControlNegativeText(state){
+      const p = state.state || {};
+      const negatives = [
+        'fake price',
+        'invented price',
+        '¥399',
+        'price tag',
+        'large price board',
+        'discount board',
+        'coupon board',
+        'big promotion sign',
+        'heavy sales poster',
+        'blackboard price sign',
+        'detailed e-commerce promo board',
+        'oversized selling board',
+        'too many hanging garments',
+        'side rack too large',
+        'retail rack lineup',
+        'many clothes on rack',
+        'garment rack dominating frame',
+        'store display row',
+        'full rail of clothing',
+        'dense side rack'
+      ];
+      if (p.clothingCategory === '连衣裙') {
+        negatives.push('romantic dress portrait','fashion portrait','lifestyle editorial','bridal mood','wedding room mood','model-only pose','no selling gesture','garment shown as portrait styling');
+      }
+      if (p.clothingCategory === '防晒衣' || /防晒/.test(`${p.clothingCategory || ''} ${p.material || ''} ${valueText(p.functionSellingPoints)}`)) {
+        negatives.push('sportswear studio','medical protective suit','plastic raincoat','heavy outdoor hiking gear','over-decorated summer props','beach holiday costume','cluttered summer scene');
+      }
+      if (isDenimState(p)) {
+        negatives.push('cheap promo sign','fake luxury overload','price blackboard','retail sale poster','over-commercial sales sign');
+      }
+      return negatives.join(', ');
+    }
+    function detectProvidedPrice(userInput, lockedFields = []){
+      const text = [userInput, ...lockedFields].filter(Boolean).join(' ');
+      const patterns = [
+        /[¥￥]\s*\d+(?:\.\d+)?/g,
+        /\d+(?:\.\d+)?\s*元/g,
+        /(直播价|到手价|价格|客单价)\s*\d+(?:\.\d+)?/g,
+        /\d+(?:\.\d+)?\s*(折|折扣)/g,
+        /(满减|优惠券|券)\s*\d+(?:\.\d+)?/g,
+        /(?<!UPF)(?<!\w)(?:9\.9|99|199|299|399)(?!\w)/g
+      ];
+      const detectedPriceTokens = [];
+      patterns.forEach(pattern => {
+        const matches = text.match(pattern);
+        if (matches) detectedPriceTokens.push(...matches);
+      });
+      return {
+        priceProvidedByUser:detectedPriceTokens.length > 0,
+        detectedPriceTokens:[...new Set(detectedPriceTokens)]
+      };
+    }
+    function sanitizeGeneratedText(text, options = {}){
+      const sanitizedPriceTokens = [];
+      if (options.priceProvidedByUser) {
+        return {text, sanitizedPriceTokens};
+      }
+      let out = String(text || '');
+      const replacements = [
+        /[¥￥]\s*\d+(?:\.\d+)?/g,
+        /\d+(?:\.\d+)?\s*元/g,
+        /(直播价|到手价|价格|客单价)\s*\d+(?:\.\d+)?/g,
+        /\d+(?:\.\d+)?\s*(折|折扣)/g,
+        /(满减|优惠券|券)\s*\d+(?:\.\d+)?/g
+      ];
+      replacements.forEach(pattern => {
+        out = out.replace(pattern, match => {
+          sanitizedPriceTokens.push(match);
+          return 'generic product feature text';
+        });
+      });
+      return {text:out, sanitizedPriceTokens:[...new Set(sanitizedPriceTokens)]};
+    }
+    const liveRoomIdentityLock = `This is a real women’s fashion live-selling room, not an offline boutique fitting room. The host is speaking naturally to the live camera. The room keeps a clean premium clothing live-room atmosphere, with only subtle live-commerce signals such as a wireless lavalier microphone, natural product explanation gesture, or one small low-density side garment sample. These signals should support the livestream identity through host behavior and room organization while the space remains natural, open, clean and garment-focused.`;
+    const liveRoomElementChecks = [
+      {key:'mic', label:'wireless lavalier microphone on host', terms:['wireless lavalier microphone','lavalier microphone']},
+      {key:'gesture', label:'natural product explanation gesture', terms:['natural product explanation gesture','product explanation gesture']},
+      {key:'rack', label:'side rack with next clothing items waiting to introduce', terms:['next jeans waiting','side rack with next jeans','next clothing items waiting','next items on a side rack']},
+      {key:'stock', label:'small folded denim stock shelf', terms:['small folded denim stock shelf','folded denim stock shelf']},
+      {key:'size', label:'subtle size/fit info card', terms:['subtle size/fit info card','size/fit info card']}
+    ];
+    function chooseLiveSignals(){
+      return [
+        'wireless lavalier microphone on host',
+        'natural product explanation gesture',
+        'side rack with next clothing items waiting to introduce'
+      ];
+    }
+    function liveRoomIdentityText(){
+      const selectedLiveSignals = chooseLiveSignals();
+      return [
+        '【V3 Soft Live Room Identity Lock】',
+        liveRoomIdentityLock,
+        'Golden spatial anchor: modern women’s fashion live room, clean premium clothing live space, realistic standing live camera, full-body jeans display, controlled room depth, clothing rack / shelves / curtain / soft interior lighting, host standing naturally in the room, spacious floor depth, not cluttered, not equipment-heavy.',
+        `The room includes a few natural live-commerce signals, such as ${selectedLiveSignals.join(', ')}, appearing subtly in the environment and not dominating the composition.`,
+        '衣架、挂杆、帘幕和陈列架服务空间纵深；直播信号只作辅助，不能遮挡牛仔裤腰线、裤型和裤脚，不能把画面变成设备展示或堆货角。'
+      ].join('\n');
+    }
+    const FAUX_GARDEN_EMPTY_FRONT_TEMPLATE = 'faux_garden_empty_front_tvc_studio_locked_v01';
+    const FAUX_GARDEN_ROUTE = 'faux_garden_window_scenic_livestream_room';
+    const fauxGardenSharedSceneDNAText = `Shared Scene DNA for faux_garden_window_scenic_livestream_room / shared_scene_dna_two_9x16_v01. This shared block must be prepended to both empty_front_9x16 and host_final_9x16 positivePrompt.
+
+Faux Garden Window Scenic Livestream Room, one fixed scenic livestream set, shared by both empty_front_9x16 and host_final_9x16. The empty_front_9x16 is the same scene as host_final_9x16, pulled back on the same front camera axis. Do not redesign the set. Keep the wooden cottage module, hydrangea tree, flower borders, lace table, flower basket, grass boundary, and rear lightbox in the same relative positions. Different crop distance is allowed; different camera angle is not allowed.
+
+Rear layer: rear-wall-only SEG seaside fabric lightbox, installed against a retained support wall, not floating. The lightbox rises vertically on the back wall only, with a shallow rear-wall top R-cove extension. The ceiling extension is about 0.8-1.2 meters deep, does not extend onto side walls, and does not form a U-shaped room. Top layer: TVC-style black industrial studio ceiling above the set. The exposed black ceiling and open studio-side working area belong only to empty_front_9x16, not to host_final_9x16. Empty_front_9x16 may show black industrial ceiling, exposed overhead structure, open studio-side working area and hard-floor studio area. Host_final_9x16 must hide black industrial ceiling, open studio shell, left-side working area, backstage floor and rough ceiling.
+
+Right layer: shallow wooden cottage window facade module overlaps in front of the right side of the lightbox, rotated inward, hiding the right ending edge. Transition layer: one fixed faux hydrangea tree sits between the left edge of the wooden cottage module and the right side of the rear lightbox, hiding the structural connection. Floor layer: artificial grass is the main livestream standing zone, close to the main lightbox width, not wall-to-wall. Left layer: open hard-floor studio-side working area for real lighting and crew operation. Prop layer: one small lace-covered round table is fixed in the right-mid foreground, close to the wooden cottage module but not blocking the host. Flower basket: fixed near the lace table, not moved to another side.
+
+For host_final_9x16, the host should stay centered in the main presentation zone with safe headroom and footroom. Her shoes and feet must be fully visible, not cropped, not touching the bottom edge, and not pasted to the frame bottom. The lace table remains on the right-mid foreground side, but it must stay low and off to the side, never blocking the host's full body, legs, feet, or central presentation gesture, and never stealing focus from the host. Chinese Douyin live-commerce realism is more important than fashion-model beauty. The host may be youthful, bright, fresh and stylish, but must remain a real Chinese Douyin live-commerce seller, not a Korean lookbook model, cold editorial model or fashion campaign portrait.
+
+For empty_front_9x16, keep the left open studio-side area visible but do not enlarge it beyond the locked proportion. Keep the current proportion between grass width, rear lightbox width and wooden cottage position. Do not make the left open area larger, do not narrow the grass, do not resize the lightbox, and do not move the wooden cottage module.`;
+    const fauxGardenCommonNegativeText = 'different angle, redesigned layout, new plant arrangement, changed cottage position, table moved to another side, hydrangea tree moved, random flower placement, inconsistent grass boundary, different scenic set';
+    const finalPromptTemplates = {
+      denim_deep_wood_premium_corner:{
+        positive:`Vertical 9:16 realistic women's fashion live-commerce room, large indoor room-box space, L-shaped corner composition, slight angled live-camera view. Show a visible side wall, main background wall, ceiling, large foreground floor depth and a clean midground presentation zone.
+
+The product is [PRODUCT_NAME], a premium urban denim piece for commuting and daily styling. The scene follows the product mood: mature, steady and refined, with [MATERIAL_DETAILS]. Use low-density furnishing: [SOFT_FURNISHING_DETAILS]. Small props: [PROP_DETAILS]. All props stay secondary and low-density.
+
+The host looks like a natural Chinese fashion livestream seller, friendly, grounded and commercial. She stands in the midground, speaking to the live camera, one hand indicating the waistband or hip line, the other naturally explaining the pant leg.
+
+The jeans are the main subject. Clearly show [DISPLAY_POINTS]. Full pants silhouette, hems and shoes must be visible, with natural body proportions and realistic denim texture.
+
+Use integrated architectural lighting only: ceiling downlights, hidden cove lighting, wall lamps and warm ambient interior light. Use only one small side sample display.`,
+        negative:'fake price, invented price, price tag, promotion board, blackboard price sign, large sales sign, discount board, dense text, visible softbox, visible light stand, LED panel light, filming equipment, photo studio backdrop, boutique fitting room, store try-on photo, full row of clothes rack, dense clothing racks, retail rack lineup, narrow niche, flat front-facing backdrop, no side wall, no floor depth, host pasted against wall, giant host, overlong legs, cropped hems, waistband blocked, pants distorted, denim texture missing, Korean catalog model, fashion editorial pose.'
+      },
+      dress_soft_home_window_corner:{
+        positive:`Vertical 9:16 realistic women's fashion live-commerce room, large indoor room-box space, L-shaped corner composition, slight angled live-camera view. Show visible side wall, main wall, large foreground floor depth and a clean midground presentation zone. The scene is a soft home-style window corner inside a real indoor livestream room, not a portrait studio or wedding scene.
+
+Use a side-back arched window or partial scenic window with [MATERIAL_DETAILS]. Build refined warm home styling with richer clean layering. Add low-density feminine furnishing: [SOFT_FURNISHING_DETAILS]. Small props: [PROP_DETAILS].
+
+Furnishing stays at the sides and rear, supporting dress selling without blocking the host. The window supports depth, never a centered portrait backdrop. Keep the center clean.
+
+The product is [PRODUCT_NAME], a soft women's dress with a light, breathable and elegant commercial mood. The host is a natural Chinese fashion livestream seller, friendly and grounded, speaking to the live camera with product explanation gestures.
+
+The dress is the main subject. Clearly show [DISPLAY_POINTS], chest-waist proportion and full-body dress silhouette. The garment stays fully visible.
+
+Use integrated architectural lighting only. No filming equipment. Minimal side styling, no dense rack.`,
+        negative:'wedding window set, bridal studio, romantic portrait, photo studio portrait set, centered arched window portrait, full frontal window backdrop, flat scenic wall, host pasted against window, narrow window niche, Korean soft boutique room, lifestyle editorial, model-only pose, fake price, promotion board, large sales sign, visible softbox, visible light stand, LED panel light, full row of clothes rack, dense retail rack, furniture blocking garment, cropped dress hem, garment details unclear, empty plain room, overly minimal bare room, under-furnished scene, simplistic sample-room feeling, showroom emptiness, furniture overload, cluttered decoration, wedding styling, bridal softness, romantic portrait set.'
+      },
+      sunproof_fresh_summer_corner:{
+        positive:`Vertical 9:16 realistic women's fashion live-commerce room, large indoor room-box space, L-shaped corner composition, slight angled live-camera view. Show visible side wall, main background wall, large foreground floor depth, clean midground presentation zone and real room distance behind the host.
+
+The product is [PRODUCT_NAME], a lightweight summer sun-protection garment for easy daily commute and sun protection. The scene follows the product mood: early summer freshness, airy, bright, breathable, sunlit, lightweight and seasonally fresh. Use [MATERIAL_DETAILS] with a soft ivory, light beige, pale sage or mist blue palette.
+
+Add low-density summer lifestyle furnishing: [SOFT_FURNISHING_DETAILS]. Small props: [PROP_DETAILS]. Greenery stays fresh, pale and controlled, never tropical or dark.
+
+The host looks like a natural Chinese fashion livestream seller, friendly, grounded and commercial. She speaks to the live camera, explaining lightness, breathability, commuting use and daily outdoor practicality.
+
+The garment is the main subject. Clearly show [DISPLAY_POINTS], breathable texture, full-body proportion and casual summer styling.
+
+Use integrated architectural lighting only. No visible filming equipment. Only one small side sample display is allowed.`,
+        negative:'fake price, promotion board, large sales sign, visible softbox, visible light stand, LED panel light, production gear, boutique fitting room, store try-on photo, dense clothing racks, full row of clothes rack, narrow niche, flat front-facing backdrop, no side wall, no floor depth, plastic raincoat, medical protective suit, heavy hiking gear, cluttered summer props, Korean catalog model, fashion editorial pose, garment blocked, sleeve cropped, zipper missing, autumn mood, heavy dark wood styling, winter premium mood, muted lifeless beige-only room, overly neutral no-season room, too little greenery, no summer signal, sporty showroom, camping scene, resort vacation scene, dark forest greenery, tropical plant wall.'
+      },
+      new_chinese_song_minimal_home:{
+        positive:`Vertical 9:16 realistic new Chinese women’s fashion livestream room, Song-style minimal home atmosphere, large indoor room-box space, slight angled live-camera view. Show visible side wall, warm curtain background, complete floor depth, clean midground presentation zone and soft rear layering.
+
+The product is [PRODUCT_NAME], a calm and comfortable women’s garment with natural fabric feeling and gentle oriental lifestyle mood. The scene follows the product: warm beige wall, linen curtain, simple folding screen, low wooden cabinet, round woven rug, small bonsai or branch arrangement, and restrained warm architectural lighting. Keep the center clean for livestream selling.
+
+The host looks like a natural Chinese fashion livestream seller, grounded, calm and friendly. She stands in the midground, speaking to the live camera with natural product explanation gestures.
+
+The garment is the main subject. Clearly show [DISPLAY_POINTS]. Full outfit proportion, hemline and shoes must be visible. The space should add quiet oriental elegance without becoming ancient costume photography, tea house, museum display or wedding set.
+
+Use low-density oriental furnishing only. Props stay on the side or rear layer and never block the garment.`,
+        negative:'ancient costume studio, hanfu photography set, Chinese wedding set, red gold wedding decor, tea house overload, museum display, full wall calligraphy, overdecorated Chinese props, palace drama set, tourist attraction interior, stage performance, theatrical lighting, crowded screens, too many lanterns, furniture blocking garment, props blocking hemline, host lost in scenery, fashion editorial pose, boutique fitting room, dense clothing rack, visible softbox, light stand, LED panel, fake price, promotion board, overlong legs, cropped garment, floating feet'
+      },
+      new_chinese_oriental_display_home:{
+        positive:`Vertical 9:16 realistic new Chinese aesthetic women’s fashion livestream room, refined oriental display home atmosphere, large indoor room-box space, slight angled live-camera view. Show visible side wall, warm wooden floor, rear folding screen, side cabinet, complete foreground floor depth and clean midground selling zone.
+
+The product is [PRODUCT_NAME], an elegant women’s garment with oriental texture, crafted fabric feeling and refined lifestyle value. The scene follows the product: warm wood tone, muted beige curtain, Chinese folding screen with subtle bamboo or landscape texture, low wooden cabinet, ceramic vase, branch arrangement, woven rug, oriental floor lamp or pendant lantern, and soft warm architectural light.
+
+The host looks like a natural Chinese fashion livestream seller, calm, confident and commercial. She stands in the midground, speaking to the live camera, using restrained product explanation gestures. The garment remains the visual focus.
+
+Clearly show [DISPLAY_POINTS]. Full body proportion, silhouette, fabric texture, sleeve shape, hemline and shoes must be visible. The oriental setting should enhance the garment’s warmth, craftsmanship and quiet elegance, without turning into ancient costume photography, tea house, museum display or theatrical Chinese stage.
+
+Keep all screens, lamps, vases and plants in the side or rear layer. Do not let decorative objects overpower the clothing.`,
+        negative:'ancient costume studio, hanfu portrait, palace drama scene, Chinese wedding set, red gold decor, tea house overload, museum display, full wall calligraphy, dense antique props, overdecorated oriental set, theatrical stage, tourist attraction, too many screens, too many lanterns, large calligraphy wall, props blocking garment, furniture blocking legs, host pasted onto background, boutique fitting room, dense clothing racks, visible softbox, light stand, LED panel, fake price, promotion board, fashion editorial pose, overlong legs, cropped hemline, floating feet'
+      },
+      faux_garden_empty_front_tvc_studio_locked_v01:{
+        positive:`Vertical 9:16 empty front view of the shared Faux Garden Window Scenic Livestream Room, a medium-size buildable indoor livestream scenic set inside a rectangular studio-like commercial room. No host, no product. Keep a clean usable central livestream standing zone.
+
+The overall scene should feel like a refined scenic set built inside a larger TVC-style studio. Inside the camera frame, the scenic set is polished and beautiful. Outside the scenic zone, the studio shell may feel more open and rougher, like a professional shooting stage.
+
+Lock the current top structure style. The upper outer area should keep a TVC-stage / studio-build feeling, with visible dark industrial ceiling, exposed overhead structure, beams, rigging, or open black stage ceiling context above the scenic set. The shooting area below remains refined and beautiful. Do not make it look like a fully sealed residential ceiling.
+
+The SEG fabric lightbox is a rear-wall-only scenic lightbox. The wall behind the lightbox must remain present and structurally intact. The scenic wall must not float in open space. The lightbox is installed against a proper rear wall. Keep the scenic lightbox width unchanged.
+
+The SEG fabric lightbox rises vertically from the floor to the ceiling on the back wall only. At the top edge of this rear scenic wall, the lightbox curves gently into a shallow ceiling extension. The curve happens only along the upper edge of the rear wall, where the vertical wall meets the ceiling. The rear scenic lightbox must show one smooth rounded R-cove transition from the vertical rear wall into the shallow ceiling strip. The seaside sky image is printed across one continuous fabric lightbox surface. There must be no hard horizontal line, no straight crease, no visible seam, and no 90-degree break between the rear wall image and the ceiling extension.
+
+The ceiling extension is only a shallow rear-wall cove strip, about 0.8-1.2 meters deep, placed directly above the rear scenic wall. It must not extend onto the left or right side walls. It must not form a U-shaped room, curved side walls, wraparound screen, or immersive sky tunnel. The rear lightbox top cove should have a moderate buildable thickness, not an oversized rounded screen frame.
+
+On the left side, keep the current open studio-side space rather than a close visible white wall. The left side in the camera view should feel open and spacious, like an accessible working side of the studio, with practical empty hard-floor area for future lighting placement. Do not show lighting equipment, stands, cables, or crew tools. The near-left wall should not dominate the frame. The left side should feel visually open, not boxed in, while the rear scenic lightbox still remains mounted on a proper back wall. The left open studio-side area should remain visible but should not dominate the frame, roughly around 20-25% of the image width. The scenic lightbox, grass presentation zone, and wooden cottage module remain the main visual focus.
+
+The artificial grass scenic floor should remain wide and practical, approximately matching the main scenic width of the rear lightbox. The artificial grass scenic floor should visually align with the main width of the rear scenic lightbox. Its left edge should be mostly straight and intentional, not a strong diagonal narrowing strip. The grass should feel like a broad rectangular scenic presentation zone matching the rear lightbox width. The grass should not become a narrow strip. It should not cover the entire room wall-to-wall. The grass remains a defined scenic presentation zone, broad enough for future host standing and livestream presentation, with open hard-floor studio space visible on the left side.
+
+The SEG fabric lightbox scenic image must extend behind the wooden cottage window module. The wooden cottage window facade must clearly overlap in front of the right side of the rear scenic lightbox. It should be visibly rotated inward toward the center of the scene, not parallel to the right wall. The wooden facade should physically cover the right ending edge of the scenic lightbox from the front camera view.
+
+The wooden cottage module is a shallow scenic facade prop, only a partial window-wall set piece, about 0.5-0.8 meters deep, with a shallow decorative pitched eave, wooden window frame, white sheer curtain, windowsill flower pots, and a shallow wooden platform. Add a faux hydrangea tree between the lightbox wall and the wooden window module to hide the structural transition.
+
+Add low flower borders and small potted flowers around the scenic edge. Add one small lace-covered round table fixed in the right-mid foreground inside the grass scenic zone, close to the wooden cottage module but not blocking the future host position, with one flower basket fixed nearby. Do not move the table or flower basket to another side. Keep the central presentation zone open and usable.
+
+The final result should feel like a finished professional indoor scenic livestream set, refined inside the scenic frame, with TVC-style studio context outside the scenic area, not a construction site, not a real outdoor garden, and not a finished residential interior.`,
+        negative:'close left white wall dominating frame, narrow boxed-in corridor feeling, visible near-left full-height wall, cramped left-side wall, enclosed left-side room feeling, no open studio-side space, left open studio area dominating the frame, excessive empty gray floor on the left, floating scenic wall, detached lightbox, no wall behind lightbox, open back with no support wall, lightbox suspended in open space, enlarged scenic lightbox, oversized lightbox, narrow grass strip, skinny turf runway, tiny turf island, full-room turf carpet, wall-to-wall grass, grass covering the whole room, grass left edge strongly diagonal, grass narrowing into a trapezoid strip, scenic grass much narrower than lightbox, real outdoor garden, open-air garden, construction site mess, unfinished front camera frame, finished residential interior, luxury model room interior, U-shaped cyclorama, U-shaped curved room, curved left wall, curved right wall, side walls wrapped by scenic lightbox, plan-view wall corner bend, three-sided scenic wrap, wraparound sky wall, curved side wall lightbox, immersive curved room, sky tunnel, panoramic side-wall screen, lightbox wrapping onto side walls, full cyclorama studio, hard horizontal line between wall and ceiling image, straight seam across the top of the scenic wall, visible 90-degree break at rear wall top, hard horizontal seam between wall and ceiling, visible straight crease at wall-ceiling junction, flat sky ceiling panel, separate ceiling mural, sharp ceiling transition line, broken cove curve, angular wall-to-ceiling joint, non-curved ceiling junction, full sky ceiling, open skylight, giant ceiling mural, huge overhead screen, immersive sky dome, ceiling opening to outdoor sky, flat printed backdrop only, giant wraparound LED wall, immersive exhibition hall, giant rounded screen frame, overly thick lightbox border, oversized rounded LED display, bulky rounded screen shell, full cabin body, real roof volume, complete wooden house, oversized roof, wooden facade parallel to right wall, cottage module not overlapping lightbox, cottage module beside lightbox, right lightbox edge not covered, wooden cottage module flat against wall, blank white wall gap between lightbox and wooden module, lightbox stops before the wooden module, visible right-side lightbox termination edge, exposed white wall strip, separated scenic modules, different angle, redesigned layout, new plant arrangement, changed cottage position, table moved to another side, hydrangea tree moved, random flower placement, inconsistent grass boundary, different scenic set, visible light stand, visible softbox, visible LED panel, visible filming equipment, visible crew tools, visible cables, wedding floral arch, dense flower wall, cramped small photo booth'
+      },
+      generic_large_corner_home_room:{
+        positive:`Vertical 9:16 realistic fashion live-commerce room, large indoor room-box space, L-shaped corner composition, slight angled live-camera view. Show a visible side wall, main background wall, large foreground floor depth and a clean midground presentation zone.
+
+The product is [PRODUCT_NAME]. The scene follows the product mood with clean home-style interior materials, low-density side styling and a calm commercial livestream atmosphere.
+
+The host looks like a natural Chinese fashion livestream seller, friendly, grounded and commercial. She stands in the midground, speaking to the live camera with natural product explanation gestures.
+
+The garment is the main subject. Clearly show [DISPLAY_POINTS]. The full garment and shoes must be visible.
+
+Use integrated architectural lighting only and one small side sample display.`,
+        negative:'fake price, promotion board, large sales sign, visible softbox, visible light stand, LED panel light, boutique fitting room, store try-on photo, dense clothing racks, full row of clothes rack, narrow niche, flat front-facing backdrop, no side wall, no floor depth, garment blocked, cropped garment, overlong legs.'
+      }
+    };
+    const finalPromptVariableLibrary = {
+      denim_deep_wood_premium_corner:{
+        selectedMaterialPalette:'denim_premium_winter',
+        selectedSoftFurnishing:['low walnut cabinet','leather single chair','abstract framed art'],
+        selectedProps:['small black handbag','champagne metal tray'],
+        materialDetails:'deep walnut wood, warm gray textured wall, matte wood floor and warm architectural lighting',
+        softFurnishingDetails:'low walnut cabinet, leather single chair, subtle abstract framed art',
+        propDetails:'small black handbag and champagne metal tray placed on the side table'
+      },
+      dress_soft_home_window_corner:{
+        selectedMaterialPalette:'dress_soft_french',
+        selectedSoftFurnishing:['rattan chair','linen curtain','warm wall sconce','low cabinet'],
+        selectedProps:['small flower vase','round mirror','soft book stack'],
+        materialDetails:'cream wall, light wood floor, rattan texture and soft floral accent',
+        softFurnishingDetails:'rattan chair, linen curtain, warm wall sconce and low cabinet',
+        propDetails:'small flower vase, round mirror and soft book stack in the rear layer'
+      },
+      sunproof_fresh_summer_corner:{
+        selectedMaterialPalette:'sunproof_summer_green',
+        selectedSoftFurnishing:['light oak cabinet','sheer curtain','small side sample display'],
+        selectedProps:['clear glass vase','pale ceramic pot','fresh green plants','light sage accents'],
+        materialDetails:'warm white wall, pale oak floor, sunlit window greenery and soft daylight',
+        softFurnishingDetails:'light oak cabinet, sheer curtain and one small side sample display',
+        propDetails:'clear glass vase, pale ceramic pot, fresh green plants and light sage accents'
+      },
+      generic_large_corner_home_room:{
+        selectedMaterialPalette:'linen_natural_home',
+        selectedSoftFurnishing:['woven rattan chair','raw wood side cabinet','natural fiber rug'],
+        selectedProps:['unglazed ceramic vase','linen folded fabric','wooden tray'],
+        materialDetails:'raw wood, cotton-linen textile, warm beige wall and woven rattan',
+        softFurnishingDetails:'woven rattan chair, raw wood side cabinet and natural fiber rug',
+        propDetails:'unglazed ceramic vase, linen folded fabric and wooden tray'
+      }
+    };
+    function countEnglishWords(text){
+      return (String(text || '').match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?/g) || []).length;
+    }
+    const denimCategoryMap = {
+      '牛仔裤':'denim_jeans',
+      '高腰牛仔裤':'high_waist_denim',
+      '阔腿牛仔裤':'wide_leg_denim',
+      '微喇牛仔裤':'micro_flare_denim',
+      '直筒牛仔裤':'straight_denim',
+      '丹宁裤':'denim_pants',
+      denim_jeans:'denim_jeans',
+      high_waist_denim:'high_waist_denim',
+      wide_leg_denim:'wide_leg_denim',
+      micro_flare_denim:'micro_flare_denim',
+      straight_denim:'straight_denim',
+      denim_pants:'denim_pants'
+    };
+    const denimFitMap = {
+      high_waist_denim:'高腰牛仔裤',
+      wide_leg_denim:'阔腿牛仔裤',
+      micro_flare_denim:'微喇牛仔裤',
+      straight_denim:'直筒牛仔裤',
+      denim_jeans:'直筒牛仔裤',
+      denim_pants:'直筒牛仔裤'
+    };
+    function isDenimCategoryValue(value){
+      const text = String(value || '');
+      return Boolean(denimCategoryMap[text] || /牛仔|丹宁|denim|jeans/i.test(text));
+    }
+    function selectedWorkbenchCategoryValue(state){
+      const p = state.state || state || {};
+      return denimCategoryMap[p.clothingCategory] || p.clothingCategory || '';
+    }
+    function selectedDenimSubCategory(state){
+      const p = state.state || state || {};
+      return denimFitMap[p.clothingCategory] || (isDenimCategoryValue(p.denimFit) ? p.denimFit : '');
+    }
+    function isDenimState(state){
+      const p = state.state || state || {};
+      return isDenimCategoryValue(p.clothingCategory) || isDenimCategoryValue(p.denimFit) || isDenimCategoryValue(p.material);
+    }
+    function isFauxGardenEmptyFrontState(state){
+      const p = state.state || state || {};
+      const text = flattenStateText(p).toLowerCase();
+      const hasFauxGarden = /faux[_ -]?garden|faux garden window|仿真花园|花园窗景|海景窗景|木屋窗景|卡布灯箱花园|弧形灯箱|软膜灯箱|seg fabric lightbox/i.test(text);
+      const hasEmptyFront = /empty[_ -]?front|empty front|空场景正面|空场景底图|无主播|无人物|无产品|no host|no product|单张空场景图|tvc/i.test(text);
+      const hostFinal = /host[_ -]?final|带主播|主播落地|有主播|host grounded|douyin host/i.test(text);
+      const wideOverview = /wide[_ -]?overview|16:9|大全景|全景|build overview/i.test(text);
+      return hasFauxGarden && hasEmptyFront && !hostFinal && !wideOverview;
+    }
+    function selectedRouteForState(state){
+      return isFauxGardenEmptyFrontState(state) ? FAUX_GARDEN_ROUTE : (isDenimState(state) ? 'denim-live-room' : 'generic-fashion-live-room');
+    }
+    function selectedFinalPromptTemplateFor(state){
+      const p = state.state || state || {};
+      const text = `${p.clothingCategory || ''} ${p.denimFit || ''} ${p.fashionStyle || ''} ${p.material || ''} ${p.functionSellingPoints || ''}`;
+      if (isFauxGardenEmptyFrontState(state)) return FAUX_GARDEN_EMPTY_FRONT_TEMPLATE;
+      if (isDenimState(state) || /牛仔裤|丹宁|高腰|显瘦|微喇|阔腿|直筒|denim|jeans|denim_jeans|high_waist_denim|wide_leg_denim|micro_flare_denim|straight_denim|denim_pants/i.test(text)) return 'denim_deep_wood_premium_corner';
+      if (/连衣裙|碎花裙|法式裙|春夏裙装|dress/i.test(text)) return 'dress_soft_home_window_corner';
+      if (/防晒服|防晒衣|轻薄外套|夏季透气|UPF|sun-protection/i.test(text)) return 'sunproof_fresh_summer_corner';
+      return 'generic_large_corner_home_room';
+    }
+    function selectNewChineseFinalPromptTemplate({selectedRoute = '', styleSubType = '', userInput = ''} = {}){
+      const text = `${styleSubType} ${userInput}`.toLowerCase();
+      const isNewChineseRoute = selectedRoute === 'new-chinese-aesthetic-live-room';
+      if (!isNewChineseRoute) {
+        return {
+          selectedRoute,
+          selectedStyleSubType:styleSubType,
+          selectedFinalPromptTemplate:'',
+          templateMode:true,
+          routeUsedForProductDisplayOnly:true,
+          connectedToGeneration:false
+        };
+      }
+      const orientalDisplayKeywords = /oriental_display_home|新中式陈设|东方陈设|设计师款|香云纱|刺绣|提花|高级东方|秋冬质感|中式美学/i;
+      const songMinimalKeywords = /song_minimal_home|宋式|极简新中式|留白|棉麻|文艺|松弛感|自然舒适|居家东方/i;
+      const selectedStyleSubType = orientalDisplayKeywords.test(text)
+        ? 'oriental_display_home'
+        : (songMinimalKeywords.test(text) ? 'song_minimal_home' : (styleSubType || 'song_minimal_home'));
+      const selectedFinalPromptTemplate = selectedStyleSubType === 'oriental_display_home'
+        ? 'new_chinese_oriental_display_home'
+        : 'new_chinese_song_minimal_home';
+      return {
+        selectedRoute:'new-chinese-aesthetic-live-room',
+        selectedStyleSubType,
+        selectedFinalPromptTemplate,
+        templateMode:true,
+        routeUsedForProductDisplayOnly:true,
+        connectedToGeneration:false
+      };
+    }
+    function defaultDisplayPointsFor(productCategory){
+      if (isDenimCategoryValue(productCategory)) return 'high waist, waistband, fly front, pockets, hip fit, leg silhouette, full hems, shoes, denim wash, seams and hem drape';
+      if (/连衣裙|dress/i.test(productCategory || '')) return 'neckline, shoulder line, waistline, sleeve shape, skirt drape, hemline, full length and shoes';
+      if (/防晒|sun-protection/i.test(productCategory || '')) return 'collar or hood, zipper, sleeve length, lightweight fabric texture, body silhouette, hemline, full outfit relation and shoes';
+      return 'full garment structure, fabric texture, silhouette, hemline, full length and shoes';
+    }
+    function defaultProductNameFor(state){
+      const p = state.state || state || {};
+      if (isDenimState(state)) {
+        if (p.clothingCategory === 'denim_jeans') return 'high-waist slimming denim jeans';
+        if (p.clothingCategory === 'high_waist_denim' || p.denimFit === '高腰牛仔裤') return 'high-waist slimming denim jeans';
+        if (p.clothingCategory === 'wide_leg_denim' || p.denimFit === '阔腿牛仔裤') return 'women wide-leg denim jeans';
+        if (p.clothingCategory === 'micro_flare_denim' || p.denimFit === '微喇牛仔裤') return 'women micro-flare denim jeans';
+        if (p.clothingCategory === 'straight_denim' || p.denimFit === '直筒牛仔裤') return 'women straight-leg denim jeans';
+        return 'high-waist slimming denim jeans';
+      }
+      if (/连衣裙|dress/i.test(p.clothingCategory || '')) return 'soft floral summer dress';
+      if (/防晒|sun-protection/i.test(p.clothingCategory || '')) return 'lightweight summer sun-protection jacket';
+      return p.clothingCategory || 'women fashion garment';
+    }
+    function selectVisualEnrichmentPreset({
+      productCategory = '',
+      seasonDirection = '',
+      priceTier = '',
+      styleDirection = ''
+    } = {}){
+      const text = `${productCategory} ${seasonDirection} ${priceTier} ${styleDirection}`.toLowerCase();
+      const has = pattern => pattern.test(text);
+      if (has(/棉麻|亚麻|linen|cotton-linen|natural/)) {
+        return {
+          selectedMaterialPalette:'linen_natural_home',
+          selectedSoftFurnishing:['woven rattan chair','raw wood side cabinet','natural fiber rug'],
+          selectedProps:['unglazed ceramic vase','linen folded fabric','wooden tray'],
+          softFurnishingDetails:'woven rattan chair, raw wood side cabinet and natural fiber rug',
+          propDetails:'unglazed ceramic vase, linen folded fabric and wooden tray',
+          materialDetails:'raw wood, cotton-linen textile, warm beige wall and woven rattan'
+        };
+      }
+      if (isDenimCategoryValue(productCategory) || has(/牛仔|丹宁|denim|jeans/)) {
+        if (has(/春夏|夏|浅色|浅水洗|fresh|summer|light/)) {
+          return {
+            selectedMaterialPalette:'denim_fresh_summer',
+            selectedSoftFurnishing:['pale wood cabinet','linen curtain','small side denim sample display'],
+            selectedProps:['small green plant','light wood tray','pale ceramic vase'],
+            softFurnishingDetails:'pale wood cabinet, linen curtain and one small side denim sample display',
+            propDetails:'small green plant, light wood tray and pale ceramic vase',
+            materialDetails:'light oak floor, warm white wall, linen curtain and soft daylight'
+          };
+        }
+        return {
+          selectedMaterialPalette:'denim_premium_winter',
+          selectedSoftFurnishing:['low walnut cabinet','leather single chair','subtle abstract framed art'],
+          selectedProps:['small black handbag','champagne metal tray'],
+          softFurnishingDetails:'low walnut cabinet, leather single chair and subtle abstract framed art',
+          propDetails:'small black handbag and champagne metal tray placed on the side table',
+          materialDetails:'deep walnut wood, warm gray textured wall, matte wood floor and warm architectural lighting'
+        };
+      }
+      if (has(/防晒|sun-protection|upf/)) {
+        return {
+          selectedMaterialPalette:'sunproof_summer_green',
+          selectedSoftFurnishing:['light oak cabinet','sheer curtain','small side sample display'],
+          selectedProps:['clear glass vase','pale ceramic pot','fresh green plants','light sage accents'],
+          softFurnishingDetails:'light oak cabinet, sheer curtain and one small side sample display',
+          propDetails:'clear glass vase, pale ceramic pot, fresh green plants and light sage accents',
+          materialDetails:'warm white wall, pale oak floor, sunlit window greenery and soft daylight'
+        };
+      }
+      if (has(/连衣裙|裙|dress|french|法式/)) {
+        return {
+          selectedMaterialPalette:'dress_soft_french',
+          selectedSoftFurnishing:['rattan chair','linen curtain','warm wall sconce','low cabinet'],
+          selectedProps:['small flower vase','round mirror','soft book stack'],
+          softFurnishingDetails:'rattan chair, linen curtain, warm wall sconce and low cabinet',
+          propDetails:'small flower vase, round mirror and soft book stack in the rear layer',
+          materialDetails:'cream wall, light wood floor, rattan texture and soft floral accent'
+        };
+      }
+      return finalPromptVariableLibrary.generic_large_corner_home_room;
+    }
+    function visualEnrichmentAudit({positivePrompt = '', softFurnishingDetails = '', propDetails = '', materialDetails = '', selectedMaterialPalette = ''} = {}){
+      const positiveLower = String(positivePrompt || '').toLowerCase();
+      const forbiddenPositiveTerms = ['price','promotion board','size chart','info card','softbox','light stand','led panel','full row of clothes rack','full rail of clothing']
+        .filter(term => positiveLower.includes(term));
+      const softFurnishingWordCount = countEnglishWords(softFurnishingDetails);
+      const propWordCount = countEnglishWords(propDetails);
+      const materialWordCount = countEnglishWords(materialDetails);
+      const templateWordCountAfterInjection = countEnglishWords(positivePrompt);
+      const noFurnitureBlockingProduct = !/(furniture blocking|blocking legs|blocking skirt hem|blocking sleeve|blocking zipper|blocking product)/i.test(positivePrompt);
+      const noPropOverload = !/(too many props|full of props|cluttered props|props dominating)/i.test(positivePrompt);
+      const noHomeAdFeeling = !/(home advertisement|furniture advertisement|interior design ad|real estate staging)/i.test(positivePrompt);
+      const status = (
+        templateWordCountAfterInjection <= 260 &&
+        softFurnishingWordCount <= 40 &&
+        propWordCount <= 35 &&
+        materialWordCount <= 35 &&
+        forbiddenPositiveTerms.length === 0 &&
+        noFurnitureBlockingProduct &&
+        noPropOverload &&
+        noHomeAdFeeling
+      ) ? 'pass' : 'fail';
+      return {
+        visualEnrichmentUsed:true,
+        selectedMaterialPalette,
+        softFurnishingWordCount,
+        propWordCount,
+        materialWordCount,
+        templateWordCountAfterInjection,
+        noFurnitureBlockingProduct,
+        noPropOverload,
+        noHomeAdFeeling,
+        forbiddenPositiveTerms,
+        status
+      };
+    }
+    function auditPromptForFauxGardenEmptyFront({positivePrompt = '', negativePrompt = ''} = {}){
+      const positive = String(positivePrompt || '').toLowerCase();
+      const negative = String(negativePrompt || '').toLowerCase();
+      const notes = [];
+      const hasAll = (text, terms) => terms.every(term => text.includes(term.toLowerCase()));
+      const hasAny = (text, terms) => terms.some(term => text.includes(term.toLowerCase()));
+      const addMissing = (key, reason) => notes.push(`${key}: ${reason}`);
+      const topStudioLocked =
+        positive.includes('tvc-style studio') &&
+        hasAny(positive, ['visible dark industrial ceiling','open black stage ceiling','exposed overhead structure']) &&
+        positive.includes('moderate buildable thickness');
+      const leftOpenStudioSpace =
+        positive.includes('open studio-side space') &&
+        hasAny(positive, ['near-left wall should not dominate','rather than a close visible white wall']) &&
+        positive.includes('20-25% of the image width') &&
+        positive.includes('do not enlarge it beyond the locked proportion');
+      const rearWallBehindLightbox =
+        hasAll(positive, ['wall behind the lightbox must remain present','lightbox is installed against a proper rear wall']) &&
+        hasAll(negative, ['no wall behind lightbox','floating scenic wall','detached lightbox']);
+      const rearWallOnlyLightbox =
+        hasAll(positive, ['rear-wall-only scenic lightbox','back wall only']) &&
+        hasAll(negative, ['U-shaped cyclorama'.toLowerCase(),'side walls wrapped by scenic lightbox']);
+      const coveTransition =
+        hasAll(positive, ['smooth rounded R-cove transition'.toLowerCase(),'no hard horizontal line','no 90-degree break']);
+      const grassWidthRule =
+        hasAll(positive, ['approximately matching the main scenic width of the rear lightbox','visually align with the main width of the rear scenic lightbox','left edge should be mostly straight','broad rectangular scenic presentation zone','not become a narrow strip','not cover the entire room wall-to-wall','current proportion between grass width, rear lightbox width and wooden cottage position']);
+      const cottageOverlapRule =
+        hasAll(positive, ['wooden cottage window facade must clearly overlap in front of the right side','physically cover the right ending edge of the scenic lightbox']) &&
+        hasAll(negative, ['cottage module not overlapping lightbox','blank white wall gap']);
+      const noVisibleEquipment =
+        hasAll(negative, ['visible light stand','visible softbox','visible LED panel'.toLowerCase(),'visible cables']);
+      const sharedSceneDNAIncluded =
+        hasAll(positive, ['shared scene dna','shared_scene_dna_two_9x16_v01','one fixed scenic livestream set']);
+      const commonNegativeIncluded =
+        hasAll(negative, ['different angle','redesigned layout','changed cottage position','table moved to another side','hydrangea tree moved','inconsistent grass boundary','different scenic set']);
+      const sameFrontCameraAxis =
+        hasAll(positive, ['same scene as host_final_9x16','same front camera axis','do not redesign the set','same relative positions']);
+      const differentCropAllowed =
+        positive.includes('different crop distance is allowed; different camera angle is not allowed');
+      const emptyShowsStudioShell =
+        hasAll(positive, ['belong only to empty_front_9x16','empty_front_9x16 may show black industrial ceiling','open studio-side working area','hard-floor studio area']);
+      const hostHidesStudioShell =
+        hasAll(positive, ['not to host_final_9x16','host_final_9x16 must hide black industrial ceiling','open studio shell','left-side working area','backstage floor','rough ceiling']);
+      const hostTableNotBlockingBody =
+        hasAll(positive, ['lace table remains on the right-mid foreground side','never blocking the host', 'full body', 'legs', 'feet']);
+      const chineseDouyinRealismPriority =
+        hasAll(positive, ['Chinese Douyin live-commerce realism is more important than fashion-model beauty'.toLowerCase(),'real Chinese Douyin live-commerce seller']);
+      const sceneDNALock =
+        sharedSceneDNAIncluded &&
+        commonNegativeIncluded &&
+        sameFrontCameraAxis &&
+        differentCropAllowed;
+
+      const criticalNegativeTerms = [
+        'no wall behind lightbox',
+        'floating scenic wall',
+        'u-shaped cyclorama',
+        'narrow grass strip',
+        'visible light stand',
+        'left open studio area dominating the frame',
+        'grass narrowing into a trapezoid strip',
+        'giant rounded screen frame',
+        'redesigned layout',
+        'different scenic set'
+      ];
+      const missingCriticalNegative = criticalNegativeTerms.filter(term => !negative.includes(term));
+
+      [
+        ['topStudioLocked', topStudioLocked],
+        ['leftOpenStudioSpace', leftOpenStudioSpace],
+        ['rearWallBehindLightbox', rearWallBehindLightbox],
+        ['rearWallOnlyLightbox', rearWallOnlyLightbox],
+        ['coveTransition', coveTransition],
+        ['grassWidthRule', grassWidthRule],
+        ['cottageOverlapRule', cottageOverlapRule],
+        ['noVisibleEquipment', noVisibleEquipment],
+        ['sceneDNALock', sceneDNALock],
+        ['sharedSceneDNAIncluded', sharedSceneDNAIncluded],
+        ['commonNegativeIncluded', commonNegativeIncluded],
+        ['sameFrontCameraAxis', sameFrontCameraAxis],
+        ['differentCropAllowed', differentCropAllowed],
+        ['emptyShowsStudioShell', emptyShowsStudioShell],
+        ['hostHidesStudioShell', hostHidesStudioShell],
+        ['hostTableNotBlockingBody', hostTableNotBlockingBody],
+        ['chineseDouyinRealismPriority', chineseDouyinRealismPriority]
+      ].forEach(([key, ok]) => { if (!ok) addMissing(key, 'required lock missing'); });
+      missingCriticalNegative.forEach(term => addMissing(`negative:${term}`, 'critical negative term missing'));
+
+      const status = notes.length ? 'fail' : 'pass';
+      return {
+        status,
+        topStudioLocked,
+        leftOpenStudioSpace,
+        rearWallBehindLightbox,
+        rearWallOnlyLightbox,
+        coveTransition,
+        grassWidthRule,
+        cottageOverlapRule,
+        noVisibleEquipment,
+        sceneDNALock,
+        sharedSceneDNAIncluded,
+        commonNegativeIncluded,
+        sameFrontCameraAxis,
+        differentCropAllowed,
+        emptyShowsStudioShell,
+        hostHidesStudioShell,
+        hostTableNotBlockingBody,
+        chineseDouyinRealismPriority,
+        notes
+      };
+    }
+    function sanitizeFinalTemplatePositive(text){
+      return String(text || '')
+        .replace(/\bprice tier\b/ig, 'value mood')
+        .replace(/\bprice\b/ig, 'value')
+        .replace(/\bdiscount\b/ig, 'offer')
+        .replace(/\bcoupon\b/ig, 'benefit')
+        .replace(/\bRMB\b/ig, '')
+        .replace(/\bsoftbox\b/ig, 'studio light')
+        .replace(/\blight stand\b/ig, 'lighting support')
+        .replace(/\bLED panel\b/ig, 'panel')
+        .replace(/\bside fill light\b/ig, 'soft window light')
+        .replace(/\binfo card\b/ig, 'product detail')
+        .replace(/\bsize chart\b/ig, 'fit detail')
+        .replace(/\bprepared stock area\b/ig, 'side storage')
+        .trim();
+    }
+    function buildPromptFromFinalTemplate({
+      selectedFinalPromptTemplate,
+      productName,
+      displayPoints,
+      productCategory,
+      softFurnishingDetails,
+      propDetails,
+      materialDetails,
+      selectedSoftFurnishing,
+      selectedProps,
+      selectedMaterialPalette
+    } = {}){
+      const templateId = selectedFinalPromptTemplate || 'generic_large_corner_home_room';
+      const template = finalPromptTemplates[templateId] || finalPromptTemplates.generic_large_corner_home_room;
+      const libraryDefaults = finalPromptVariableLibrary[templateId] || finalPromptVariableLibrary.generic_large_corner_home_room;
+      const selectedPreset = selectVisualEnrichmentPreset({
+        productCategory,
+        seasonDirection:productName,
+        priceTier:templateId,
+        styleDirection:`${productName || ''} ${displayPoints || ''}`
+      }) || libraryDefaults;
+      const name = productName || 'women fashion garment';
+      const points = displayPoints || defaultDisplayPointsFor(productCategory);
+      const softText = softFurnishingDetails || selectedPreset.softFurnishingDetails || libraryDefaults.softFurnishingDetails;
+      const propText = propDetails || selectedPreset.propDetails || libraryDefaults.propDetails;
+      const materialText = materialDetails || selectedPreset.materialDetails || libraryDefaults.materialDetails;
+      let positivePrompt = sanitizeFinalTemplatePositive(template.positive)
+        .replaceAll('[PRODUCT_NAME]', name)
+        .replaceAll('[DISPLAY_POINTS]', points)
+        .replaceAll('[SOFT_FURNISHING_DETAILS]', softText)
+        .replaceAll('[PROP_DETAILS]', propText)
+        .replaceAll('[MATERIAL_DETAILS]', materialText);
+      let negativePrompt = template.negative;
+      if (templateId === FAUX_GARDEN_EMPTY_FRONT_TEMPLATE) {
+        positivePrompt = `${fauxGardenSharedSceneDNAText}\n\n${positivePrompt}`;
+        negativePrompt = `${fauxGardenCommonNegativeText}, ${template.negative}`;
+      }
+      const softFurnishingWordCount = countEnglishWords(softText);
+      const propWordCount = countEnglishWords(propText);
+      const materialWordCount = countEnglishWords(materialText);
+      const templateWordCountAfterInjection = countEnglishWords(positivePrompt);
+      const enrichmentAudit = visualEnrichmentAudit({
+        positivePrompt,
+        softFurnishingDetails:softText,
+        propDetails:propText,
+        materialDetails:materialText,
+        selectedMaterialPalette:selectedMaterialPalette || selectedPreset.selectedMaterialPalette || libraryDefaults.selectedMaterialPalette
+      });
+      const fauxGardenEmptyFrontAudit = templateId === FAUX_GARDEN_EMPTY_FRONT_TEMPLATE
+        ? auditPromptForFauxGardenEmptyFront({positivePrompt, negativePrompt})
+        : null;
+      return {
+        selectedFinalPromptTemplate:templateId,
+        positivePrompt,
+        negativePrompt,
+        debug:{
+          templateMode:true,
+          noExtraRewriteLayer:true,
+          routeUsedForProductDisplayOnly:true,
+          sceneStyleUsedForTemplateSelectionOnly:true,
+          softFurnishingLibraryUsed:true,
+          selectedSoftFurnishing:selectedSoftFurnishing || selectedPreset.selectedSoftFurnishing || libraryDefaults.selectedSoftFurnishing,
+          selectedProps:selectedProps || selectedPreset.selectedProps || libraryDefaults.selectedProps,
+          selectedMaterialPalette:selectedMaterialPalette || selectedPreset.selectedMaterialPalette || libraryDefaults.selectedMaterialPalette,
+          softFurnishingWordCount,
+          propWordCount,
+          materialWordCount,
+          templateWordCountAfterInjection,
+          visualEnrichmentAudit:enrichmentAudit,
+          fauxGardenEmptyFrontAudit
+        }
+      };
+    }
+    function fauxGardenEmptyFrontOutputPack(state){
+      const pack = buildPromptFromFinalTemplate({
+        selectedFinalPromptTemplate:FAUX_GARDEN_EMPTY_FRONT_TEMPLATE,
+        productName:'empty faux garden window scenic livestream room',
+        displayPoints:'clean empty scenic standing zone',
+        productCategory:'empty_front_9x16'
+      });
+      const audit = auditPromptForFauxGardenEmptyFront({
+        positivePrompt:pack.positivePrompt,
+        negativePrompt:pack.negativePrompt
+      });
+      return {
+        route:FAUX_GARDEN_ROUTE,
+        caseId:'empty_front_9x16',
+        templateVersion:FAUX_GARDEN_EMPTY_FRONT_TEMPLATE,
+        positivePrompt:pack.positivePrompt,
+        negativePrompt:pack.negativePrompt,
+        audit
+      };
+    }
+    function finalTemplatePromptPackForState(state){
+      const p = state.state || {};
+      const selectedFinalPromptTemplate = selectedFinalPromptTemplateFor(state);
+      const productName = defaultProductNameFor(state);
+      const productCategoryForDisplay = isDenimState(state) ? 'denim_jeans' : p.clothingCategory;
+      const displayPoints = defaultDisplayPointsFor(productCategoryForDisplay);
+      return buildPromptFromFinalTemplate({
+        selectedFinalPromptTemplate,
+        productName,
+        displayPoints,
+        productCategory:productCategoryForDisplay
+      });
+    }
+    function compactImagePrompt(state){
+      const raw = finalTemplatePromptPackForState(state).positivePrompt;
+      const sanitized = sanitizeGeneratedText(raw, state.priceSanitizer || {});
+      if (state.priceSanitizer) {
+        state.priceSanitizer.sanitizedPriceTokens = [...new Set([...(state.priceSanitizer.sanitizedPriceTokens || []), ...sanitized.sanitizedPriceTokens])];
+      }
+      return sanitized.text;
+    }
+    function missingLiveRoomIdentityItems(text){
+      const lower = String(text || '').toLowerCase();
+      const missing = [];
+      [
+        ['not an offline boutique fitting room', 'not an offline boutique fitting room'],
+        ['live-selling room', 'live-selling room'],
+        ['clean premium fashion live room', 'clean premium fashion live room'],
+        ['real standing live camera view', 'real standing live camera view'],
+        ['full-body display', 'full-body'],
+        ['natural room scale', 'natural room scale'],
+        ['spacious floor depth', 'spacious floor depth'],
+        ['controlled background depth', 'controlled background depth'],
+        ['clothing rack', 'clothing rack'],
+        ['shelves', 'shelves'],
+        ['curtain', 'curtain'],
+        ['soft lights', 'soft lights'],
+        ['host naturally standing in the room', 'host naturally standing in the room'],
+        ['host speaking to live camera', 'speaking to the live camera'],
+        ['not equipment-heavy', 'not equipment-heavy'],
+        ['not cluttered operation corner', 'not cluttered operation corner'],
+        ['not store try-on photo', 'not store try-on photo']
+      ].forEach(([label, term]) => {
+        if (!lower.includes(term)) missing.push(label);
+      });
+      const presentElements = liveRoomElementChecks.filter(item => item.terms.some(term => lower.includes(term)));
+      if (presentElements.length < 2) {
+        missing.push(`at least 2 subtle live signals; found ${presentElements.length}`);
+      }
+      if (presentElements.length > 3) {
+        missing.push(`at most 3 subtle live signals; found ${presentElements.length}`);
+      }
+      return missing;
+    }
+    function routeChecklist(state){
+      const compact = compactImagePrompt(state);
+      const missing = missingLiveRoomIdentityItems(compact);
+      const liveSignalsCount = liveRoomElementChecks.filter(item => item.terms.some(term => compact.toLowerCase().includes(term))).length;
+      return {
+        route: selectedRouteForState(state),
+        selectedRoute: selectedRouteForState(state),
+        failureAttribution: missing.length ? {
+          failureType: 'soft_live_identity_or_golden_anchor_missing',
+          reason: 'compact prompt 必须先保留干净真实的女装站播空间锚点，并且只放 2-3 个自然直播信号。',
+          suggestedFix: '保持 golden spatial anchor，减少设备和提示牌，让直播信号只作为辅助背景信息。'
+        } : null,
+        liveSignalsCount,
+        liveSignalsMax: 3,
+        has_soft_live_identity: missing.length === 0,
+        not_equipment_heavy: !missing.includes('not equipment-heavy'),
+        not_cluttered_operation_corner: !missing.includes('not cluttered operation corner'),
+        golden_spatial_anchor_preserved: missing.length === 0,
+        has_live_room_identity: missing.length === 0,
+        has_live_operation_signals: missing.length === 0,
+        has_visible_live_equipment_or_workflow: missing.length === 0,
+        not_offline_fitting_room: !missing.includes('not an offline boutique fitting room'),
+        not_store_try_on_photo: !missing.includes('not store try-on photo'),
+        status: missing.length ? 'fail' : 'pass',
+        missing,
+        missingLiveRoomIdentityItems: missing
+      };
+    }
+    function workbenchIntegrationDebug(state){
+      const positivePrompt = compactImagePrompt(state);
+      const negativePrompt = negativeText(state);
+      const selectedFinalPromptTemplate = selectedFinalPromptTemplateFor(state);
+      if (selectedFinalPromptTemplate === FAUX_GARDEN_EMPTY_FRONT_TEMPLATE) {
+        const audit = auditPromptForFauxGardenEmptyFront({
+          positivePrompt,
+          negativePrompt:finalTemplatePromptPackForState(state).negativePrompt
+        });
+        return {
+          route:FAUX_GARDEN_ROUTE,
+          caseId:'empty_front_9x16',
+          selectedRoute:FAUX_GARDEN_ROUTE,
+          selectedFinalPromptTemplate,
+          templateVersion:selectedFinalPromptTemplate,
+          templateMode:true,
+          routeUsedForProductDisplayOnly:true,
+          sceneStyleUsedForTemplateSelectionOnly:true,
+          layoutVariantUsedForTemplateSelectionOnly:true,
+          finalPromptWordCount:countEnglishWords(positivePrompt),
+          auditStatus:audit.status,
+          readyForImageGeneration:audit.status === 'pass',
+          audit
+        };
+      }
+      const promptWritingAudit = auditPromptWritingFramework({
+        positivePrompt,
+        compactImagePrompt:positivePrompt,
+        negativePrompt,
+        productCategory:isDenimState(state) ? 'denim_jeans' : state.state.clothingCategory,
+        selectedTemplate:selectedFinalPromptTemplate,
+        selectedSceneStyle:state.selectedSceneStyle,
+        selectedLayoutVariant:state.selectedSceneLayoutVariant
+      }).promptWritingFrameworkAudit;
+      return {
+        selectedCategory:selectedWorkbenchCategoryValue(state),
+        selectedSubCategory:selectedDenimSubCategory(state),
+        selectedRoute:selectedRouteForState(state),
+        selectedSceneStyle:state.selectedSceneStyle,
+        selectedLayoutVariant:state.selectedSceneLayoutVariant,
+        selectedFinalPromptTemplate:`${selectedFinalPromptTemplate}.md`,
+        templateMode:true,
+        routeUsedForProductDisplayOnly:true,
+        sceneStyleUsedForTemplateSelectionOnly:true,
+        layoutVariantUsedForTemplateSelectionOnly:true,
+        finalPromptWordCount:countEnglishWords(positivePrompt),
+        auditStatus:promptWritingAudit.status,
+        readyForImageGeneration:promptWritingAudit.status === 'pass',
+        promptWritingFrameworkAudit:promptWritingAudit
+      };
+    }
+    function optionHtml(options){return '<option value="">留空</option>' + options.map(o=>`<option value="${escapeHtml(optionValue(o))}">${escapeHtml(optionLabel(o))}</option>`).join('')}
+    function renderField(key){
+      const def = fields[key];
+      const cls = def.multi ? 'field full' : 'field';
+      if (def.multi) {
+        return `<div class="${cls}" data-field="${key}">
+          <label>${def.label}</label>
+          <div class="checks">${def.options.map((item,i)=>`<label class="chip"><input type="checkbox" name="${key}" value="${escapeHtml(optionValue(item))}" ${optionValue(item) === '自动' ? 'checked' : ''}> ${escapeHtml(optionLabel(item))}</label>`).join('')}</div>
+          <input class="custom" name="${key}Custom" placeholder="手动填写，多个值用顿号或逗号分隔">
+        </div>`;
+      }
+      return `<div class="${cls}" data-field="${key}">
+        <label for="${key}">${def.label}</label>
+        <select id="${key}" name="${key}">${optionHtml(def.options)}</select>
+        <input class="custom" name="${key}Custom" placeholder="手动填写">
+      </div>`;
+    }
+    function renderForm(){
+      form.innerHTML = groups.map((group,i)=>`<details ${i < 4 ? 'open' : ''}>
+        <summary>${group.title}</summary>
+        <div class="fields">${group.fields.map(renderField).join('')}</div>
+      </details>`).join('');
+      resetToInitial(false);
+    }
+    function setField(key,value){
+      const def = fields[key];
+      if (!def) return;
+      const custom = form.elements[`${key}Custom`];
+      if (custom) custom.value = '';
+      if (def.multi) {
+        const values = Array.isArray(value) ? value : String(value).split(/[、,，]/).map(v=>v.trim()).filter(Boolean);
+        form.querySelectorAll(`input[name="${key}"]`).forEach(input => input.checked = values.includes(input.value));
+        if (!values.length) {
+          const auto = form.querySelector(`input[name="${key}"][value="自动"]`);
+          if (auto) auto.checked = true;
+        }
+        return;
+      }
+      const el = form.elements[key];
+      const hasOption = Array.from(el.options).some(option => option.value === value);
+      if (hasOption) el.value = value;
+      else {
+        el.value = '';
+        if (custom) custom.value = value;
+      }
+    }
+    function resetToInitial(show=true){
+      for (const key of Object.keys(fields)) {
+        const def = fields[key];
+        if (def.multi) {
+          form.querySelectorAll(`input[name="${key}"]`).forEach(input => input.checked = input.value === '自动');
+          const custom = form.elements[`${key}Custom`];
+          if (custom) custom.value = '';
+        } else {
+          form.elements[key].value = '';
+          const custom = form.elements[`${key}Custom`];
+          if (custom) custom.value = '';
+        }
+      }
+      for (const [key,value] of Object.entries(initialLocked)) setField(key,value);
+      generate(show);
+    }
+    function readField(key){
+      const def = fields[key];
+      if (def.multi) {
+        const custom = form.elements[`${key}Custom`]?.value.trim();
+        if (custom) return {value:custom.split(/[、,，]/).map(v=>v.trim()).filter(Boolean), source:'locked'};
+        const checked = Array.from(form.querySelectorAll(`input[name="${key}"]:checked`)).map(el=>el.value);
+        if (!checked.length) return {value:[], source:'empty'};
+        if (checked.includes('自动')) return {value:['自动'], source:'auto'};
+        return {value:checked, source:'locked'};
+      }
+      const custom = form.elements[`${key}Custom`]?.value.trim();
+      if (custom) return {value:custom, source:'locked'};
+      const selected = form.elements[key]?.value || '';
+      if (!selected) return {value:'', source:'empty'};
+      if (selected === '自动') return {value:'自动', source:'auto'};
+      return {value:selected, source:'locked'};
+    }
+    function fallbackFor(key){
+      const fallback = {
+        outputMode:'主播讲解试穿图', layoutMode:'单张竖版直播间图', includePerson:'有主播/模特', commercialUse:'女装直播间主视觉',
+        salesType:'店播实卖直播', activityNode:'无节点', benefitInfo:['7天无理由'], functionSellingPoints:['显瘦','舒适'],
+        liveRoomType:'站播试穿直播间', framingRange:'七分身讲解', tryOnMode:'正面讲解', hostRole:'品牌主播', hostAction:'正面站立讲解',
+        season:'秋冬上新', fashionStyle:'质感通勤', clothingCategory:'套装', denimFit:'非牛仔裤', denimColor:'非牛仔裤', clothingColor:'米白', material:'羊毛', silhouette:'H 型', layering:'套装完整搭配', stylingItems:['靴子'], displayFocus:['整体搭配','上身效果'],
+        liveRoomSpaceType:'真实居家直播间', sceneStyle:'大空间转角居家感直播间 large-corner-home-live-room', sceneLayoutVariant:'side_window_corner', materialPalette:'warm_wood_cream', sceneStyleDirection:'木质暖调风', spaceMode:'真实可搭建空间', themePackaging:'秋冬橱窗主题', backgroundStructure:'转角墙面', softProps:['窗帘','沙发','落地灯'], sideDisplay:'右侧挂杆', designIntensity:'低：接近真实直播间', realismLevel:'强写实，低 AI 味',
+        spaceTemplate:'真实家居质感直播间', wallElements:['暖米大白墙','深木饰面背景墙'], lightingElements:['隐藏灯带','顶部暖光洗墙'], furnitureElements:['沙发','边桌'], artElements:['挂画'], plantElements:['盆栽绿植'], fabricElements:['窗帘','地毯'],
+        aspectRatio:'9:16', focalLength:'全画幅 35mm', cameraLevel:'严格水平机位', cameraHeight:'1.25m–1.35m 站播平视机位', perspectiveMode:'轻转角室内透视', verticalRule:initialLocked.verticalRule, spatialAxisRule:initialLocked.spatialAxisRule
+      };
+      return fallback[key] ?? (fields[key]?.multi ? [] : '');
+    }
+    function buildBase(){
+      const state = {}, sources = {};
+      for (const key of Object.keys(fields)) {
+        const raw = readField(key);
+        sources[key] = raw.source;
+        state[key] = (raw.source === 'locked') ? raw.value : fallbackFor(key);
+      }
+      const autoFills = [];
+      const setAuto = (key,value,reason) => {
+        if (sources[key] !== 'locked') {
+          state[key] = value;
+          sources[key] = 'auto';
+          autoFills.push({key,label:fields[key].label,value,reason});
+        }
+      };
+      return {state,sources,autoFills,setAuto};
+    }
+    function infer(){
+      const ctx = buildBase();
+      const {state:p, sources, setAuto} = ctx;
+      if (p.outputMode === '主播讲解试穿图') {
+        setAuto('includePerson','有主播/模特','输出模式为主播讲解试穿图。');
+        setAuto('framingRange','全身试穿','输出模式需要完整展示试穿效果。');
+        setAuto('perspectiveMode','正面平视直播透视','主播讲解试穿图需要稳定直播透视。');
+        setAuto('focalLength','全画幅 35mm','试穿图默认保留人物与空间。');
+      }
+      if (p.outputMode === '半身细节讲解图') {
+        setAuto('includePerson','有主播/模特','半身细节讲解需要人物承载讲解。');
+        setAuto('framingRange','半身细节讲解','输出模式为半身细节讲解图。');
+        setAuto('focalLength','全画幅 40mm','半身细节图需要略收窄镜头。');
+        setAuto('cameraHeight','1.35m–1.45m 半身讲解机位','半身细节讲解适配更高机位。');
+        setAuto('perspectiveMode','正面平视直播透视','保证讲解画面稳定。');
+      }
+      if (p.outputMode === '空场景底图') {
+        setAuto('includePerson','无人物，仅空场景','空场景底图不生成主播/模特。');
+        setAuto('framingRange','空场景无人物','空场景底图不需要人物出镜。');
+        setAuto('hostRole','无人物','空场景底图不生成主播角色。');
+        setAuto('hostAction','无人物动作','空场景底图不生成主播动作。');
+        setAuto('tryOnMode','无试穿，仅空间展示','空场景底图不生成试穿动作。');
+        setAuto('perspectiveMode','轻转角室内透视','空场景需要展示空间层次。');
+        setAuto('focalLength','全画幅 24-28mm 空间广角','空场景优先保留完整空间。');
+      }
+      if (p.outputMode === '场景 moodboard 拼图') {
+        setAuto('layoutMode','多格拼贴提案图','moodboard 输出需要多格拼贴。');
+        setAuto('includePerson','无人物，仅空场景','moodboard 先展示空间方案。');
+        setAuto('perspectiveMode','方案展示拼贴视图','moodboard 使用方案展示视图。');
+      }
+      if (['羽绒服','鹅绒服','冲锋衣','防寒外套'].includes(p.clothingCategory)) {
+        setAuto('season','冬季 / 秋冬 / 反季冬装','服装品类为冬装外套。');
+        setAuto('outputMode','主播讲解试穿图','冬装外套需要上身讲解试穿。');
+        setAuto('framingRange','七分身讲解','冬装外套重点展示上身和长度。');
+        setAuto('salesType','品牌官方专场 / 店播实卖直播','冬装适合品牌或店播实卖。');
+        setAuto('functionSellingPoints',['保暖','轻量','防风','高蓬松度','科技面料'],'冬装外套自动补功能卖点。');
+        setAuto('benefitInfo',['7天无理由','30天保价','官方正品'],'冬装客单较高，补信任权益。');
+        setAuto('sceneStyleDirection','木质暖调风 / 雪山科技品牌专场','冬装适合暖调或雪山科技感。');
+      }
+      if (['上衣','马甲','针织衫','衬衫','小香风外套'].includes(p.clothingCategory)) {
+        setAuto('framingRange','半身细节讲解','上装类优先半身讲解。');
+        setAuto('displayFocus',['上身效果','面料质感','细节工艺'],'上装类自动突出上身和细节。');
+      }
+      if (['连衣裙','半裙','套装','大衣','裤装'].includes(p.clothingCategory)) {
+        setAuto('framingRange','全身试穿','裙装、套装、大衣、裤装需要全身展示。');
+        setAuto('displayFocus',['整体搭配','版型显瘦','上身效果'],'完整穿搭类自动突出整体搭配。');
+      }
+      if (isDenimState(p)) {
+        setAuto('outputMode','主播讲解试穿图','牛仔裤需要真实试穿展示裤型。');
+        setAuto('liveRoomType','站播试穿直播间','牛仔裤重点展示裤腿、裤脚和鞋裤关系。');
+        setAuto('framingRange','全身试穿','牛仔裤全身试穿要保留脚部和裤脚。');
+        setAuto('tryOnMode','全身站播试穿','牛仔裤需要站播呈现裤型和垂感。');
+        setAuto('season','秋冬上新','牛仔裤默认适配秋冬或四季穿搭直播。');
+        setAuto('material','丹宁牛仔面料','牛仔裤自动强调丹宁材质。');
+        setAuto('silhouette','直筒','默认先稳定展示直筒裤型。');
+        setAuto('denimFit','直筒牛仔裤','牛仔裤默认使用最稳定的直筒裤型。');
+        setAuto('denimColor','中蓝','牛仔裤默认使用稳定中蓝。');
+        setAuto('displayFocus',['版型显瘦','水洗层次','面料质感','整体搭配'],'牛仔裤重点是裤型、丹宁纹理、水洗和显腿效果。');
+        setAuto('functionSellingPoints',['显瘦','垂感','舒适'],'牛仔裤默认补显瘦、垂感和舒适卖点。');
+        setAuto('spaceTemplate','深木帘幕质感直播间','牛仔裤默认使用能托住牛仔蓝的中性偏深低反光空间。');
+        setAuto('sceneStyleDirection','木质暖调风','牛仔裤优先使用暖灰、深木和低反光空间。');
+        setAuto('backgroundStructure','转角墙面','牛仔裤空间背景需要稳定、低干扰、有结构。');
+        setAuto('wallElements',['深木饰面背景墙','灰咖窗帘背景','局部深色背景块'],'牛仔裤需要中性偏深背景托住牛仔蓝。');
+        setAuto('lightingElements',['侧向窗光','中性建筑柔光','低反差轮廓光'],'牛仔裤灯光要柔和但有方向，保留裤腿阴影。');
+        setAuto('furnitureElements',['深色单椅','小边柜','低反光木地板','鞋履陈列'],'牛仔裤空间简洁但不能太空。');
+        setAuto('fabricElements',['灰咖窗帘','暖灰地毯'],'牛仔裤需要低反光织物和地面。');
+        setAuto('softProps',['单椅','落地灯','边桌'],'牛仔裤直播间使用少量生活感软装。');
+        setAuto('sideDisplay','单件主推衣架','牛仔裤专场保留低密度辅助陈列。');
+        setAuto('designIntensity','低：接近真实直播间','牛仔裤空间应克制，避免主题过度抢裤子。');
+        setAuto('realismLevel','强写实，低 AI 味','牛仔裤材质和裤型必须真实稳定。');
+        setAuto('focalLength','全画幅 35mm','牛仔裤全身试穿需要 35mm 保留空间和比例。');
+        setAuto('cameraHeight','1.25m–1.35m 站播平视机位','牛仔裤避免低机位拉长腿。');
+        setAuto('perspectiveMode','正面平视直播透视','牛仔裤需要稳定平视透视。');
+      }
+      if (isDenimState(p) && p.denimColor === '浅水洗蓝') {
+        setAuto('spaceTemplate','深木帘幕质感直播间','浅水洗蓝需要中性偏深背景避免发灰发白。');
+        setAuto('wallElements',['深木饰面背景墙','暖灰墙面','灰咖窗帘背景'],'浅水洗蓝禁止浅蓝和纯白高亮背景。');
+        setAuto('lightingElements',['侧向窗光','中性建筑柔光'],'浅水洗蓝灯光避免过曝。');
+      }
+      if (isDenimState(p) && ['深蓝','黑灰'].includes(p.denimColor)) {
+        setAuto('spaceTemplate','中性灰极简陈列空间','深色牛仔需要中灰或暖灰背景避免被吞掉。');
+        setAuto('wallElements',['中性灰微水泥墙','暖灰墙面','线性层板墙'],'深色牛仔需要适度对比背景。');
+        setAuto('lightingElements',['低反差轮廓光','陈列层板洗墙灯','中性建筑柔光'],'深色牛仔需要轻微轮廓光和缝线可见。');
+      }
+      if (isDenimState(p) && (p.denimFit === '微喇牛仔裤' || p.clothingCategory === 'micro_flare_denim')) {
+        setAuto('framingRange','全身试穿','微喇牛仔裤必须保留鞋裤关系。');
+        setAuto('displayFocus',['裤脚展开变化','鞋裤关系','版型显瘦'],'微喇裤重点是膝盖到裤脚的变化。');
+      }
+      if (isDenimState(p) && (p.denimFit === '阔腿牛仔裤' || p.clothingCategory === 'wide_leg_denim')) {
+        setAuto('framingRange','全身试穿','阔腿牛仔裤需要完整裤脚和地面留白。');
+        setAuto('displayFocus',['裤腿宽度','垂感','裤脚完整','整体搭配'],'阔腿裤重点是宽度、垂坠和裤脚空间。');
+      }
+      if (isDenimState(p) && (p.denimFit === '高腰牛仔裤' || p.clothingCategory === 'high_waist_denim')) {
+        setAuto('displayFocus',['腰头结构','显腿比例','上衣塞入关系','版型显瘦'],'高腰牛仔裤重点是腰线和门襟结构。');
+      }
+      if (['内衣','吊带'].includes(p.clothingCategory)) {
+        setAuto('spaceTemplate','地中海白蓝庭院','内衣/吊带类使用白蓝庭院母版，避免低俗影楼感。');
+        setAuto('sceneStyleDirection','地中海白蓝风','内衣/吊带类转向清爽度假场景。');
+        setAuto('themePackaging','度假海岛拱门空间','内衣/吊带类使用度假主题包装。');
+        setAuto('season','夏季 / 度假季','内衣/吊带类自动匹配轻薄季节。');
+        setAuto('functionSellingPoints',['舒适','透气','轻量'],'内衣/吊带类自动补舒适与透气卖点。');
+      }
+      if (['新中式','国风改良'].includes(p.fashionStyle)) {
+        setAuto('spaceTemplate','新中式极简雅致','新中式风格匹配东方空间母版。');
+        setAuto('wallElements',['暖米大白墙','深木饰面背景墙','格栅装饰墙'],'新中式空间墙面元素。');
+        setAuto('lightingElements',['壁灯','隐藏灯带','竖向发光灯格'],'新中式空间灯光元素。');
+        setAuto('artElements',['东方挂画','水墨画'],'新中式空间艺术元素。');
+        setAuto('furnitureElements',['中式条案','细腿边桌'],'新中式空间家具元素。');
+      }
+      if (['礼服感轻奢','法式轻复古'].includes(p.fashionStyle)) {
+        setAuto('spaceTemplate','复古戏剧花艺空间','礼服/法式风格匹配复古戏剧花艺。');
+        setAuto('wallElements',['深色情绪墙'],'复古戏剧空间墙面元素。');
+        setAuto('lightingElements',['壁灯','戏剧型局部照明','水晶灯'],'复古戏剧空间灯光元素。');
+        setAuto('plantElements',['桌面花艺','落地花丛'],'复古戏剧空间花艺元素。');
+        setAuto('artElements',['动物油画','花卉装饰画'],'复古戏剧空间艺术元素。');
+      }
+      if (p.fashionStyle === '度假松弛') {
+        setAuto('spaceTemplate','地中海白蓝庭院','度假松弛风格匹配地中海母版。');
+        setAuto('wallElements',['白色拱门墙','弧形门洞'],'地中海母版墙面元素。');
+        setAuto('plantElements',['热带大叶植物','花枝探入顶部'],'地中海母版植物元素。');
+        setAuto('furnitureElements',['户外折叠椅','小圆桌'],'地中海母版家具元素。');
+      }
+      return ctx;
+    }
+    function buildState(){
+      const ctx = infer();
+      const sceneStyleState = resolveSceneStyle(ctx);
+      const sceneLayoutState = resolveSceneLayoutVariant(ctx, sceneStyleState.selectedSceneStyle);
+      const materialPaletteState = resolveMaterialPalette(ctx, sceneStyleState.selectedSceneStyle);
+      const productDrivenSceneState = {productDrivenSceneDecision:productDrivenSceneDecision(ctx.state)};
+      const priceDetection = detectProvidedPrice(flattenStateText(ctx.state), Object.keys(ctx.sources).filter(key => ctx.sources[key] === 'locked').map(key => valueText(ctx.state[key])));
+      const priceSanitizerState = {priceSanitizer:{...priceDetection, sanitizedPriceTokens:[]}};
+      const locked = [], autoOrEmpty = [];
+      for (const key of Object.keys(fields)) {
+        const item = {key,label:fields[key].label,value:ctx.state[key],source:ctx.sources[key]};
+        if (ctx.sources[key] === 'locked') locked.push(item);
+        else autoOrEmpty.push(item);
+      }
+      return {...ctx, ...productDrivenSceneState, ...priceSanitizerState, ...sceneStyleState, ...sceneLayoutState, ...materialPaletteState, selectedHostAesthetic:'natural_domestic_live_seller', locked, autoOrEmpty};
+    }
+    function lockedReview(state){
+      if (!state.locked.length) return '【参数锁定复核】\n本次没有用户手动锁定字段。';
+      return '【参数锁定复核】\n' + state.locked.map(it=>`已锁定 - ${it.label}：${valueText(it.value)}`).join('\n');
+    }
+    function autofillReview(state){
+      if (!state.autoFills.length) return '【本次自动补全部分】\n无自动补全记录。';
+      return '【本次自动补全部分】\n' + state.autoFills.map(it=>`- ${it.label}：${valueText(it.value)}\n  补全原因：${it.reason}`).join('\n\n');
+    }
+    function spaceAnalysis(state){
+      const p = state.state;
+      return `【空间设计解析】\n本次直播间采用 ${p.spaceTemplate} 空间母版，核心空间元素包括 ${valueText(p.wallElements)}、${valueText(p.lightingElements)}、${valueText(p.furnitureElements)}、${valueText(p.plantElements)}。\n场景整体为 ${p.sceneStyleDirection}，设计强度为 ${p.designIntensity}，写实程度为 ${p.realismLevel}。`;
+    }
+    function spaceDirectionText(state){
+      const p = state.state;
+      const denim = isDenimState(p)
+        ? '本次为牛仔裤 / 丹宁品类，空间方向必须优先保证牛仔蓝稳定、丹宁纹理清晰、水洗层次可见、裤脚完整和腿部比例真实。默认避开大面积奶油白、纯白高亮、浅蓝背景、高反光地面和强冷白光，使用中性偏深、低反光、有结构感的空间托住裤型。'
+        : `本次为 ${p.clothingCategory} 品类，空间方向以 ${p.fashionStyle} 和 ${p.season} 为核心，优先服务服装轮廓、颜色、面料质感、版型结构和直播成交氛围。`;
+      return [
+        '【空间方向判断】',
+        denim,
+        `输出模式为 ${p.outputMode}，直播间类型为 ${p.liveRoomType}，销售类型为 ${p.salesType}。`,
+        `空间必须更像真实女装直播间固定机位画面，而不是商业海报、品牌广告大片、影楼写真、样板间宣传图或纯家装效果图。`,
+        `装饰密度控制为 ${p.designIntensity}，背景有审美但克制，所有空间元素让位于服装主体。`
+      ].join('\n');
+    }
+    function recommendedTemplateText(state){
+      const p = state.state;
+      return [
+        '【推荐空间母版】',
+        `推荐空间母版：${p.spaceTemplate}`,
+        `空间风格：${p.sceneStyleDirection}`,
+        `空间模式：${p.spaceMode}`,
+        `主题包装：${p.themePackaging}`,
+        `背景结构：${p.backgroundStructure}`,
+        `适配原因：该空间母版能服务 ${p.clothingCategory} 的上身展示、直播讲解和成交氛围，背景只做辅助托底，不抢服装主体。`
+      ].join('\n');
+    }
+    function reusableElementsText(state){
+      const p = state.state;
+      return [
+        '【可复用空间元素】',
+        `墙面结构：${valueText(p.wallElements)}`,
+        `灯光装置：${valueText(p.lightingElements)}`,
+        `软装家具：${valueText(p.furnitureElements)}`,
+        `装饰艺术：${valueText(p.artElements)}`,
+        `植物花艺：${valueText(p.plantElements)}`,
+        `织物与地面：${valueText(p.fabricElements)}`,
+        `软装道具：${valueText(p.softProps)}`,
+        `侧边陈列：${p.sideDisplay}`,
+        `中景必须保留清晰主播站位区和试穿走位区，前景保持简洁，避免家具、花艺、挂杆或前景物遮挡服装主体。`
+      ].join('\n');
+    }
+    function cameraPerspectiveText(state){
+      const p = state.state;
+      return [
+        '【镜头与透视要求】',
+        `画幅：${p.aspectRatio}`,
+        `焦段：${p.focalLength}`,
+        `机位：${p.cameraLevel}`,
+        `镜头高度：${p.cameraHeight}`,
+        `透视方式：${p.perspectiveMode}`,
+        `垂直线规则：垂直线保持竖直，${p.verticalRule}`,
+        `空间轴线规则：${p.spatialAxisRule}`,
+        `空间纵深：必须建立清晰的前景地面层、中景主播层、后景空间层。画面底部保留真实地面延伸，地面从镜头前方延伸到人物脚下，再继续延伸到后景。`,
+        `房间尺度：主播位于房间中部试穿区，不贴墙、不贴窗帘、不贴品牌墙；主播身后至少保留 1.5–2.5 米真实空间距离。全身试穿时主播全身高度约占画面高度 68%–76%，不要超过 80%。`,
+        `房间盒子：画面必须像完整室内房间盒子，能看到后墙、至少一侧侧墙或转角、地面向后延伸、部分天花或顶部灯光结构。后景元素必须有前后距离和侧向退线，不能全部贴在同一个平面上。`,
+        `硬限制：真实竖屏直播固定机位，不俯拍，不仰拍，不使用超广角，不夸张拉伸空间，不拉长腿部。人物脚下落点必须真实，地面、墙面、家具、灯具、软装和人物身体关系必须服从同一个室内空间轴线。`
+      ].join('\n');
+    }
+    function promptText(state){
+      const p = state.state;
+      const denimParagraph = isDenimState(p)
+        ? `牛仔裤专项要求：服装主体为 ${p.denimFit}，牛仔颜色为 ${p.denimColor}。牛仔裤直播间默认上衣为简洁基础款，优先黑色、深灰、米白基础 T 恤、针织衫、衬衫或轻薄外套。上衣可以修身，但不能低胸、露肩、过度紧身或性感化，不能抢走牛仔裤主体。鞋子低调服务裤型展示，优先乐福鞋、短靴、低跟单鞋、小白鞋，不要夸张高跟鞋，不要让鞋子抢裤脚。牛仔裤必须保持真实丹宁质感，清楚展示水洗层次、猫须、腰头、门襟、口袋、裤缝线、丹宁纹理和裤脚垂感。不要把丹宁面料打平，不要让牛仔裤偏灰、偏白、偏青，不要让裤型变成微喇或喇叭裤。全身试穿时脚部和裤脚完整入镜，腰部不能被手部或道具遮挡，裤腿比例自然，不拉长腿，不改变裤型。${p.denimFit === '直筒牛仔裤' ? '直筒牛仔裤的裤腿从大腿到裤脚宽度应自然平直，裤脚不明显外扩，不做微喇，不做喇叭裤。' : ''}背景亮度不得高于裤子主体太多，地面低反光，避免光污染导致牛仔蓝偏灰、偏白、偏青。`
+        : '';
+      const downParagraph = ['羽绒服','鹅绒服'].includes(p.clothingCategory)
+        ? `羽绒服专项要求：羽绒服必须体现真实鹅绒或高品质羽绒的空气层、轻量感和高蓬松度，但不能膨胀变形，不能像普通棉服，不能塑料反光。压线结构必须清晰合理，衣身分区自然，领口、袖口、门襟和下摆都有真实厚度。面料为哑光防风科技面料，不要压线混乱。白色或米白色羽绒服必须与背景清晰分离，不能和暖木墙、浅色地面或灯光粘连。围巾只能作为辅助搭配，不能遮挡羽绒服领口、门襟、压线结构和整体轮廓。侧边挂杆、冬装陈列只作为辅助，亮度和清晰度低于主播主体，不能比主穿羽绒服更抢眼。`
+        : '';
+      const chineseSilkParagraph = (['新中式','国风改良'].includes(p.fashionStyle) || ['真丝','重磅真丝'].includes(p.material))
+        ? `新中式真丝专项要求：新中式真丝女装需要突出真丝光泽、垂感、细腻纹理和东方剪裁。主播动作应围绕领口、盘扣、袖口、腰线、裙摆垂坠进行讲解。真丝面料必须是柔和自然的漫反射丝光，只有局部细腻光泽，不要大面积镜面反光，不要塑料亮面，不要廉价缎面高光。服装褶皱和垂坠要真实自然，光泽随布料弧度轻微变化，体现真丝的轻、垂、柔、细腻。空间可以有东方元素，但必须克制，不做古风棚拍，不做宫廷剧布景，不做会所迎宾感。侧边应有低密度女装挂杆或同色系单品陈列，让空间更像真实女装直播间，而不是中式展厅。`
+        : '';
+      return [
+        `【完整生成提示词】`,
+        `生成一张 ${p.aspectRatio} 的 ${p.outputMode}，用于 ${p.commercialUse}。`,
+        liveRoomIdentityText(),
+        productDrivenSceneText(state),
+        qualityControlPatchText(state),
+        sceneStylePositiveFragment(state),
+        `画面是女装直播间视觉，不是普通商业海报，不是影楼写真，不是单纯人像大片。画面重点是服装商品展示、主播讲解状态、直播间空间氛围和稳定真实的室内透视。`,
+        `画面必须更像真实女装直播间固定机位画面，而不是品牌广告大片。人物应接近正在直播试穿讲解的主播状态，而不是过度模特化的商业 pose。背景空间要有审美，但必须克制，不能让吊灯、挂画、花艺、家具和空间造型抢过服装本身。空间应具备复用性与成交导向，而非一次性展示型布景。`,
+        `真实直播间使用感强锁：空间虽然要高级干净，但必须保留真实直播间使用痕迹和实卖感，不要像无人精品展厅、样板间或纯陈列空间。可以有少量真实直播道具痕迹，例如侧边备用衣架、低密度试穿单品、简洁软装、地毯压痕、真实灯光落点、自然地面使用感和少量可搭建软装，但不能杂乱，不能廉价，不能变成仓库或临时摄影棚。空间必须服务主播试穿讲解和服装成交。`,
+        `服装展示优先于空间装饰。所有背景元素只作为服装展示的辅助托底，不能喧宾夺主。主播站位区必须完整、通透、清晰，服装主体不能被家具、花艺、道具、挂杆或前景物遮挡。`,
+        `直播讲解动作强锁：人物不是广告模特，不是迎宾站姿，不是影楼写真模特，而是正在进行女装直播试穿讲解的主播。人物动作必须自然、实卖、讲解感强，一只手可以轻触服装卖点位置，例如领口、袖口、腰线、门襟、口袋、面料边缘、裙摆、裤腰或压线结构，另一只手可以自然打开、轻抬或做讲解手势。手部不能遮挡服装核心结构，表情自然亲和，像正在介绍衣服。不要杂志硬摆 pose，不要迎宾站姿，不要过度模特化，不要过度性感化，不要让人物表演感强于服装展示。`,
+        `人物与服装主次规则：人物必须服务服装展示，不能让脸、身材、性感姿态、夸张妆造或复杂配饰抢走服装主体。妆容干净自然，姿态亲和实卖，服装结构、材质、版型优先于人物魅力。上衣、鞋子、包袋、耳饰和配饰都必须服务当前服装品类展示，不做低胸、露肩、过度紧身、过度性感化搭配，不用夸张高跟鞋强化身材，不让人物姿态抢走服装主体，不让空间、家具、花艺、灯具、挂画、画面信息元素抢过服装。`,
+        `防展厅化约束：陈列层板、鞋包、挂杆、柜体和品牌墙只作为真实女装直播间辅助陈列，不要像高级展厅、精品店橱窗或无人 showroom。空间应更像女装直播间试穿区，有实卖氛围，但保持干净克制。所有陈列元素亮度、清晰度和视觉权重必须低于主播和服装主体。`,
+        `直播间类型为 ${p.liveRoomType}，销售类型为 ${p.salesType}。人物包含方式为 ${p.includePerson}，人物出镜范围为 ${p.framingRange}，试穿展示方式为 ${p.tryOnMode}，主播角色为 ${p.hostRole}，动作状态为 ${p.hostAction}。`,
+        `服装品类为 ${p.clothingCategory}，季节为 ${p.season}，女装风格为 ${p.fashionStyle}，服装颜色为 ${p.clothingColor}，面料材质为 ${p.material}，版型廓形为 ${p.silhouette}，穿搭层次为 ${p.layering}，搭配单品包括 ${valueText(p.stylingItems)}，展示重点为 ${valueText(p.displayFocus)}，功能卖点为 ${valueText(p.functionSellingPoints)}。`,
+        denimParagraph,
+        downParagraph,
+        chineseSilkParagraph,
+        `直播间采用后景 + 中景 + 侧景 + 简洁前景结构。后景建立直播带货运营身份和受控空间纵深，中景保留清晰主播站位区、服装展示区、产品讲解区和人物脚下落点，侧景只做低密度辅助，前景保持简洁不遮挡腿部、裙摆或裤脚。`,
+        `黄金空间锚点优先：modern women’s fashion live room, clean premium clothing live space, realistic standing live camera, full-body jeans display, controlled room depth, clothing rack / shelves / curtain / soft interior lighting, host standing naturally in the room, spacious floor depth, not cluttered, not equipment-heavy。直播信号只选 2-3 个自然出现，例如 wireless lavalier microphone on host、natural product explanation gesture、one small low-density side garment sample；它们只能作为背景辅助信号，不能成为画面主体，不能遮挡牛仔裤腰线、裤型和裤脚。`,
+        `空间必须像真实女装直播间房间，而不是人物站在单面背景板前。必须建立清晰的前景—中景—后景三层关系：前景地面从镜头前方延伸到人物脚下，再继续延伸到后景；主播位于房间中部试穿区，不贴墙、不贴窗帘、不贴品牌墙，主播身后至少保留 1.5–2.5 米真实空间距离；后景元素需要有前后距离和侧向退线，至少出现一处侧墙、转角、柜体侧面、窗边退线或家具向后排列关系。`,
+        `空间不是单面背景墙，而是完整室内房间盒子。画面必须能看到后墙、至少一侧侧墙或转角、地面向后延伸、部分天花或顶部灯光结构。全身试穿图必须同时展示人物完整服装和一定比例的房间环境，主播全身高度约占画面高度 68%–76%，不要超过 80%，不能贴底裁切。`,
+        `人物与空间比例强锁：人物不能顶满画面，不能过近，不能把空间吃掉。全身试穿图必须同时展示完整服装和一定比例的房间环境。头顶到画面顶部保留自然留白，脚下到画面底部保留地面安全区，空间要能看出直播间可搭建尺度。`,
+        `直播间空间采用 ${p.spaceTemplate} 空间母版，空间风格为 ${p.sceneStyleDirection}，空间模式为 ${p.spaceMode}，主题包装为 ${p.themePackaging}。背景结构为 ${p.backgroundStructure}，软装道具包括 ${valueText(p.softProps)}，侧边商品辅助陈列为 ${p.sideDisplay}。可复用空间元素包括墙面结构 ${valueText(p.wallElements)}、灯光装置 ${valueText(p.lightingElements)}、软装家具 ${valueText(p.furnitureElements)}、装饰艺术 ${valueText(p.artElements)}、植物花艺 ${valueText(p.plantElements)}、织物元素 ${valueText(p.fabricElements)}。`,
+        `镜头采用 ${p.focalLength}，${p.cameraLevel}，镜头高度为 ${p.cameraHeight}，室内透视模式为 ${p.perspectiveMode}。必须保证垂直线保持竖直，${p.verticalRule}，并且 ${p.spatialAxisRule}，地面、墙面、家具、软装服从同一空间轴线。画面不使用超广角夸张，不拉伸地面，不拉长腿部，不产生拼接空间。`,
+        `整体要求真实、稳定、低 AI 味，服装结构清晰，面料质感准确，空间可被真实直播间搭建复用。`
+      ].filter(Boolean).join('\n\n');
+      const sanitized = sanitizeGeneratedText(raw, state.priceSanitizer || {});
+      if (state.priceSanitizer) {
+        state.priceSanitizer.sanitizedPriceTokens = [...new Set([...(state.priceSanitizer.sanitizedPriceTokens || []), ...sanitized.sanitizedPriceTokens])];
+      }
+      return sanitized.text;
+    }
+    function hooksText(){
+      return '【主要画面卖点】\n1. 服装商品展示明确\n2. 主播动作符合直播讲解\n3. 空间母版可复用\n4. 季节与服装品类匹配\n5. 装饰密度可控\n6. 透视关系强锁定';
+    }
+    function negativeText(state){
+      const p = state.state;
+      const finalTemplatePack = finalTemplatePromptPackForState(state);
+      if (finalTemplatePack && finalTemplatePack.negativePrompt) {
+        if (finalTemplatePack.selectedFinalPromptTemplate === FAUX_GARDEN_EMPTY_FRONT_TEMPLATE) {
+          return '【负面限制词】\n' + finalTemplatePack.negativePrompt;
+        }
+        const coreNegativeLocks = [
+          'fake price',
+          'promotion board',
+          'visible softbox',
+          'visible light stand',
+          'LED panel light',
+          'full row of clothes rack',
+          'dense clothing racks',
+          'boutique fitting room',
+          'photo studio backdrop',
+          'narrow niche',
+          'flat front-facing backdrop',
+          'overlong legs',
+          'cropped garment'
+        ];
+        const merged = [...new Set([
+          ...finalTemplatePack.negativePrompt.split(',').map(item => item.trim()).filter(Boolean),
+          ...coreNegativeLocks
+        ])];
+        return '【负面限制词】\n' + merged.join(', ');
+      }
+      const chosen = ['generalNegative','personNegative','clothingNegative','sceneNegative','perspectiveNegative']
+        .map(key=>p[key]).flat().filter(v=>v && v !== '自动');
+      const base = [
+        '不要普通商业海报感，不要品牌广告大片感，不要杂志封面感，不要影楼写真感，不要橱窗陈列图感，不要样板间宣传图感，不要纯家装效果图，不要过度模特姿态，不要过度摆拍，不要空间比服装更抢眼。',
+        '不要广告模特感，不要迎宾站姿，不要杂志硬摆 pose，不要人物魅力抢服装，不要低胸露肩抢主体，不要过度性感化搭配，不要夸张高跟鞋抢裤脚。',
+        '不要无人精品展厅感，不要样板间宣传感，不要纯陈列空间，不要高级 showroom 感，不要脸和妆造抢主体，不要配饰抢主体，不要手部遮挡服装核心结构，不要人物贴窗帘，不要人物贴背景板，不要单面背景墙。',
+        '不要高密度背景堆砌，不要复杂前景遮挡，不要家具遮挡服装，不要花艺遮挡服装，不要吊灯抢主体，不要挂画抢主体，不要背景纹理干扰服装轮廓。',
+        '不要人物贴墙站立，不要人物贴着窗帘，不要单面背景板，不要摄影棚布帘背景，不要浅景深平面背景，不要所有家具贴在同一平面，不要没有前景地面，不要空间被人物填满，不要只拍到墙和人，不要房间纵深不足，不要背景像平面海报。',
+        '不要低质 AI 感，不要假人感，不要蜡像皮肤，不要过度磨皮，不要过度网红滤镜，不要高反差光污染，不要导致服装偏色。',
+        '不要失真透视，不要多个消失点混乱，不要拼接空间，不要超广角畸变，不要地面过度拉伸，不要墙面歪斜，不要窗框歪斜，不要柜体透视错误，不要人物漂浮，不要空间比例失控。',
+        '不要过度性感化人物，不要低俗擦边，不要人体展示优先，不要模特抢走服装主体，不要服装结构错误，不要材质失真，不要版型塌陷，不要穿搭关系混乱。',
+        '不要低清晰度，不要杂乱背景，不要廉价感，不要强烈 AI 假感，不要影楼写真感，不要过度性感化，不要低俗擦边，不要人体展示优先，不要模特抢走服装主体。',
+        '不要服装结构错误，不要材质失真，不要版型塌陷，不要穿搭关系混乱，不要服装主次不清。',
+        '不要拼接空间，不要多个消失点混乱，不要超广角畸变，不要地面过度拉伸，不要墙面歪斜，不要柜体透视错误，不要屏幕边缘倾斜，不要人物漂浮，不要空间比例失控。',
+        '不要普通商业海报感，不要纯人像大片，不要背景像 AI 展厅，不要空间空得发假，不要道具堆砌，不要陈列过满。'
+      ];
+      if (isDenimState(p)) {
+        base.push('牛仔裤专项限制：不要大面积纯白背景，不要高亮奶油白空间，不要浅蓝背景，不要高饱和蓝墙，不要高反光地砖，不要镜面地面，不要强冷白光，不要过强白光反射，不要让牛仔裤偏灰、偏白、偏青，不要蓝光污染，不要把丹宁面料打平，不要让水洗层次消失，不要让猫须和缝线不清楚，不要让裤型轮廓发飘，不要背景比裤子更抢眼，不要裤脚被裁切，不要腿部被广角拉长，不要腰头被手部遮挡，不要把裤子画成普通蓝色布料。');
+        base.push('Live Room Identity negative: offline boutique fitting room, store try-on photo, fitting room selfie, normal clothing store display, fashion studio try-on, boutique showroom, only racks and curtains, no visible filming equipment, no equipment-heavy setup, no cluttered operation trace, model posing in a store, shop assistant try-on photo.');
+        base.push('V3 Soft Live Room negative: equipment-heavy live room, cluttered operation corner, too many signs, oversized size chart, large selling board, live table blocking legs, warehouse-like stock area, messy folded jeans piles, props dominating composition, over-explained livestream setup, artificial demo corner.');
+      }
+      if (hasLargeCornerHomeSceneStyle(state) || hasLayeredWindowSceneStyle(state)) {
+        base.push(sceneStyleNegativeFragment(state));
+      }
+      base.push(qualityControlNegativeText(state));
+      return '【负面限制词】\n' + [...new Set([...chosen, ...base])].join('\n\n');
+    }
+    function splitSceneStyleChecklist(state){
+      const positive = compactImagePrompt(state).toLowerCase();
+      const negative = negativeText(state).toLowerCase();
+      const positiveRequiredTerms = [
+        ['large indoor room-box', ['large indoor room-box space','large room-box space']],
+        ['L-shaped corner composition', ['l-shaped corner composition']],
+        ['visible side wall', ['visible side wall','real side wall']],
+        ['large foreground floor depth', ['large foreground floor depth','large visible foreground floor depth']],
+        ['clean midground presentation zone', ['clean midground presentation zone','clean midground selling zone']],
+        ['integrated architectural lighting', ['integrated architectural lighting']],
+        ['low-density side display', ['low-density side display','low-density supporting display','low-density supporting garment display']],
+        ['product fully visible', ['full-body','garment fully visible','product fully visible','garment remains fully visible']]
+      ];
+      const negativeRequiredTerms = [
+        ['visible softbox', ['visible softbox']],
+        ['visible light stand', ['visible light stand']],
+        ['LED panel light', ['led panel light']],
+        ['full row of clothes rack', ['full row of clothes rack']],
+        ['dense clothing racks', ['dense clothing racks','dense side rack']],
+        ['fake price', ['fake price','invented price']],
+        ['promotion board', ['promotion board','big promotion sign','heavy sales poster']],
+        ['boutique fitting room', ['offline boutique fitting room']],
+        ['photo studio backdrop', ['photo studio backdrop','photo studio portrait set']],
+        ['narrow niche', ['narrow niche','narrow window niche']]
+      ];
+      const conflictForbiddenTerms = [
+        ['specific price symbol', /[¥￥]\s*\d+/i],
+        ['price amount', /(直播价|到手价|价格|客单价)\s*\d+/i],
+        ['discount', /(折扣|满减|优惠券|coupon)\s*\d*/i],
+        ['promotion board', /promotion board|blackboard sign|blackboard price sign/i],
+        ['size chart', /size chart/i],
+        ['info card', /info card/i],
+        ['feature board', /feature board/i],
+        ['prepared stock area', /prepared stock area/i],
+        ['softbox', /softbox/i],
+        ['light stand', /light stand/i],
+        ['LED panel', /led panel/i],
+        ['side fill light', /side fill light|fill light at edge of frame/i],
+        ['full row of clothes rack', /full row of clothes rack/i],
+        ['dense clothing racks', /dense clothing racks/i]
+      ];
+      const positiveMissing = positiveRequiredTerms
+        .filter(([, terms]) => !terms.some(term => positive.includes(term)))
+        .map(([label]) => label);
+      const negativeMissing = negativeRequiredTerms
+        .filter(([, terms]) => !terms.some(term => negative.includes(term)))
+        .map(([label]) => label);
+      const conflictFound = conflictForbiddenTerms
+        .filter(([, pattern]) => pattern.test(positive))
+        .map(([label]) => label);
+      const positiveRequiredCheck = {status:positiveMissing.length ? 'fail' : 'pass', missing:positiveMissing};
+      const negativeRequiredCheck = {status:negativeMissing.length ? 'fail' : 'pass', missing:negativeMissing};
+      const conflictForbiddenCheck = {status:conflictFound.length ? 'fail' : 'pass', found:conflictFound};
+      const status = [positiveRequiredCheck, negativeRequiredCheck, conflictForbiddenCheck].every(check => check.status === 'pass') ? 'pass' : 'fail';
+      return {
+        selectedSceneStyle:state.selectedSceneStyle,
+        selectedScenicModule:state.selectedScenicModule || '',
+        selectedLayoutVariant:state.selectedSceneLayoutVariant,
+        positiveRequiredCheck,
+        negativeRequiredCheck,
+        conflictForbiddenCheck,
+        status,
+        missing:[...positiveMissing, ...negativeMissing]
+      };
+    }
+    function sceneStyleChecklist(state){
+      if (hasLargeCornerHomeSceneStyle(state)) {
+        return splitSceneStyleChecklist(state);
+        const compact = compactImagePrompt(state).toLowerCase();
+        const negative = sceneStyleNegativeFragment(state).toLowerCase();
+        const allText = `${compact} ${negative}`;
+        const checks = [
+          ['has_large_indoor_room_box', ['large indoor room-box space','large room-box space']],
+          ['has_l_shaped_corner_composition', ['l-shaped corner composition']],
+          ['has_slight_angled_live_camera', ['slight angled live-camera view','slight angled live camera']],
+          ['has_visible_side_wall', ['visible side wall','real side wall']],
+          ['has_main_background_wall', ['main background wall']],
+          ['has_large_foreground_floor_depth', ['large foreground floor depth','large visible foreground floor depth']],
+          ['has_clean_midground_presentation_zone', ['clean midground presentation zone']],
+          ['host_stands_in_midground', ['host stands naturally in the midground','host stands in the midground']],
+          ['host_not_pasted_against_wall', ['not pasted','host pasted against wall']],
+          ['has_integrated_architectural_lighting', ['integrated architectural lighting only']],
+          ['no_visible_filming_equipment', ['no visible filming equipment']],
+          ['no_softbox_or_light_stand', ['no softbox','no light stand']],
+          ['has_low_density_supporting_display', ['low-density side display','low-density supporting display']],
+          ['no_full_row_of_clothes_rack', ['full row of clothes rack']],
+          ['not_offline_fitting_room', ['offline boutique fitting room']],
+          ['not_photo_studio_backdrop', ['photo studio backdrop']],
+          ['not_narrow_window_niche', ['narrow window niche','narrow niche set']],
+          ['garment_or_product_fully_visible', ['full-body','garment fully visible','product fully visible']]
+        ];
+        if (hasLayeredWindowSceneStyle(state)) {
+          checks.push(
+            ['has_optional_scenic_module', ['layered-window-scenic-live-room','layered scenic-window module','layered window-scenic set']],
+            ['scenic_module_inherits_large_corner_lock', ['always inherit the large-corner-home-live-room spatial lock first']],
+            ['has_faux_window_or_lightbox_module', ['faux window','soft-membrane lightbox','seg fabric lightbox','backlit fabric lightbox']],
+            ['scenic_module_not_independent_front_window', ['not an independent frontal window portrait set','not a flat full-frontal centered window portrait']]
+          );
+        }
+        if (state.selectedSceneLayoutVariant === 'soft_home_window_scenic_corner') {
+          checks.push(
+            ['inherits_large_corner_home_framework', ['large-corner-home-live-room spatial framework']],
+            ['has_soft_home_window_scenic_corner', ['soft_home_window_scenic_corner layout variant']],
+            ['has_side_back_window_or_scenic_module', ['side-back arched window or partial scenic window module','side-back arched window','partial scenic window module']],
+            ['window_not_centered_backdrop', ['must not become a centered portrait backdrop','full frontal window backdrop']],
+            ['has_clean_midground_selling_zone', ['clean midground selling zone']],
+            ['host_not_pasted_against_window', ['not directly against the window','host pasted against window']],
+            ['garment_fully_visible', ['garment remains fully visible','garment fully visible']],
+            ['has_low_density_lifestyle_props', ['low-density lifestyle props']],
+            ['not_wedding_window_set', ['wedding window set']],
+            ['not_photo_studio_portrait_set', ['photo studio portrait set']],
+            ['not_korean_soft_boutique_room', ['korean soft boutique window room']]
+          );
+        }
+        const result = {selectedSceneStyle:LARGE_CORNER_HOME_ID, selectedScenicModule:state.selectedScenicModule || '', selectedLayoutVariant:state.selectedSceneLayoutVariant, status:'pass', missing:[]};
+        checks.forEach(([key, terms]) => {
+          result[key] = terms.some(term => allText.includes(term));
+          if (!result[key]) result.missing.push(key);
+        });
+        result.status = result.missing.length ? 'fail' : 'pass';
+        return result;
+      }
+      if (!hasLayeredWindowSceneStyle(state)) {
+        return {
+          selectedSceneStyle:state.selectedSceneStyle,
+          sceneStyleFallback:state.sceneStyleFallback,
+          matchedSceneStyleKeywords:state.matchedSceneStyleKeywords || [],
+          status:'skip',
+          missing:[]
+        };
+      }
+      const compact = compactImagePrompt(state).toLowerCase();
+      const negative = sceneStyleNegativeFragment(state).toLowerCase();
+      const allText = `${compact} ${negative}`;
+      const checks = [
+        ['has_framed_window_structure', ['framed arch or window structure','framed scenic window','framed window view','arched opening','framed window']],
+        ['has_far_background_carrier', ['backlit fabric lightbox','seg fabric lightbox','printed scenic panel','faux window-view backdrop']],
+        ['has_foreground_midground_background_depth', ['foreground floor layers','foreground and side layers','foreground / midground / far-background layers','foreground, midground and far-background layers']],
+        ['has_host_presentation_zone', ['midground presentation zone','clean host presentation zone']],
+        ['has_clean_standing_space', ['clear standing space','clean standing space']],
+        ['has_live_room_usability', ['livestream room','livestream selling']],
+        ['props_do_not_block_subject', ['stay away from the central garment display','leaving the host and garment fully visible','must not block the host or garment']],
+        ['scenery_does_not_dominate_product', ['scenic props stay at sides and rear','garment secondary to background','decorative scene overpowering host','must not dominate the composition','support the clothing']],
+        ['not_plain_store', ['plain clothing store','not a normal offline store']],
+        ['not_photo_studio_set', ['not a photo studio garden','photo studio backdrop','not a photo studio backdrop']],
+        ['not_wedding_backdrop', ['not a wedding backdrop','wedding photo backdrop','not a wedding set']],
+        ['not_flat_backdrop_only', ['flat backdrop only','not a flat poster']],
+        ['not_real_outdoor_location', ['not a real garden','real outdoor location','not a real outdoor location']],
+        ['has_indoor_live_room_box', ['indoor live-commerce room box']],
+        ['has_backlit_lightbox_window', ['backlit fabric lightbox / seg fabric scenic panel','backlit fabric lightbox or seg fabric scenic panel']],
+        ['has_physical_side_props', ['physical side props','physical set props']],
+        ['has_central_clean_selling_zone', ['central clean selling zone','clean livestream selling zone']],
+        ['not_romantic_photo_studio', ['not a photo studio garden','romantic garden portrait']],
+        ['not_wedding_floral_set', ['not a wedding backdrop','wedding floral arch']],
+        ['not_lifestyle_try_on_photo', ['lifestyle photoshoot','premium try-on photo']],
+        ['has_layout_variant', ['layoutvariant']],
+        ['has_non_repetitive_room_structure', ['do not repeat the same centered cream arch-window layout','vary the room structure']],
+        ['has_natural_domestic_live_seller_aesthetic', ['natural chinese women’s fashion livestream seller','realistic domestic live-selling aesthetics']],
+        ['not_korean_catalog_model', ['korean catalog model','korean fashion model look']],
+        ['not_same_centered_arch_room', ['same centered arch-window room','fixed central window']],
+        ['has_clean_selling_zone', ['clean livestream selling zone','clean selling zone']],
+        ['garment_fully_visible', ['garment fully visible']]
+      ];
+      const result = {
+        selectedSceneStyle:LAYERED_WINDOW_SCENIC_ID,
+        has_framed_window_structure:false,
+        has_far_background_carrier:false,
+        has_foreground_midground_background_depth:false,
+        has_host_presentation_zone:false,
+        has_clean_standing_space:false,
+        has_live_room_usability:false,
+        props_do_not_block_subject:false,
+        scenery_does_not_dominate_product:false,
+        not_plain_store:false,
+        not_photo_studio_set:false,
+        not_wedding_backdrop:false,
+        not_flat_backdrop_only:false,
+        not_real_outdoor_location:false,
+        has_indoor_live_room_box:false,
+        has_backlit_lightbox_window:false,
+        has_physical_side_props:false,
+        has_central_clean_selling_zone:false,
+        not_romantic_photo_studio:false,
+        not_wedding_floral_set:false,
+        not_lifestyle_try_on_photo:false,
+        has_layout_variant:false,
+        has_non_repetitive_room_structure:false,
+        has_natural_domestic_live_seller_aesthetic:false,
+        not_korean_catalog_model:false,
+        not_same_centered_arch_room:false,
+        has_clean_selling_zone:false,
+        garment_fully_visible:false,
+        status:'pass',
+        missing:[]
+      };
+      checks.forEach(([key, terms]) => {
+        result[key] = terms.some(term => allText.includes(term));
+        if (!result[key]) result.missing.push(key);
+      });
+      [
+        'wedding photo backdrop',
+        'photo studio backdrop',
+        'flat backdrop only',
+        'real outdoor location',
+        'no midground presentation zone',
+        'props blocking host',
+        'scenery dominating clothing'
+      ].forEach(term => {
+        if (!negative.includes(term)) result.missing.push(`negative:${term}`);
+      });
+      result.status = result.missing.length ? 'fail' : 'pass';
+      return result;
+    }
+    function auditPromptWritingFramework(promptPack = {}){
+      const positivePrompt = String(promptPack.positivePrompt || '');
+      const compactPrompt = String(promptPack.compactImagePrompt || positivePrompt || '');
+      const negativePrompt = String(promptPack.negativePrompt || '');
+      const productCategory = String(promptPack.productCategory || '');
+      const selectedTemplate = String(promptPack.selectedTemplate || '');
+      const selectedSceneStyle = String(promptPack.selectedSceneStyle || '');
+      const selectedLayoutVariant = String(promptPack.selectedLayoutVariant || '');
+      const positiveAll = `${positivePrompt} ${compactPrompt}`;
+      const compactLower = compactPrompt.toLowerCase();
+      const positiveLower = positiveAll.toLowerCase();
+      const wordCount = (compactPrompt.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?/g) || []).length;
+
+      const findFirst = terms => {
+        const indexes = terms
+          .map(term => compactLower.indexOf(term.toLowerCase()))
+          .filter(index => index >= 0);
+        return indexes.length ? Math.min(...indexes) : -1;
+      };
+      const hasAny = terms => terms.some(term => positiveLower.includes(term.toLowerCase()));
+      const conceptCount = pattern => (positiveAll.match(pattern) || []).length;
+
+      const spaceTerms = [
+        'vertical',
+        '9:16',
+        'large indoor room-box',
+        'l-shaped corner composition',
+        'fashion live-commerce room'
+      ];
+      const productSceneTerms = [
+        'scene design follows the product',
+        'product category',
+        'product mood',
+        'deep wood',
+        'warm gray',
+        'breathable',
+        'summer-oriented',
+        'dress scenes',
+        'denim jeans'
+      ];
+      const hostDisplayTerms = [
+        'speaking to the live camera',
+        'speaks to the live camera',
+        'product explanation gesture',
+        'waistband',
+        'neckline',
+        'collar',
+        'zipper'
+      ];
+      const restraintTerms = [
+        'integrated architectural lighting',
+        'one small side display',
+        'one small point-like',
+        'visible text',
+        'kept outside the visual focus'
+      ];
+      const firstMeaningfulText = compactLower.trim().slice(0, 160);
+      const startsWithRuleStack = /^(do not|avoid|not |negative|visible text|scene design follows the product)/i.test(firstMeaningfulText);
+      const spaceIndex = findFirst(spaceTerms);
+      const productIndex = findFirst(productSceneTerms);
+      const hostIndex = findFirst(hostDisplayTerms);
+      const restraintIndex = findFirst(restraintTerms);
+      const positiveStructureOrderPass =
+        !startsWithRuleStack &&
+        spaceIndex >= 0 &&
+        productIndex >= 0 &&
+        hostIndex >= 0 &&
+        restraintIndex >= 0 &&
+        spaceIndex <= productIndex &&
+        productIndex <= hostIndex;
+
+      const categoryLower = productCategory.toLowerCase();
+      const productDrivenScenePass = (() => {
+        if (/牛仔裤|denim|jeans/i.test(productCategory)) {
+          return hasAny(['deep wood','warm gray','urban commuting','denim','jeans']) && hasAny(['product mood','scene design follows the product']);
+        }
+        if (/连衣裙|dress/i.test(productCategory)) {
+          return hasAny(['dress scenes','dress','livestream seller','product explanation gesture']) && hasAny(['not as a fashion portrait model','not a studio portrait','commercial mood','live-selling','livestream']);
+        }
+        if (/防晒|sun-protection/i.test(productCategory)) {
+          return hasAny(['clean, bright, breathable','summer-oriented','sun-protection','side window daylight','lightness, breathability']);
+        }
+        return hasAny(['scene design follows the product','product mood','product category']);
+      })();
+
+      const coreSpaceChecks = [
+        ['large indoor room-box', ['large indoor room-box','large room-box']],
+        ['L-shaped corner composition', ['l-shaped corner composition']],
+        ['visible side wall', ['visible side wall','real visible side wall','real side wall']],
+        ['foreground floor depth', ['foreground floor depth','large visible foreground floor depth','floor depth']],
+        ['clean midground presentation zone', ['clean midground presentation zone','clean midground selling zone']]
+      ];
+      const missingSpace = coreSpaceChecks
+        .filter(([, terms]) => !hasAny(terms))
+        .map(([label]) => label);
+      const spaceSkeletonPass = missingSpace.length === 0;
+
+      const displayChecks = (() => {
+        if (/牛仔裤|denim|jeans/i.test(productCategory)) {
+          return [
+            ['waistband', ['waistband']],
+            ['fly front', ['fly front']],
+            ['pockets', ['pockets']],
+            ['leg silhouette', ['leg silhouette']],
+            ['hems', ['hems','hem drape']],
+            ['shoes', ['shoes']]
+          ];
+        }
+        if (/连衣裙|dress/i.test(productCategory)) {
+          return [
+            ['neckline', ['neckline']],
+            ['waistline', ['waistline']],
+            ['sleeve', ['sleeve','sleeve shape']],
+            ['skirt drape', ['skirt drape']],
+            ['hemline', ['hemline']],
+            ['shoes', ['shoes']]
+          ];
+        }
+        if (/防晒|sun-protection/i.test(productCategory)) {
+          return [
+            ['collar or hood', ['collar','hood']],
+            ['zipper', ['zipper']],
+            ['sleeve length', ['sleeve length']],
+            ['lightweight fabric', ['lightweight fabric']],
+            ['hemline', ['hemline']],
+            ['shoes', ['shoes']]
+          ];
+        }
+        return [
+          ['garment visible', ['garment fully visible','full-body clothing display','clear garment structure']]
+        ];
+      })();
+      const missingProductDisplay = displayChecks
+        .filter(([, terms]) => !hasAny(terms))
+        .map(([label]) => label);
+      const productDisplayPass = missingProductDisplay.length === 0;
+
+      const forbiddenPositivePatterns = [
+        ['price', /\bprice\b/i],
+        ['discount', /\bdiscount\b|折扣|满减/i],
+        ['coupon', /\bcoupon\b|优惠券/i],
+        ['RMB', /\brmb\b|人民币/i],
+        ['promotion board', /promotion board/i],
+        ['blackboard sign', /blackboard sign/i],
+        ['large sign', /large sign/i],
+        ['sales board', /sales board/i],
+        ['size chart', /size chart/i],
+        ['info card', /info card/i],
+        ['feature board', /feature board/i],
+        ['prepared stock area', /prepared stock area/i],
+        ['full rack', /full rack/i],
+        ['next items waiting on rack', /next items waiting on rack/i],
+        ['many garments', /many garments/i],
+        ['retail rack', /retail rack/i],
+        ['filming light', /filming light/i],
+        ['softbox', /softbox/i],
+        ['light stand', /light stand/i],
+        ['LED panel', /led panel/i],
+        ['side fill light', /side fill light/i],
+        ['fill light at edge of frame', /fill light at edge of frame/i]
+      ];
+      const forbiddenPositiveTerms = forbiddenPositivePatterns
+        .filter(([, pattern]) => pattern.test(positiveAll))
+        .map(([label]) => label);
+      const noLiteralBoardOrEquipmentInPositive = forbiddenPositiveTerms.length === 0;
+      const noOverStackedRules = wordCount <= 300;
+
+      const duplicatedConcepts = [
+        ['live-selling room', /live-selling room|live-commerce room|livestream selling room/gi],
+        ['no filming equipment', /no visible filming equipment|filming equipment|production gear|equipment setup/gi],
+        ['no full row rack', /no full row|full row of clothes rack|dense retail rack/gi],
+        ['large room-box', /large indoor room-box|large room-box|room box/gi],
+        ['L-shaped composition', /l-shaped corner composition|l-shaped composition|corner composition/gi]
+      ]
+        .map(([label, pattern]) => ({label, count:conceptCount(pattern)}))
+        .filter(item => item.count > 2);
+
+      const missingCoreVisualElements = [...missingSpace, ...missingProductDisplay];
+      const recommendations = [];
+      if (!positiveStructureOrderPass) recommendations.push('Start compactImagePrompt with the visual space skeleton, then product-scene fit, then host/product display, then restrained risk controls.');
+      if (!productDrivenScenePass) recommendations.push('Explain why the selected room style supports this product category, season, material and value tier.');
+      if (!spaceSkeletonPass) recommendations.push('Restore the large room-box, L-shaped corner, visible side wall, floor depth and clean midground presentation zone.');
+      if (!productDisplayPass) recommendations.push('Add the category-specific garment display points without adding props or boards.');
+      if (!noLiteralBoardOrEquipmentInPositive) recommendations.push('Move literal board, price, rack and filming-equipment terms out of positive prompt; keep them only as negative risks when needed.');
+      if (!noOverStackedRules) recommendations.push('prompt too long, likely rule-stacked rather than visual-directed.');
+      if (duplicatedConcepts.length) recommendations.push('Reduce repeated concepts so each high-level visual idea appears once.');
+
+      const status = [
+        positiveStructureOrderPass,
+        productDrivenScenePass,
+        spaceSkeletonPass,
+        productDisplayPass,
+        noLiteralBoardOrEquipmentInPositive,
+        noOverStackedRules,
+        duplicatedConcepts.length === 0
+      ].every(Boolean) ? 'pass' : 'fail';
+
+      return {
+        promptWritingFrameworkAudit:{
+          status,
+          positiveStructureOrderPass,
+          productDrivenScenePass,
+          spaceSkeletonPass,
+          productDisplayPass,
+          noLiteralBoardOrEquipmentInPositive,
+          noOverStackedRules,
+          wordCount,
+          forbiddenPositiveTerms,
+          missingCoreVisualElements,
+          duplicatedConcepts,
+          recommendations
+        },
+        debug:{
+          productCategory,
+          selectedTemplate,
+          selectedSceneStyle,
+          selectedLayoutVariant,
+          negativePromptChecked:Boolean(negativePrompt)
+        }
+      };
+    }
+    function outputs(state){
+      // 空间透视强锁必须固定保留在第 4 张结果卡；后续迭代不得删除、弱化或移动到非固定位置。
+      const checklist = routeChecklist(state);
+      const sceneChecklist = sceneStyleChecklist(state);
+      const integrationDebug = workbenchIntegrationDebug(state);
+      if (selectedFinalPromptTemplateFor(state) === FAUX_GARDEN_EMPTY_FRONT_TEMPLATE) {
+        return [{
+          title:'faux_garden_empty_front_tvc_studio_locked_v01',
+          meta:'final template JSON',
+          text:JSON.stringify(fauxGardenEmptyFrontOutputPack(state), null, 2),
+          cls:'prompt'
+        }];
+      }
+      if (checklist.missingLiveRoomIdentityItems.length && !integrationDebug.templateMode) {
+        return [
+          {
+            title:'Live Room Identity 缺失',
+            meta:'禁止调用生图',
+            text:JSON.stringify({
+              error:'missingLiveRoomIdentityItems',
+              missingLiveRoomIdentityItems:checklist.missingLiveRoomIdentityItems,
+              routeChecklist:checklist
+            }, null, 2),
+            cls:'prompt'
+          }
+        ];
+      }
+      return [
+        {title:'1. 空间方向判断', meta:`${state.locked.length} 个 locked，${state.autoFills.length} 条补全`, text:spaceDirectionText(state)},
+        {title:'2. 推荐空间母版', meta:'空间母版名称', text:recommendedTemplateText(state)},
+        {title:'3. 可复用空间元素', meta:'墙面/灯光/软装/地面/侧边陈列', text:reusableElementsText(state)},
+        {title:'4. 镜头与透视要求', meta:'竖屏直播固定机位', text:cameraPerspectiveText(state)},
+        {title:'5. 完整生成提示词', meta:'可直接复制给图像模型', text:promptText(state), cls:'prompt'},
+        {title:'6. 精简生图提示词', meta:'compactImagePrompt', text:compactImagePrompt(state), cls:'prompt'},
+        {title:'7. 负面限制词', meta:'negative prompt', text:negativeText(state), cls:'prompt'},
+        {title:'8. SceneStyle Checklist', meta:'debug', text:JSON.stringify({
+          selectedRoute:checklist.route,
+          selectedSceneStyle:state.selectedSceneStyle,
+          selectedScenicModule:state.selectedScenicModule || '',
+          selectedSceneLayoutVariant:state.selectedSceneLayoutVariant,
+          matchedLayoutVariantKeywords:state.matchedLayoutVariantKeywords || [],
+          selectedHostAesthetic:state.selectedHostAesthetic,
+          selectedMaterialPalette:state.selectedMaterialPalette,
+          sceneStyleFallback:state.sceneStyleFallback,
+          matchedSceneStyleKeywords:state.matchedSceneStyleKeywords,
+          productDrivenSceneDecision:state.productDrivenSceneDecision,
+          debugLocks:qualityControlLocks(state),
+          sceneStyleChecklist:sceneChecklist
+        }, null, 2), cls:'prompt'},
+        {title:'9. Workbench Integration Debug', meta:'final-template mode', text:JSON.stringify(integrationDebug, null, 2), cls:'prompt'},
+        {title:'10. Route Checklist', meta:'debug', text:JSON.stringify(checklist, null, 2), cls:'prompt'}
+      ];
+    }
+    function section(item,index){
+      return `<section class="output-section" data-card="${index}">
+        <div class="section-title"><h3>${escapeHtml(item.title)}</h3><div class="title-actions"><span>${escapeHtml(item.meta)}</span><button class="btn mini card-copy" type="button" data-index="${index}">复制</button></div></div>
+        <div class="content ${item.cls || ''}">${escapeHtml(item.text)}</div>
+      </section>`;
+    }
+    function textOutput(state){return outputs(state).map(item=>item.text).join('\n\n')}
+    function generate(show=true){
+      const state = buildState();
+      lockedCount.textContent = state.locked.length;
+      autoCount.textContent = state.autoOrEmpty.length;
+      fillCount.textContent = state.autoFills.length;
+      outputSections.innerHTML = outputs(state).map(section).join('');
+      if (show) showToast('已生成 V3 视觉提示词');
+      return {state,text:textOutput(state),cards:outputs(state)};
+    }
+    async function copyText(text){
+      let helper = document.querySelector('#copyBuffer');
+      if (!helper) {
+        helper = document.createElement('textarea');
+        helper.id = 'copyBuffer';
+        helper.className = 'copy-buffer';
+        helper.setAttribute('readonly','true');
+        document.querySelector('.output-panel').insertBefore(helper, outputSections);
+      }
+      helper.value = text;
+      helper.style.display = 'block';
+      helper.focus();
+      helper.select();
+      helper.setSelectionRange(0, helper.value.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
+      if (ok) { helper.style.display = 'none'; return 'copied'; }
+      if (navigator.clipboard?.writeText) {
+        try { await navigator.clipboard.writeText(text); helper.style.display = 'none'; return 'copied'; }
+        catch { helper.focus(); helper.select(); return 'manual'; }
+      }
+      return 'manual';
+    }
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(()=>toast.classList.remove('show'),1800);
+    }
+    document.querySelector('#generateBtn').addEventListener('click',()=>generate(true));
+    document.querySelector('#copyBtn').addEventListener('click',async()=>{
+      const result = generate(false);
+      const status = await copyText(result.text);
+      showToast(status === 'copied' ? '已复制完整结果' : '已选中输出文本，按 Ctrl+C 复制');
+    });
+    document.querySelector('#resetBtn').addEventListener('click',()=>resetToInitial(true));
+    document.querySelector('#sampleBtn').addEventListener('click',()=>{
+      resetToInitial(false);
+      for (const [key,value] of Object.entries(demo)) setField(key,value);
+      generate(false);
+      showToast('已填入 Demo 参数');
+    });
+    outputSections.addEventListener('click',async event=>{
+      const btn = event.target.closest('.card-copy');
+      if (!btn) return;
+      const result = generate(false);
+      const item = result.cards[Number(btn.dataset.index)];
+      const status = await copyText(item.text);
+      showToast(status === 'copied' ? '已复制当前卡片' : '已选中当前卡片文本，按 Ctrl+C 复制');
+    });
+    form.addEventListener('change', event=>{
+      if (event.target.type === 'checkbox') {
+        const name = event.target.name;
+        if (event.target.value !== '自动' && event.target.checked) {
+          const auto = form.querySelector(`input[name="${name}"][value="自动"]`);
+          if (auto) auto.checked = false;
+        }
+        if (event.target.value === '自动' && event.target.checked) {
+          form.querySelectorAll(`input[name="${name}"]`).forEach(input=>{ if (input.value !== '自动') input.checked = false; });
+        }
+      }
+    });
+    window.LiveRoomVisualApp = {buildState,generate,promptText,finalPrompt:promptText,compactImagePrompt,negativeText,missingLiveRoomIdentityItems,routeChecklist,sceneStyleChecklist,auditPromptWritingFramework,auditPromptForFauxGardenEmptyFront,workbenchIntegrationDebug,buildPromptFromFinalTemplate,selectedFinalPromptTemplateFor,selectNewChineseFinalPromptTemplate,finalTemplatePromptPackForState,fauxGardenEmptyFrontOutputPack,selectVisualEnrichmentPreset,visualEnrichmentAudit,selectedRouteForState,isDenimState,isDenimCategoryValue,selectedWorkbenchCategoryValue,selectedDenimSubCategory,resolveSceneStyle,resolveSceneLayoutVariant,resolveMaterialPalette,sceneStylePositiveFragment,sceneStyleCompactFragment,sceneStyleNegativeFragment,productDrivenSceneDecision,productDrivenSceneText,qualityControlLocks,qualityControlPatchText,qualityControlNegativeText};
+    renderForm();
+  </script>
+</body>
+</html>

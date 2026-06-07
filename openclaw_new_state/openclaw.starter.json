@@ -1,0 +1,56 @@
+{
+  "models": {
+    "providers": {
+      "openai": {
+        "baseUrl": "${OPENCLAW_BASE_URL}",
+        "apiKey": "${OPENCLAW_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-5.4",
+            "name": "gpt-5.4",
+            "input": [
+              "text",
+              "image"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openai/gpt-5.4"
+      },
+      "workspace": "E:\\临时项目\\openclaw_new_state\\workspace",
+      "timeoutSeconds": 72000,
+      "sandbox": {
+        "sessionToolsVisibility": "all"
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "name": "OpenClaw"
+      }
+    ]
+  },
+  "tools": {
+    "sessions": {
+      "visibility": "all"
+    },
+    "agentToAgent": {
+      "enabled": true
+    }
+  },
+  "gateway": {
+    "port": 28789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "CHANGE_ME"
+    }
+  }
+}

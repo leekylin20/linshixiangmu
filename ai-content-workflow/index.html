@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 内容工作流</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="工作流阶段">
+        <div class="brand-block">
+          <div class="brand-mark">AI</div>
+          <div>
+            <h1>内容工作流</h1>
+            <p>选题、生产、复盘闭环</p>
+          </div>
+        </div>
+        <nav class="stage-nav" id="stageNav"></nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Workflow Project</p>
+            <h2 id="activeTitle">产品卖点提炼</h2>
+          </div>
+          <div class="actions">
+            <button class="icon-button" id="exportMarkdown" title="导出 Markdown" aria-label="导出 Markdown">MD</button>
+            <button class="icon-button" id="exportJson" title="导出 JSON" aria-label="导出 JSON">JS</button>
+            <button class="primary-button" id="saveState">保存</button>
+          </div>
+        </header>
+
+        <section class="panel-grid">
+          <section class="work-panel">
+            <div class="section-heading stage-heading">
+              <span class="step-pill" id="activeStep">01</span>
+              <div>
+                <h3 id="stageTitle">产品卖点提炼</h3>
+                <p id="stageSummary">从产品、服务、案例和个人经验里提炼核心卖点。</p>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <label>
+                <span>产品 / 服务</span>
+                <textarea id="offerInput" rows="4" placeholder="例如：高客单咨询、课程、服务、工具、个人 IP"></textarea>
+              </label>
+              <label>
+                <span>目标用户</span>
+                <textarea id="audienceInput" rows="4" placeholder="例如：正在做小红书但转化弱的知识型创业者"></textarea>
+              </label>
+              <label>
+                <span>核心卖点</span>
+                <textarea id="sellingPointsInput" rows="4" placeholder="一行一个卖点"></textarea>
+              </label>
+              <label>
+                <span>用户需求</span>
+                <textarea id="needsInput" rows="4" placeholder="一行一个需求"></textarea>
+              </label>
+              <label>
+                <span>流量入口</span>
+                <textarea id="trafficInput" rows="4" placeholder="一行一个搜索词 / 场景词 / 问题词"></textarea>
+              </label>
+              <label>
+                <span>内容结构</span>
+                <textarea id="structuresInput" rows="4" placeholder="例如：避坑清单、案例复盘、对比测评、教程步骤"></textarea>
+              </label>
+            </div>
+
+            <div class="button-row">
+              <button class="primary-button" id="generateMatrix">生成选题矩阵</button>
+              <button class="secondary-button" id="copyPrompt">复制当前阶段提示词</button>
+              <button class="secondary-button" id="resetDemo">载入示例</button>
+            </div>
+          </section>
+
+          <section class="output-panel">
+            <div class="section-heading compact">
+              <div>
+                <h3>阶段交付物</h3>
+                <p id="stageOutputs">核心卖点清单、可信证据、差异化表达</p>
+              </div>
+            </div>
+            <div class="status-list" id="stageChecklist"></div>
+          </section>
+        </section>
+
+        <section class="matrix-band">
+          <div class="section-heading">
+            <div>
+              <h3>选题矩阵</h3>
+              <p>用户需求 x 流量入口 x 内容结构</p>
+            </div>
+            <div class="actions">
+              <button class="secondary-button" id="clearTopics">清空选题</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>选题</th>
+                  <th>用户需求</th>
+                  <th>流量入口</th>
+                  <th>内容结构</th>
+                  <th>转化目标</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="topicRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

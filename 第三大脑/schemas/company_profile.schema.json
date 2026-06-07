@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompanyProfile",
+  "type": "object",
+  "required": ["symbol", "name", "updated_at"],
+  "properties": {
+    "symbol": {"type": "string"},
+    "name": {"type": "string"},
+    "exchange": {"type": "string"},
+    "industry": {"type": "string"},
+    "business": {"type": "string"},
+    "listed_date": {"type": "string"},
+    "market_cap": {"type": "number"},
+    "float_market_cap": {"type": "number"},
+    "topics": {"type": "array", "items": {"type": "string"}},
+    "shareholders": {"type": "array", "items": {"type": "string"}},
+    "financial_summary": {"type": "object"},
+    "updated_at": {"type": "string"}
+  }
+}
+

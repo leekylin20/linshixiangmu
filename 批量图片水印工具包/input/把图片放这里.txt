@@ -1,0 +1,4 @@
+﻿把要加水印的图片放到这个 input 文件夹里。
+
+支持格式：
+jpg, jpeg, png, bmp, tif, tiff

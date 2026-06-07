@@ -1,0 +1,5 @@
+﻿interface:
+  display_name: "情商skills"
+  short_description: "拆解人性机制、框架权、筛选机制与业务类比。"
+  default_prompt: "调用情商skills，从案例中反推底层人性机制、框架权、筛选机制和业务类比。"
+

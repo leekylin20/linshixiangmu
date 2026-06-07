@@ -1,0 +1,17 @@
+{
+  "title": "批量图片水印工具包 - Open Design 交付说明页",
+  "bodyLength": 1551,
+  "h1Count": 1,
+  "panelCount": 6,
+  "stepCount": 4,
+  "badgeCount": 4,
+  "hasOpenDesign": true,
+  "hasWatermarkId": true,
+  "hasAsciiBoundaries": true,
+  "imgCount": 1,
+  "natural": {
+    "nw": 1080,
+    "nh": 1920,
+    "complete": true
+  }
+}

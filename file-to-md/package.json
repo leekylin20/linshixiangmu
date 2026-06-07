@@ -1,0 +1,17 @@
+{
+  "name": "file-to-md",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Batch convert PDF, audio, and video files into Markdown.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js --help",
+    "scan": "node index.js --input . --dry-run"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ffmpeg-static": "^5.2.0",
+    "openai": "^4.104.0",
+    "pdf-parse": "^1.1.1"
+  }
+}

@@ -1,0 +1,8 @@
+logs/
+memory/
+workspace/
+agents/*/sessions/
+*.db
+*.db-shm
+*.db-wal
+*.jsonl

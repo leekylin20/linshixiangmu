@@ -1,0 +1,1070 @@
+{
+  "schema_version": "0.1",
+  "generated_at": "2026-05-14",
+  "workspace_root": "E:\\临时项目",
+  "source_docs": [
+    "E:\\临时项目\\个人工具箱工作台-架构文档.md",
+    "E:\\临时项目\\个人工具箱工作台-审核机制.md",
+    "E:\\临时项目\\knowledge-memory\\active-memory.md",
+    "E:\\临时项目\\Codex-操作日志.md"
+  ],
+  "categories": [
+    {
+      "id": "content",
+      "label": "内容生产"
+    },
+    {
+      "id": "media",
+      "label": "图像与媒体"
+    },
+    {
+      "id": "design",
+      "label": "设计交付"
+    },
+    {
+      "id": "memory",
+      "label": "知识库与记忆"
+    },
+    {
+      "id": "collection",
+      "label": "采集与导出"
+    },
+    {
+      "id": "finance",
+      "label": "金融与回测"
+    },
+    {
+      "id": "document",
+      "label": "文档与 Office"
+    },
+    {
+      "id": "development",
+      "label": "开发与运维"
+    },
+    {
+      "id": "experiment",
+      "label": "实验区"
+    },
+    {
+      "id": "archive",
+      "label": "归档区"
+    }
+  ],
+  "status_labels": {
+    "candidate": "已发现",
+    "indexed": "已登记",
+    "verified": "已验证",
+    "limited": "有限可用",
+    "archived": "归档",
+    "blocked": "阻止"
+  },
+  "risk_labels": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "blocked": "阻止"
+  },
+  "tools": [
+    {
+      "id": "ai-content-workflow",
+      "name": "AI 内容工作流",
+      "category": "content",
+      "summary": "面向高价值客群内容生产的本地工作台，覆盖卖点、买点、蓝海、爆文结构、选题、批量笔记和复盘。",
+      "local_path": "E:\\临时项目\\ai-content-workflow",
+      "entry_type": "html",
+      "entrypoint": "E:\\临时项目\\ai-content-workflow\\index.html",
+      "status": "verified",
+      "risk_level": "low",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\ai-content-workflow\\README.md"
+      ],
+      "recommended_ui": "workspace",
+      "allowed_outputs": [
+        "markdown",
+        "json"
+      ],
+      "dependencies": [
+        "browser"
+      ],
+      "run_hint": "直接打开 index.html；数据保存在浏览器本地存储。",
+      "tags": [
+        "内容",
+        "选题",
+        "本地工作台",
+        "Markdown",
+        "JSON"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "partial",
+        "notes": "低风险本地 HTML 工具，后续可补示例导出和复盘模板预览。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "deck",
+          "doc"
+        ],
+        "brief_seed": "把 AI 内容工作流改造成可交付的本地内容生产工作台页面，保留阶段、提示词、导出和复盘动线。"
+      },
+      "agent": {
+        "codex_use": "根据具体产品输入补全提示词模板、导出结构或页面细节。",
+        "openclaw_use": "适合做周度选题复盘、内容资产分类和长期任务跟踪。"
+      }
+    },
+    {
+      "id": "watermark-batch",
+      "name": "批量图片水印工具包",
+      "category": "media",
+      "summary": "Windows 可分发图片批量加水印工具，带 bat 入口、PowerShell 主程序、随包字体和归档日志。",
+      "local_path": "E:\\临时项目\\批量图片水印工具包",
+      "entry_type": "bat",
+      "entrypoint": "E:\\临时项目\\批量图片水印工具包\\一键加水印.bat",
+      "status": "verified",
+      "risk_level": "low",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\水印工具包-归档日志.md"
+      ],
+      "recommended_ui": "form",
+      "allowed_outputs": [
+        "image",
+        "folder",
+        "zip"
+      ],
+      "dependencies": [
+        "Windows PowerShell",
+        ".NET System.Drawing",
+        "Noto Sans SC"
+      ],
+      "run_hint": "把图片放入 input 后双击 bat，或传入输入/输出目录参数。",
+      "tags": [
+        "图片",
+        "水印",
+        "批处理",
+        "Windows",
+        "可分发"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "pass",
+        "notes": "日志记录已验证入口、字体加载和不覆盖原图。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc",
+          "prototype"
+        ],
+        "brief_seed": "为批量图片水印工具包生成一个交付说明页，突出输入、参数、输出目录和 Windows 双击使用流程。"
+      },
+      "agent": {
+        "codex_use": "生成批处理任务、调整 config.ini、验证样张输出。",
+        "openclaw_use": "不适合长期 agent，除非做批量素材处理队列。"
+      }
+    },
+    {
+      "id": "livestream-marketing-image",
+      "name": "直播间营销图生成器",
+      "category": "media",
+      "summary": "本地前端获客出图工具，使用 Canvas 合成 1080x1920 直播间营销图，API 能力保留为后续增强。",
+      "local_path": "E:\\临时项目\\直播间背景生成器",
+      "entry_type": "server",
+      "entrypoint": "E:\\临时项目\\直播间背景生成器\\启动-直播间背景生成器.bat",
+      "status": "limited",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\直播间背景生成器\\README.md"
+      ],
+      "recommended_ui": "form",
+      "allowed_outputs": [
+        "png"
+      ],
+      "dependencies": [
+        "Node.js",
+        "browser",
+        "optional gpt-image-2 API key"
+      ],
+      "run_hint": "双击启动脚本输入 API Key 后访问 http://127.0.0.1:8732/；基础 Canvas 合成可本地完成。",
+      "tags": [
+        "直播间",
+        "营销图",
+        "Canvas",
+        "gpt-image-2",
+        "1080x1920"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "涉及 API Key 和外部图像服务，按 high 处理；工作台只生成任务包和说明，不直接托管 secret。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "poster",
+          "doc"
+        ],
+        "brief_seed": "把直播间营销图生成器整理成操作面板原型，突出产品图、模板图、标题贴片、卖点和导出流程。"
+      },
+      "agent": {
+        "codex_use": "审查前端参数、修复导出流程、生成交付说明。",
+        "openclaw_use": "可用于长期沉淀模板库和出图复盘。"
+      }
+    },
+    {
+      "id": "faux-garden-window-live-room-workbench",
+      "name": "仿真花园窗景直播间提示词生成器",
+      "category": "media",
+      "summary": "独立静态网页工作台，专门生成仿真花园窗景直播间的 empty_front_9x16 与 host_final_9x16 两张固定提示词，并用 Shared Scene DNA 保持空间一致性。",
+      "local_path": "E:\\临时项目\\faux-garden-window-live-room-workbench",
+      "entry_type": "html",
+      "entrypoint": "E:\\临时项目\\faux-garden-window-live-room-workbench\\index.html",
+      "status": "verified",
+      "risk_level": "low",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\faux-garden-window-live-room-workbench\\README.md",
+        "E:\\临时项目\\faux-garden-window-live-room-workbench\\PROJECT.md",
+        "E:\\临时项目\\faux-garden-window-live-room-workbench\\audits\\audit-rules.md"
+      ],
+      "recommended_ui": "workspace",
+      "allowed_outputs": [
+        "prompt",
+        "json"
+      ],
+      "dependencies": [
+        "browser"
+      ],
+      "run_hint": "直接打开 index.html；默认测试 JSON 位于 output\\faux-garden-two-9x16-default-test.json；不生图、不联网、不读取 secret。",
+      "tags": [
+        "直播间",
+        "提示词",
+        "9:16",
+        "Shared Scene DNA",
+        "仿真花园窗景",
+        "本地工作台"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "pass",
+        "notes": "已生成 seaside_hydrangea_summer + both_9x16 默认测试 JSON，empty_front_9x16 与 host_final_9x16 audit 均为 pass；未接入女装工作台、总监层、rewrite 层或 wide_overview_16x9。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "doc"
+        ],
+        "brief_seed": "把仿真花园窗景直播间提示词生成器整理成单能力提示词工作台，突出 Shared Scene DNA、两个 9:16 case、styleVariant 和 audit pass 状态。"
+      },
+      "agent": {
+        "codex_use": "调整两个 9:16 case 的模板、风格变量和 audit 规则，并重新生成默认测试 JSON。",
+        "openclaw_use": "适合持续沉淀该直播间场景的 prompt 版本和生图验收记录。"
+      }
+    },
+    {
+      "id": "realesrgan-upscale",
+      "name": "Real-ESRGAN 4K 放大",
+      "category": "media",
+      "summary": "本机 Real-ESRGAN ncnn Vulkan 图片 4 倍放大工具，适合照片和人像高清交付。",
+      "local_path": "C:\\Users\\麒麟\\AppData\\Local\\Programs\\RealESRGAN-ncnn-vulkan",
+      "entry_type": "exe",
+      "entrypoint": "C:\\Users\\麒麟\\AppData\\Local\\Programs\\RealESRGAN-ncnn-vulkan\\realesrgan-ncnn-vulkan.exe",
+      "status": "verified",
+      "risk_level": "medium",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\Codex-操作日志.md"
+      ],
+      "recommended_ui": "form",
+      "allowed_outputs": [
+        "image",
+        "folder"
+      ],
+      "dependencies": [
+        "Vulkan runtime",
+        "Real-ESRGAN models"
+      ],
+      "run_hint": "使用 -i 输入、-o 输出、-s 4、-n realesrgan-x4plus、-f png。",
+      "tags": [
+        "图片放大",
+        "4K",
+        "Real-ESRGAN",
+        "人像",
+        "高清"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "pass",
+        "notes": "已在日志中记录 941x1672 到 3764x6688 的验证样例。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "生成一页高清放大工具说明，包含输入输出、常用命令、中文路径注意事项和交付场景。"
+      },
+      "agent": {
+        "codex_use": "生成批量放大命令、规避中文路径问题、检查输出分辨率。",
+        "openclaw_use": "不建议直接长期调度，除非做素材处理流水线。"
+      }
+    },
+    {
+      "id": "photo-real-sim",
+      "name": "照片真实模拟",
+      "category": "media",
+      "summary": "ComfyUI 自定义节点 KOOK_Photo_Sim，用于加入轻微手持抖动模糊和可选彩色噪点。",
+      "local_path": "C:\\Users\\麒麟\\.codex\\skills\\照片真实模拟",
+      "entry_type": "skill",
+      "entrypoint": "C:\\Users\\麒麟\\.codex\\skills\\照片真实模拟\\SKILL.md",
+      "status": "limited",
+      "risk_level": "medium",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "C:\\Users\\麒麟\\.codex\\skills\\照片真实模拟\\SKILL.md",
+        "E:\\临时项目\\Codex-操作日志.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "image"
+      ],
+      "dependencies": [
+        "ComfyUI",
+        "KOOK_Photo_Sim custom node"
+      ],
+      "run_hint": "先运行安装脚本复制到 ComfyUI custom_nodes，再重启 ComfyUI；当前只确认安装复制流程，节点实际运行待验证。",
+      "tags": [
+        "ComfyUI",
+        "照片质感",
+        "抖动模糊",
+        "噪点",
+        "Skill"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "partial",
+        "notes": "安装脚本复制流程已验证；实际 ComfyUI 节点运行未验证，因此状态降为 limited。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "为照片真实模拟节点生成一页参数说明和使用场景对照。"
+      },
+      "agent": {
+        "codex_use": "安装到指定 ComfyUI，记录参数预设，整理对比样张。",
+        "openclaw_use": "可作为图片质感复盘任务的一部分。"
+      }
+    },
+    {
+      "id": "xhs-exporter-mvp",
+      "name": "小红书导出 MVP 插件",
+      "category": "collection",
+      "summary": "Chrome 插件 MVP，用于采集用户可见的小红书主页卡片、详情正文回填和 CSV/JSON 导出。",
+      "local_path": "E:\\临时项目\\xhs-exporter-mvp_20260429_152825",
+      "entry_type": "chrome-extension",
+      "entrypoint": "E:\\临时项目\\xhs-exporter-mvp_20260429_152825\\manifest.json",
+      "status": "limited",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\xhs-exporter-mvp-开发交接文档.md",
+        "E:\\临时项目\\xhs-exporter-mvp_20260429_152825\\README.md",
+        "E:\\临时项目\\xhs-exporter-mvp_20260429_152825\\REVIEW_CHECKLIST.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "csv",
+        "json",
+        "media"
+      ],
+      "dependencies": [
+        "Chrome",
+        "user-visible XHS page"
+      ],
+      "run_hint": "只处理用户手动打开且可见的内容；不做接口监听、绕过登录或无边界批量抓取。",
+      "tags": [
+        "小红书",
+        "Chrome 插件",
+        "CSV",
+        "可见内容",
+        "高风险边界"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "平台采集类工具，必须保留人工点击和授权边界，不能接入一键无边界运行。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc",
+          "prototype"
+        ],
+        "brief_seed": "为小红书导出 MVP 生成内部操作说明页，强调用户可见内容、手动触发、缓存和导出边界。"
+      },
+      "agent": {
+        "codex_use": "修复插件交互、生成审查记录、整理导出字段。",
+        "openclaw_use": "不建议做自动采集调度，可用于人工审核和开发交接。"
+      }
+    },
+    {
+      "id": "china-shenhua-backtest",
+      "name": "中国神华攒股回测 Skill",
+      "category": "finance",
+      "summary": "OpenClaw/QClaw 可用的 A 股攒股策略回测工具，支持 mock 数据和 A/B/C/D 策略对比。",
+      "local_path": "E:\\临时项目\\skills\\china-shenhua-accumulate-backtest",
+      "entry_type": "skill",
+      "entrypoint": "E:\\临时项目\\skills\\china-shenhua-accumulate-backtest\\SKILL.md",
+      "status": "verified",
+      "risk_level": "medium",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\skills\\china-shenhua-accumulate-backtest\\README.md",
+        "E:\\临时项目\\skills\\china-shenhua-accumulate-backtest\\SKILL.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "csv",
+        "markdown",
+        "json"
+      ],
+      "dependencies": [
+        "Python",
+        "local CSV for real data"
+      ],
+      "run_hint": "先用 mock 配置验证流程；真实数据路径需要用户提供；仅用于研究、模拟和回测，不实盘交易，不构成投资建议，不输出买卖建议。",
+      "tags": [
+        "A股",
+        "回测",
+        "攒股",
+        "分红",
+        "Skill"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "pass",
+        "notes": "适合接入工作台任务包；金融内容必须保留不实盘交易、不构成投资建议、不输出买卖建议边界。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "report",
+          "deck"
+        ],
+        "brief_seed": "把攒股策略回测结果整理成报告页，明确 A/B/C/D 差异、分红影响、回撤和风险提示。"
+      },
+      "agent": {
+        "codex_use": "运行 mock 或真实 CSV 回测，生成报告和差异归因。",
+        "openclaw_use": "适合交给总督安排观察型模拟盘和定期复盘。"
+      }
+    },
+    {
+      "id": "a-share-dividend-miner",
+      "name": "A 股高股息策略挖掘 Skill",
+      "category": "finance",
+      "summary": "从公开策略思路中挖掘高股息 A 股策略，并在本地样本池上做可审计近似回测。",
+      "local_path": "E:\\临时项目\\skills\\a-share-dividend-strategy-miner",
+      "entry_type": "skill",
+      "entrypoint": "E:\\临时项目\\skills\\a-share-dividend-strategy-miner\\SKILL.md",
+      "status": "limited",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\skills\\a-share-dividend-strategy-miner\\SKILL.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "markdown",
+        "csv",
+        "json"
+      ],
+      "dependencies": [
+        "Python",
+        "local market data",
+        "public strategy text"
+      ],
+      "run_hint": "不得绕过登录、付费墙、验证码或 robots 限制；优先使用用户提供文本和本地数据。",
+      "tags": [
+        "A股",
+        "高股息",
+        "策略挖掘",
+        "回测",
+        "风险"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "已存在回测输出，但涉及网页策略近似和金融数据，工作台只生成任务包。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "report"
+        ],
+        "brief_seed": "生成一页高股息策略筛选报告，明确公开策略近似、本地数据缺口和过拟合风险。"
+      },
+      "agent": {
+        "codex_use": "读取本地 runs 输出，生成策略对比报告。",
+        "openclaw_use": "适合做定期观察盘和风险复核。"
+      }
+    },
+    {
+      "id": "vibe-trading",
+      "name": "Vibe-Trading 金融模块",
+      "category": "finance",
+      "summary": "AI 多代理金融工作台源码，面向自然语言投研、策略生成、回测、组合分析和金融终端式工作流。",
+      "local_path": "E:\\临时项目\\finance-module\\Vibe-Trading",
+      "entry_type": "python-cli",
+      "entrypoint": "E:\\临时项目\\finance-module\\README.md",
+      "status": "indexed",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\finance-module\\README.md",
+        "E:\\临时项目\\finance-module\\Vibe-Trading\\README_zh.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "report",
+        "chart",
+        "json"
+      ],
+      "dependencies": [
+        "Python 3.11+",
+        "vibe-trading-ai dependencies",
+        "optional market data APIs"
+      ],
+      "run_hint": "源码已落地，依赖尚未安装；推荐先 pip install -e . 再 vibe-trading init。",
+      "tags": [
+        "金融",
+        "多代理",
+        "投研",
+        "回测",
+        "未安装"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "missing",
+        "notes": "依赖未安装、服务未启动；金融和 API key 风险高，暂不一键执行。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "report",
+          "prototype"
+        ],
+        "brief_seed": "为 Vibe-Trading 模块生成本地金融工作台索引页，区分已落地源码、待安装状态和非投资建议边界。"
+      },
+      "agent": {
+        "codex_use": "安装前环境检查、依赖隔离、CLI help 验证。",
+        "openclaw_use": "适合长期投研任务调度，但不执行实盘交易。"
+      }
+    },
+    {
+      "id": "knowledge-memory",
+      "name": "knowledge-memory 本地记忆层",
+      "category": "memory",
+      "summary": "临时项目的结构化记忆层，记录 active memory、schema、JSONL 记录和执行日志。",
+      "local_path": "E:\\临时项目\\knowledge-memory",
+      "entry_type": "markdown-jsonl",
+      "entrypoint": "E:\\临时项目\\knowledge-memory\\active-memory.md",
+      "status": "verified",
+      "risk_level": "low",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\knowledge-memory\\README.md",
+        "E:\\临时项目\\knowledge-memory\\active-memory.md",
+        "E:\\临时项目\\knowledge-memory\\memory-schema.md",
+        "E:\\临时项目\\knowledge-memory\\执行日志.md"
+      ],
+      "recommended_ui": "index",
+      "allowed_outputs": [
+        "markdown",
+        "jsonl"
+      ],
+      "dependencies": [
+        "Markdown reader"
+      ],
+      "run_hint": "后续工具箱状态、召回规则和产品方向可继续追加到 memory-records.jsonl。",
+      "tags": [
+        "记忆层",
+        "JSONL",
+        "知识库",
+        "Obsidian",
+        "索引"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "pass",
+        "notes": "JSONL 已通过解析校验，适合作为工作台索引来源之一。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "doc"
+        ],
+        "brief_seed": "生成知识记忆层导航页，呈现 active memory、schema、记录类型和召回规则。"
+      },
+      "agent": {
+        "codex_use": "追加结构化记忆、校验 JSONL、生成索引。",
+        "openclaw_use": "适合做长期记忆和项目状态同步。"
+      }
+    },
+    {
+      "id": "file-to-md",
+      "name": "file-to-md 批量转 Markdown",
+      "category": "document",
+      "summary": "把目录里的 PDF、音频、视频批量转成 Markdown，并保持原目录结构。",
+      "local_path": "E:\\临时项目\\file-to-md",
+      "entry_type": "node-cli",
+      "entrypoint": "E:\\临时项目\\file-to-md\\index.js",
+      "status": "limited",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\file-to-md\\README.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "markdown",
+        "json"
+      ],
+      "dependencies": [
+        "Node.js",
+        "npm dependencies",
+        "ffmpeg",
+        "OpenAI-compatible transcription API"
+      ],
+      "run_hint": "先 dry-run，再 max-files 小样本，确认后全量；音视频转写需要 API key。",
+      "tags": [
+        "PDF",
+        "音视频",
+        "转写",
+        "Markdown",
+        "ffmpeg"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "会递归处理目录、联网调用转写 API 且需要 API key，按 high 处理；必须要求用户明确输入目录、输出目录和 dry-run。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "生成 file-to-md 使用说明页，突出 dry-run、小样本、正式运行和 API key 边界。"
+      },
+      "agent": {
+        "codex_use": "生成 dry-run 命令、检查输出、排查 ffmpeg/API 问题。",
+        "openclaw_use": "可用于大批量资料归档任务，但需人工确认输入范围。"
+      }
+    },
+    {
+      "id": "prompt-optimizer",
+      "name": "Prompt Optimizer",
+      "category": "content",
+      "summary": "提示词优化工具，支持 Web、桌面、Chrome 扩展和 Docker，当前本地有源码与启动脚本。",
+      "local_path": "E:\\临时项目\\prompt-optimizer",
+      "entry_type": "web-app",
+      "entrypoint": "E:\\临时项目\\启动-PromptOptimizer.ps1",
+      "status": "indexed",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\prompt-optimizer\\README.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "prompt",
+        "json"
+      ],
+      "dependencies": [
+        "Node.js",
+        "package dependencies",
+        "AI provider API key"
+      ],
+      "run_hint": "本地源码可启动，具体 API key 和模型配置需由用户确认。",
+      "tags": [
+        "提示词",
+        "优化",
+        "Web",
+        "桌面",
+        "API key"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "missing",
+        "notes": "需要连接 AI provider 且涉及 API key，按 high 处理；未读取本地启动状态，先作为已登记工具，不接入参数表单。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "doc"
+        ],
+        "brief_seed": "生成提示词优化工作流说明，连接现有人像提示词框架和测试复盘流程。"
+      },
+      "agent": {
+        "codex_use": "启动本地版本、梳理模型配置、生成提示词实验记录。",
+        "openclaw_use": "适合做提示词 A/B 测试和长期复盘。"
+      }
+    },
+    {
+      "id": "awesome-gpt-image-prompts",
+      "name": "awesome-gpt-image-2 提示词库",
+      "category": "design",
+      "summary": "多语言 gpt-image-2 API 与提示词案例库，可作为图像生成和设计 brief 的素材来源。",
+      "local_path": "E:\\临时项目\\awesome-gpt-image-2-API-and-Prompts",
+      "entry_type": "knowledge-base",
+      "entrypoint": "E:\\临时项目\\awesome-gpt-image-2-API-and-Prompts\\README_zh-CN.md",
+      "status": "indexed",
+      "risk_level": "low",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\awesome-gpt-image-2-API-and-Prompts\\README_zh-CN.md"
+      ],
+      "recommended_ui": "index",
+      "allowed_outputs": [
+        "prompt",
+        "markdown"
+      ],
+      "dependencies": [
+        "Markdown reader"
+      ],
+      "run_hint": "作为提示词与案例索引用，不直接调用 API。",
+      "tags": [
+        "gpt-image-2",
+        "提示词",
+        "案例库",
+        "多语言",
+        "设计"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "partial",
+        "notes": "知识库型条目，后续可补案例索引。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "poster",
+          "doc"
+        ],
+        "brief_seed": "把图像提示词库整理成可搜索设计案例库页面，按 UI、海报、肖像、电商、对比等场景分类。"
+      },
+      "agent": {
+        "codex_use": "抽取案例索引、翻译、生成 prompt 模板。",
+        "openclaw_use": "适合做持续案例整理。"
+      }
+    },
+    {
+      "id": "openclaw-new-state",
+      "name": "OpenClaw New State",
+      "category": "development",
+      "summary": "干净 OpenClaw 本地状态种子，包含 starter config、workspace、skills、logs 和 memory。",
+      "local_path": "E:\\临时项目\\openclaw_new_state",
+      "entry_type": "state-seed",
+      "entrypoint": "E:\\临时项目\\openclaw_new_state\\README_SETUP.md",
+      "status": "indexed",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\openclaw_new_state\\README_SETUP.md",
+        "E:\\临时项目\\openclaw-deployment-log-LATEST.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "config",
+        "markdown"
+      ],
+      "dependencies": [
+        "OpenClaw",
+        "agent config",
+        "local secrets"
+      ],
+      "run_hint": "只作为状态种子和交接参考；不要把旧 sessions/cache/auth 直接导入。",
+      "tags": [
+        "OpenClaw",
+        "状态种子",
+        "Agent",
+        "配置",
+        "高风险"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "涉及 auth、token 和远程入口，工作台只给出交接和审核任务包。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "生成 OpenClaw 运维交接页，展示本地状态结构、不可导入项和安全边界。"
+      },
+      "agent": {
+        "codex_use": "审查状态目录、生成配置 diff、检查 secret 泄露风险。",
+        "openclaw_use": "适合总督调度和长期运维复盘。"
+      }
+    },
+    {
+      "id": "basjoo-customer-support",
+      "name": "客服系统库 Basjoo",
+      "category": "development",
+      "summary": "AI 客服平台源码，包含 FastAPI 后端、Next.js 管理端、嵌入式聊天组件、SQLite/Redis/Qdrant 组件。",
+      "local_path": "E:\\临时项目\\客服系统库",
+      "entry_type": "full-stack-app",
+      "entrypoint": "E:\\临时项目\\客服系统库\\README.md",
+      "status": "candidate",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\客服系统库\\README.md",
+        "E:\\临时项目\\客服系统库\\tests\\README.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "service",
+        "docs",
+        "tests"
+      ],
+      "dependencies": [
+        "Python",
+        "Node.js",
+        "Redis",
+        "Qdrant",
+        "optional Docker"
+      ],
+      "run_hint": "新进入项目，尚未完成本机依赖和测试审计。",
+      "tags": [
+        "客服",
+        "FastAPI",
+        "Next.js",
+        "Widget",
+        "待审核"
+      ],
+      "audit": {
+        "p0": "missing",
+        "p1": "missing",
+        "notes": "候选工具，必须先做源码安全、依赖和端口审查。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "prototype",
+          "doc"
+        ],
+        "brief_seed": "为 Basjoo 客服系统生成模块总览页，区分后端、管理端、widget、依赖和部署模式。"
+      },
+      "agent": {
+        "codex_use": "做代码审查、依赖安装计划、启动验证。",
+        "openclaw_use": "适合拆分成后端、前端、部署、测试多 agent 审核。"
+      }
+    },
+    {
+      "id": "wechat-article-exporter",
+      "name": "微信文章导出器",
+      "category": "collection",
+      "summary": "本地微信文章导出相关项目和启动脚本，适合做授权范围内的文章保存与处理。",
+      "local_path": "E:\\临时项目\\wechat-article-exporter-master",
+      "entry_type": "node-app",
+      "entrypoint": "E:\\临时项目\\start_wechat_article_exporter.ps1",
+      "status": "indexed",
+      "risk_level": "high",
+      "requires_network": true,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\wechat_article_exporter_local.md",
+        "E:\\临时项目\\wechat-article-exporter-master\\README.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "markdown",
+        "html",
+        "json"
+      ],
+      "dependencies": [
+        "Node.js",
+        "browser automation"
+      ],
+      "run_hint": "必须只处理用户有权限访问的内容；不绕过登录、付费、验证码或平台限制。",
+      "tags": [
+        "微信",
+        "文章",
+        "导出",
+        "采集边界",
+        "高风险"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "missing",
+        "notes": "平台内容导出类工具，先审核权限边界和运行方式。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "生成微信文章导出器内部操作说明，强调授权内容、输入来源、导出格式和限制。"
+      },
+      "agent": {
+        "codex_use": "检查启动脚本、导出流程、失败日志。",
+        "openclaw_use": "不建议无边界批量调度。"
+      }
+    },
+    {
+      "id": "douyin-downloader",
+      "name": "Douyin Downloader",
+      "category": "collection",
+      "summary": "抖音下载器 V2.0，支持视频、图文、合集、直播录制、评论和 REST API，功能强但平台风险高。",
+      "local_path": "E:\\临时项目\\douyin-downloader",
+      "entry_type": "python-cli",
+      "entrypoint": "E:\\临时项目\\douyin-downloader\\README.md",
+      "status": "blocked",
+      "risk_level": "blocked",
+      "requires_network": true,
+      "requires_secret": true,
+      "docs": [
+        "E:\\临时项目\\douyin-downloader\\README.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "json",
+        "media"
+      ],
+      "dependencies": [
+        "Python",
+        "optional Playwright",
+        "cookies"
+      ],
+      "run_hint": "默认不从工作台调用；如需使用，必须先单独做授权、平台规则和用途审核。",
+      "tags": [
+        "抖音",
+        "下载",
+        "评论",
+        "直播",
+        "阻止"
+      ],
+      "audit": {
+        "p0": "fail",
+        "p1": "missing",
+        "notes": "含批量下载、cookies、浏览器 fallback 等高风险能力，默认阻止。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "只生成风险评估和合规边界说明，不生成一键调用页面。"
+      },
+      "agent": {
+        "codex_use": "仅做静态审查和风险说明。",
+        "openclaw_use": "不建议调度。"
+      }
+    },
+    {
+      "id": "guo-yu-agent-infra",
+      "name": "郭宇 AI Agent 基础设施调研",
+      "category": "development",
+      "summary": "对 wanman、mails、shipkey、nkmc-sdk、guo-yu/skills 等项目的本地下载和环境探测记录。",
+      "local_path": "E:\\临时项目\\guo-yu-agent-infra-research",
+      "entry_type": "research-log",
+      "entrypoint": "E:\\临时项目\\guo-yu-agent-infra-research\\test-log.md",
+      "status": "limited",
+      "risk_level": "medium",
+      "requires_network": true,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\guo-yu-agent-infra-research\\test-log.md",
+        "E:\\临时项目\\Codex-操作日志.md"
+      ],
+      "recommended_ui": "index",
+      "allowed_outputs": [
+        "markdown"
+      ],
+      "dependencies": [
+        "Node.js",
+        "Git",
+        "project-specific dependencies"
+      ],
+      "run_hint": "当前 5 个项目只能算环境探测，不能标记为完整测试通过。",
+      "tags": [
+        "Agent 基础设施",
+        "调研",
+        "未完成测试",
+        "Node",
+        "GitHub"
+      ],
+      "audit": {
+        "p0": "pass",
+        "p1": "partial",
+        "notes": "日志明确修正为未完成测试，适合做调研索引，不适合作为可调用工具。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "report"
+        ],
+        "brief_seed": "生成 AI Agent 基础设施调研报告页，区分已下载、局部验证、失败原因和可复用价值。"
+      },
+      "agent": {
+        "codex_use": "补跑局部测试、整理风险和复用建议。",
+        "openclaw_use": "适合拆成多项目并行审查。"
+      }
+    },
+    {
+      "id": "qingshang-stage",
+      "name": "情商对话 Skill 舞台",
+      "category": "memory",
+      "summary": "本地情绪优先沟通、对话改写和人际表达相关 Skill 与参考材料。",
+      "local_path": "E:\\临时项目\\qingshang_stage",
+      "entry_type": "skill",
+      "entrypoint": "E:\\临时项目\\qingshang_stage\\SKILL.md",
+      "status": "indexed",
+      "risk_level": "medium",
+      "requires_network": false,
+      "requires_secret": false,
+      "docs": [
+        "E:\\临时项目\\qingshang_stage\\SKILL.md"
+      ],
+      "recommended_ui": "task-package",
+      "allowed_outputs": [
+        "markdown",
+        "reply"
+      ],
+      "dependencies": [
+        "Codex skill runtime"
+      ],
+      "run_hint": "用于非操控、非胁迫的情绪接收和沟通表达，不生成 PUA 或情绪操控脚本。",
+      "tags": [
+        "情商",
+        "对话",
+        "Skill",
+        "边界",
+        "文本"
+      ],
+      "audit": {
+        "p0": "partial",
+        "p1": "partial",
+        "notes": "涉及人际沟通安全边界，进入工作台前需保留禁止操控规则。"
+      },
+      "open_design": {
+        "recommended_surfaces": [
+          "doc"
+        ],
+        "brief_seed": "生成情绪优先沟通 Skill 的使用边界说明页。"
+      },
+      "agent": {
+        "codex_use": "改写回复、整理表达原则、维护安全边界。",
+        "openclaw_use": "可用于长期知识库沉淀，不用于自动化外发。"
+      }
+    }
+  ]
+}

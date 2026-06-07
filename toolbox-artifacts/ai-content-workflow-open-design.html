@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 内容工作流 - Open Design 交付说明页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #161a18;
+      --muted: #59615c;
+      --paper: #f4f5ef;
+      --panel: #ffffff;
+      --line: #d6dbd2;
+      --indigo: #4f46e5;
+      --indigo-soft: #ecebff;
+      --green: #167a54;
+      --green-soft: #e5f2ec;
+      --rust: #b84b2b;
+      --rust-soft: #f5e5df;
+      --amber: #9a650c;
+      --amber-soft: #f5ead4;
+      --shadow: 0 18px 48px rgba(22, 26, 24, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--indigo);
+      color: #fff;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand strong {
+      font-size: 15px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #b8d8c7;
+    }
+
+    .badge.indigo {
+      color: var(--indigo);
+      background: var(--indigo-soft);
+      border-color: #cbc7ff;
+    }
+
+    .badge.rust {
+      color: var(--rust);
+      background: var(--rust-soft);
+      border-color: #e6c0b5;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+      gap: 28px;
+      align-items: start;
+      padding: 34px 0 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--rust);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 740px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quick-item,
+    .panel,
+    .preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .quick-item {
+      padding: 14px;
+      min-height: 108px;
+    }
+
+    .quick-item span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .quick-item strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.28;
+    }
+
+    .preview {
+      padding: 14px;
+    }
+
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .image-frame {
+      overflow: hidden;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #f7f8f5;
+      max-height: 720px;
+    }
+
+    .image-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      margin-bottom: 14px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .panel h3 {
+      margin: 18px 0 10px;
+      font-size: 15px;
+    }
+
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stage {
+      min-height: 124px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcf8;
+    }
+
+    .stage b {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--indigo);
+      font-size: 12px;
+    }
+
+    .stage strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .stage p,
+    .rule-list li,
+    .checks li,
+    .flow-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .flow-list,
+    .rule-list,
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .flow-step,
+    .rule-list li,
+    .checks li {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcf8;
+      padding: 11px 12px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .flow-step b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .checks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .check-dot {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .check-dot::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      transform: rotate(-45deg);
+    }
+
+    code,
+    pre {
+      font-family: Consolas, "SFMono-Regular", "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 1px 5px;
+      border: 1px solid #d8d3c7;
+      border-radius: 4px;
+      background: #eeeadf;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 14px;
+      border-radius: 8px;
+      background: #161a18;
+      color: #f7f8f2;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .io-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .io-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcf8;
+    }
+
+    .io-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .io-card strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .stage-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 18px 14px 32px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .lead {
+        font-size: 15px;
+      }
+
+      .quick,
+      .stage-grid,
+      .io-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .shell {
+        max-width: none;
+        padding: 18mm;
+      }
+
+      .quick-item,
+      .panel,
+      .preview {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar" aria-label="交付状态">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">AI</div>
+        <div>
+          <strong>Open Design 样例交付 02</strong>
+          <span>个人工具箱工作台 / ai-content-workflow</span>
+        </div>
+      </div>
+      <div class="status-row">
+        <span class="badge green">verified</span>
+        <span class="badge green">low risk</span>
+        <span class="badge indigo">localStorage</span>
+        <span class="badge rust">internal artifact</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">AI Content Workflow</p>
+        <h1 id="page-title">本地内容生产工作台的交付说明</h1>
+        <p class="lead">
+          这个工具是一个纯本地浏览器工作台，用 10 个阶段把高价值客群内容生产拆成卖点、买点、蓝海机会、爆文结构、选题矩阵、批量笔记、发布、复盘、裂变和资产分类。
+          数据保存在浏览器 <code>localStorage</code>，可导出 Markdown / JSON；不联网、不读取 secret、不自动发布。
+        </p>
+        <div class="quick" aria-label="工具概览">
+          <div class="quick-item">
+            <span>入口</span>
+            <strong>直接打开 <code>index.html</code></strong>
+          </div>
+          <div class="quick-item">
+            <span>核心产物</span>
+            <strong>选题矩阵、笔记草稿、复盘记录</strong>
+          </div>
+          <div class="quick-item">
+            <span>安全边界</span>
+            <strong>本地保存，不上传，不发布</strong>
+          </div>
+        </div>
+      </div>
+
+      <aside class="preview" aria-label="工作台验证截图">
+        <div class="preview-head">
+          <span>已验证工作台截图</span>
+          <span>10 stages / 20 visible rows</span>
+        </div>
+        <div class="image-frame">
+          <img src="ai-content-workflow-workspace-verify.png" alt="AI 内容工作流本地工作台截图，左侧为 10 个阶段，右侧为选题矩阵和导出按钮">
+        </div>
+        <p class="caption">来源：本地工作台 <code>ai-content-workflow/index.html</code> 的示例数据截图。本页只引用本地文件，不上传内容。</p>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="阶段与流程">
+      <article class="panel">
+        <h2>10 个工作阶段</h2>
+        <div class="stage-grid">
+          <div class="stage"><b>01</b><strong>产品卖点提炼</strong><p>把服务、案例和经验提炼成可信卖点。</p></div>
+          <div class="stage"><b>02</b><strong>买点映射</strong><p>把卖点翻译成用户真实在意的场景。</p></div>
+          <div class="stage"><b>03</b><strong>蓝海机会分析</strong><p>寻找低竞争、高意图的搜索入口。</p></div>
+          <div class="stage"><b>04</b><strong>爆文结构拆解</strong><p>提炼标题、开头、正文和转化结构。</p></div>
+          <div class="stage"><b>05</b><strong>选题矩阵</strong><p>组合用户需求、流量入口和内容结构。</p></div>
+          <div class="stage"><b>06</b><strong>批量笔记生产</strong><p>按已验证结构生成草稿和封面文案。</p></div>
+          <div class="stage"><b>07</b><strong>发布</strong><p>按检查清单记录发布时间、链接和标签。</p></div>
+          <div class="stage"><b>08</b><strong>数据复盘</strong><p>跟踪曝光、点击、收藏、评论和线索。</p></div>
+          <div class="stage"><b>09</b><strong>验证裂变</strong><p>有效结构换标题、换人群、换场景放大。</p></div>
+          <div class="stage"><b>10</b><strong>内容资产分类</strong><p>按主题、阶段和转化价值沉淀资产。</p></div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <h2>最短使用路径</h2>
+        <ol class="flow-list">
+          <li class="flow-step"><b>1</b><span><strong>打开入口</strong><p>浏览器打开 <code>ai-content-workflow/index.html</code>。</p></span></li>
+          <li class="flow-step"><b>2</b><span><strong>载入或填写资料</strong><p>输入产品、用户、卖点、需求、流量入口和内容结构。</p></span></li>
+          <li class="flow-step"><b>3</b><span><strong>生成选题矩阵</strong><p>用需求 x 入口 x 结构生成可验证选题。</p></span></li>
+          <li class="flow-step"><b>4</b><span><strong>导出与复盘</strong><p>导出 Markdown / JSON，发布后把数据回流到复盘阶段。</p></span></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="输入输出与边界">
+      <article class="panel">
+        <h2>输入与输出</h2>
+        <div class="io-grid">
+          <div class="io-card">
+            <span>基础输入</span>
+            <strong>产品 / 服务、目标用户、核心卖点</strong>
+          </div>
+          <div class="io-card">
+            <span>矩阵输入</span>
+            <strong>用户需求、流量入口、内容结构</strong>
+          </div>
+          <div class="io-card">
+            <span>本地状态</span>
+            <strong><code>localStorage</code> 保存当前工作台数据</strong>
+          </div>
+          <div class="io-card">
+            <span>导出格式</span>
+            <strong>Markdown / JSON</strong>
+          </div>
+        </div>
+
+        <h3>导出边界</h3>
+        <pre><code>入口：E:\临时项目\ai-content-workflow\index.html
+输出：ai-content-workflow-export.md / ai-content-workflow-export.json
+执行：浏览器本地逻辑
+网络：无
+secret/API key：无
+发布：不自动发布</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>审核边界</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>页面是本地 HTML / CSS / JS 工作台，不调用外部服务。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不读取 secret、API key、账号 Cookie 或外部登录态。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不自动发布内容，不上传文件，不采集外部数据。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>导出仅由用户点击触发，格式为 Markdown / JSON。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>本次 Open Design artifact 只做说明页，不改原工具执行逻辑。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="交付与终审">
+      <article class="panel">
+        <h2>适合做样例 02 的原因</h2>
+        <ul class="rule-list">
+          <li>它已经是前端工作台形态，可以验证“工具说明页 + 工作台截图 + 审核边界”的交付模式。</li>
+          <li>风险面清楚：无联网、无 secret、无自动发布，主要输出 Markdown / JSON。</li>
+          <li>业务流程完整：从选题前策略到发布后复盘，适合后续沉淀为工具箱模板。</li>
+          <li>内部 artifact 可以保留本地路径；对外版需要脱敏路径和示例业务语料。</li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>终审 checklist</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>用途限定为内部 artifact。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>无 <code>form</code> 上传、无外部 HTTP/HTTPS 资源、无 WebSocket。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>若对外展示，先移除本地绝对路径和示例业务语料。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>运行记录需说明未自动发布、未上传、未读取 secret。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="交付文件">
+      <article class="panel">
+        <h2>交付文件</h2>
+        <ul class="rule-list">
+          <li>页面：<code>toolbox-artifacts/ai-content-workflow-open-design.html</code></li>
+          <li>工作台截图：<code>toolbox-artifacts/ai-content-workflow-workspace-verify.png</code></li>
+          <li>闭环文档：<code>toolbox-artifacts/low-risk-closures/ai-content-workflow-closure.md</code></li>
+          <li>原始工具：<code>ai-content-workflow/</code></li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>后续可扩展</h2>
+        <ul class="rule-list">
+          <li>把终审 checklist 固化为后续 Open Design artifact 的标准字段。</li>
+          <li>补一个“对外脱敏版”生成规范，移除本地路径和业务样例。</li>
+          <li>把复盘模板和选题矩阵导出样例加入下一轮低风险闭环。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span>生成日期：2026-05-16</span>
+      <span>交付类型：Open Design prototype / doc artifact</span>
+      <span>安全边界：内部静态说明页，仅引用本地截图</span>
+    </footer>
+  </main>
+</body>
+</html>

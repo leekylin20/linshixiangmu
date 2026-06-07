@@ -1,0 +1,72 @@
+{
+  "name": "video-skills-toolkit",
+  "created": "2026-06-07",
+  "source_post": "https://x.com/369Serena/status/2062495055034958159",
+  "download_method": "github_zip_proxy",
+  "proxy": "https://gh-proxy.com/",
+  "skill_count": 85,
+  "repos": [
+    {
+      "name": "hyperframes",
+      "github": "https://github.com/heygen-com/hyperframes",
+      "local_path": "repos/hyperframes",
+      "skill_count": 15,
+      "primary_skills": [
+        "repos/hyperframes/skills/hyperframes",
+        "repos/hyperframes/skills/hyperframes-cli",
+        "repos/hyperframes/skills/website-to-hyperframes"
+      ]
+    },
+    {
+      "name": "video-use",
+      "github": "https://github.com/browser-use/video-use",
+      "local_path": "repos/video-use",
+      "skill_count": 2,
+      "primary_skills": [
+        "repos/video-use"
+      ]
+    },
+    {
+      "name": "remotion-skills",
+      "github": "https://github.com/remotion-dev/skills",
+      "local_path": "repos/remotion-skills",
+      "skill_count": 1,
+      "primary_skills": [
+        "repos/remotion-skills/skills/remotion"
+      ]
+    },
+    {
+      "name": "generative-media-skills",
+      "github": "https://github.com/SamurAIGPT/Generative-Media-Skills",
+      "local_path": "repos/generative-media-skills",
+      "skill_count": 60,
+      "primary_skills": [
+        "repos/generative-media-skills/library/workflow",
+        "repos/generative-media-skills/library/edit/ai-clipping",
+        "repos/generative-media-skills/library/motion/seedance-2",
+        "repos/generative-media-skills/library/social/youtube-shorts"
+      ]
+    },
+    {
+      "name": "videocut-skills",
+      "github": "https://github.com/Ceeon/videocut-skills",
+      "local_path": "repos/videocut-skills",
+      "skill_count": 5,
+      "primary_skills": [
+        "repos/videocut-skills/剪口播",
+        "repos/videocut-skills/导入字幕",
+        "repos/videocut-skills/高清化"
+      ]
+    },
+    {
+      "name": "seedance2-skill",
+      "github": "https://github.com/dexhunter/seedance2-skill",
+      "local_path": "repos/seedance2-skill",
+      "skill_count": 2,
+      "primary_skills": [
+        "repos/seedance2-skill/zh",
+        "repos/seedance2-skill"
+      ]
+    }
+  ]
+}

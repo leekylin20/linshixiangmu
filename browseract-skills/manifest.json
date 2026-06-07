@@ -1,0 +1,39 @@
+{
+  "name": "browseract-skills",
+  "source": "https://github.com/browser-act/skills",
+  "local_root": "E:/临时项目/browseract-skills",
+  "repo_path": "E:/临时项目/browseract-skills/repos/skills",
+  "cli": {
+    "executable": "E:/临时项目/_system/uv-bin/browser-act.exe",
+    "version": "0.1.27",
+    "wrapper": "E:/临时项目/browseract-skills/scripts/browser-act.ps1",
+    "data_dir": "E:/临时项目/_system/browseract-data"
+  },
+  "runtime": {
+    "uv": "E:/临时项目/_system/uv/uv.exe",
+    "python": "E:/临时项目/_system/uv-python/cpython-3.12.13-windows-x86_64-none",
+    "uv_tool_dir": "E:/临时项目/_system/uv-tools",
+    "uv_tool_bin_dir": "E:/临时项目/_system/uv-bin",
+    "uv_cache_dir": "E:/临时项目/_system/uv-cache"
+  },
+  "skills": {
+    "total": 59,
+    "core": [
+      "browser-act",
+      "browser-act-skill-forge"
+    ],
+    "solutions": {
+      "ecommerce": 12,
+      "lead-generation": 9,
+      "search-research": 5,
+      "social-listening": 17,
+      "video-platforms": 14
+    }
+  },
+  "verification": {
+    "version_command": "browser-act --version",
+    "version_result": "browser-act 0.1.27",
+    "core_guide_output": "E:/临时项目/browseract-skills/docs/get-skills-core-preview.txt"
+  },
+  "created_at": "2026-06-07"
+}

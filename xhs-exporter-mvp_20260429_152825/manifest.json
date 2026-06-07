@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "小红书主页笔记导出助手 MVP",
+  "version": "0.1.0",
+  "description": "采集当前页面已渲染且用户可见的小红书主页笔记卡片，并导出 CSV/JSON。",
+  "permissions": ["storage", "downloads", "activeTab"],
+  "host_permissions": ["https://www.xiaohongshu.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.xiaohongshu.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

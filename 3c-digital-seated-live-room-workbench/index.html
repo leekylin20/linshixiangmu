@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3C 数码坐播直播间提示词工作台</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #181b1f;
+      --panel-2: #20242a;
+      --line: #343a42;
+      --text: #f2f4f7;
+      --muted: #aab3bd;
+      --accent: #79d4ff;
+      --accent-2: #d7e2ea;
+      --ok: #7ce2a0;
+      --bad: #ff8a8a;
+      --warn: #ffd166;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: #15181c;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    main {
+      overflow: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 760;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 720;
+    }
+
+    .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent-2);
+      font-size: 12px;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0f1114;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 74px;
+      resize: vertical;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #242a30;
+      color: var(--text);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+
+    button:hover {
+      background: #2c333b;
+      border-color: #4c5966;
+    }
+
+    button.primary {
+      background: #17465e;
+      border-color: #22719a;
+    }
+
+    button.primary:hover {
+      background: #1d5a78;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status strong {
+      color: var(--ok);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      border: 1px solid #3c634b;
+      color: var(--ok);
+      background: #102419;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge.fail {
+      border-color: #784444;
+      color: var(--bad);
+      background: #2a1515;
+    }
+
+    pre {
+      margin: 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #0d0f12;
+      color: #dce7ef;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      overflow: auto;
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .audit-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .audit-item {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 6px;
+      padding: 6px 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .audit-item.pass {
+      color: var(--ok);
+    }
+
+    .audit-item.fail {
+      color: var(--bad);
+    }
+
+    @media (max-width: 920px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <h1>3C 数码坐播直播间提示词工作台</h1>
+      <p class="sub">独立专用版。只服务快充数码、充电宝、数码配件、小型 3C 产品和数码直播获客图。</p>
+
+      <section class="panel">
+        <h2>生成设置</h2>
+        <div class="grid-2">
+          <div class="field">
+            <label for="productType">产品类型</label>
+            <select id="productType"></select>
+          </div>
+          <div class="field">
+            <label for="styleRoute">style_route</label>
+            <select id="styleRoute"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="styleRandomMode">style_random_mode</label>
+          <select id="styleRandomMode"></select>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="hostStyle">host_style</label>
+            <select id="hostStyle"></select>
+          </div>
+          <div class="field">
+            <label for="titleBoardStyle">title_board_style</label>
+            <select id="titleBoardStyle"></select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="infoCardStyle">info_card_style</label>
+            <select id="infoCardStyle"></select>
+          </div>
+          <div class="field">
+            <label for="backgroundDepthLevel">background_depth_level</label>
+            <select id="backgroundDepthLevel"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="techAtmosphereLevel">tech_atmosphere_level</label>
+          <select id="techAtmosphereLevel"></select>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="count">数量</label>
+            <input id="count" type="number" min="1" max="30" value="10" />
+          </div>
+          <div class="field">
+            <label for="outfit">主播服装细节</label>
+            <input id="outfit" placeholder="留空自动" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="title">主标题</label>
+          <input id="title" placeholder="留空自动" />
+        </div>
+        <div class="field">
+          <label for="subtitle">副标题</label>
+          <input id="subtitle" placeholder="留空自动" />
+        </div>
+        <div class="actions">
+          <button class="primary" id="generateBtn">生成</button>
+          <button id="resetBtn">重置</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>锁定项</h2>
+        <p class="sub">坐播，23-28 岁中国抖音成年女主播，120-125cm 机位，35mm，台面不过宽，不透明实体信息牌，多风格母版 + 局部随机池。</p>
+      </section>
+    </aside>
+
+    <main>
+      <div class="toolbar">
+        <button id="copyTxtBtn">复制 TXT</button>
+        <button id="copyJsonBtn">复制 JSON</button>
+        <button id="downloadTxtBtn">下载 TXT</button>
+        <button id="downloadJsonBtn">下载 JSON</button>
+        <span class="status" id="statusText"></span>
+      </div>
+      <div class="cards" id="cards"></div>
+    </main>
+  </div>
+
+  <script src="./workbench.js"></script>
+  <script>
+    const wb = window.ThreeCDigitalSeatedWorkbench;
+    const state = {
+      batch: null
+    };
+
+    const els = {
+      productType: document.getElementById("productType"),
+      styleRoute: document.getElementById("styleRoute"),
+      styleRandomMode: document.getElementById("styleRandomMode"),
+      hostStyle: document.getElementById("hostStyle"),
+      titleBoardStyle: document.getElementById("titleBoardStyle"),
+      infoCardStyle: document.getElementById("infoCardStyle"),
+      backgroundDepthLevel: document.getElementById("backgroundDepthLevel"),
+      techAtmosphereLevel: document.getElementById("techAtmosphereLevel"),
+      count: document.getElementById("count"),
+      outfit: document.getElementById("outfit"),
+      title: document.getElementById("title"),
+      subtitle: document.getElementById("subtitle"),
+      generateBtn: document.getElementById("generateBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      copyTxtBtn: document.getElementById("copyTxtBtn"),
+      copyJsonBtn: document.getElementById("copyJsonBtn"),
+      downloadTxtBtn: document.getElementById("downloadTxtBtn"),
+      downloadJsonBtn: document.getElementById("downloadJsonBtn"),
+      statusText: document.getElementById("statusText"),
+      cards: document.getElementById("cards")
+    };
+
+    function initSelect(select, list, allLabel) {
+      select.innerHTML = "";
+      const auto = document.createElement("option");
+      auto.value = "auto";
+      auto.textContent = allLabel;
+      select.appendChild(auto);
+      list.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.label;
+        select.appendChild(option);
+      });
+    }
+
+    function getOptions() {
+      return {
+        productType: els.productType.value,
+        styleRoute: els.styleRoute.value,
+        styleRandomMode: els.styleRandomMode.value,
+        hostStyle: els.hostStyle.value,
+        titleBoardStyle: els.titleBoardStyle.value,
+        infoCardStyle: els.infoCardStyle.value,
+        backgroundDepthLevel: els.backgroundDepthLevel.value,
+        techAtmosphereLevel: els.techAtmosphereLevel.value,
+        count: Number(els.count.value || 10),
+        title: els.title.value,
+        subtitle: els.subtitle.value,
+        outfit: els.outfit.value
+      };
+    }
+
+    function render() {
+      const batch = state.batch;
+      const passCount = batch.items.filter((item) => item.audit.status === "pass").length;
+      const styleAudit = batch.styleDistributionAudit || {};
+      els.statusText.innerHTML = `已生成 <strong>${batch.count}</strong> 条，audit pass <strong>${passCount}</strong> 条，风格 <strong>${styleAudit.uniqueStyleCount || 0}</strong> 种，分散 ${styleAudit.status || "n/a"}`;
+      els.cards.innerHTML = "";
+      batch.items.forEach((item, index) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        const auditEntries = Object.entries(item.audit)
+          .filter(([, value]) => typeof value === "boolean")
+          .map(([key, value]) => `<span class="audit-item ${value ? "pass" : "fail"}">${value ? "pass" : "fail"} ${key}</span>`)
+          .join("");
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <h2>#${index + 1} ${item.productTypeCn || item.productType}｜${item.styleRouteCn || item.styleRoute}</h2>
+              <div class="meta">${item.title} / ${item.subtitle}<br>${item.styleRoute} / ${item.replaceableVariables.styleRandomMode} / ${item.replaceableVariables.infoCardStyle} / ${item.replaceableVariables.titleBoardStyle}<br>${item.promptId}</div>
+            </div>
+            <span class="badge ${item.audit.status === "pass" ? "" : "fail"}">${item.audit.status}</span>
+          </div>
+          <div class="mini-actions">
+            <button data-action="copy-positive" data-index="${index}">正向</button>
+            <button data-action="copy-negative" data-index="${index}">负向</button>
+            <button data-action="copy-line" data-index="${index}">整行</button>
+          </div>
+          <pre>${escapeHtml(item.positivePrompt)}</pre>
+          <pre>${escapeHtml(item.negativePrompt)}</pre>
+          <div class="audit-list">${auditEntries}</div>
+        `;
+        els.cards.appendChild(card);
+      });
+    }
+
+    function generate() {
+      state.batch = wb.generateBatch(getOptions());
+      render();
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    async function copyText(text) {
+      await navigator.clipboard.writeText(text);
+      els.statusText.innerHTML = "已复制";
+    }
+
+    function download(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    els.generateBtn.addEventListener("click", generate);
+    els.resetBtn.addEventListener("click", () => {
+      els.productType.value = "auto";
+      els.styleRoute.value = "auto";
+      els.styleRandomMode.value = "route_local_random";
+      els.hostStyle.value = "auto";
+      els.titleBoardStyle.value = "auto";
+      els.infoCardStyle.value = "auto";
+      els.backgroundDepthLevel.value = "medium";
+      els.techAtmosphereLevel.value = "standard";
+      els.count.value = "10";
+      els.title.value = "";
+      els.subtitle.value = "";
+      els.outfit.value = "";
+      generate();
+    });
+    els.copyTxtBtn.addEventListener("click", () => copyText(wb.buildTxt(state.batch)));
+    els.copyJsonBtn.addEventListener("click", () => copyText(JSON.stringify(state.batch, null, 2)));
+    els.downloadTxtBtn.addEventListener("click", () => download("3c-digital-seated-live-room-prompts.txt", wb.buildTxt(state.batch)));
+    els.downloadJsonBtn.addEventListener("click", () => download("3c-digital-seated-live-room-prompts.json", JSON.stringify(state.batch, null, 2)));
+    els.cards.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const item = state.batch.items[Number(button.dataset.index)];
+      if (button.dataset.action === "copy-positive") copyText(item.positivePrompt);
+      if (button.dataset.action === "copy-negative") copyText(item.negativePrompt);
+      if (button.dataset.action === "copy-line") {
+        copyText(`#${Number(button.dataset.index) + 1} 【生图提示词】 ${item.positivePrompt.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim()} 【负面提示词】 ${item.negativePrompt}`);
+      }
+    });
+
+    initSelect(els.productType, wb.PRODUCT_TYPES, "自动轮换");
+    initSelect(els.styleRoute, wb.STYLE_ROUTES, "自动轮换");
+    initSelect(els.styleRandomMode, wb.STYLE_RANDOM_MODES, "母版 + 局部随机");
+    initSelect(els.hostStyle, wb.HOST_STYLES, "自动轮换");
+    initSelect(els.titleBoardStyle, wb.TITLE_BOARD_STYLES, "自动轮换");
+    initSelect(els.infoCardStyle, wb.INFO_CARD_STYLES, "自动轮换");
+    initSelect(els.backgroundDepthLevel, wb.DEPTH_LEVELS, "中");
+    initSelect(els.techAtmosphereLevel, wb.TECH_LEVELS, "标准科技");
+    els.styleRandomMode.value = "route_local_random";
+    els.backgroundDepthLevel.value = "medium";
+    els.techAtmosphereLevel.value = "standard";
+    generate();
+  </script>
+</body>
+</html>

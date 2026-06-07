@@ -1,0 +1,18 @@
+{
+  "title": "AI 内容工作流 - Open Design 交付说明页",
+  "bodyLength": 2048,
+  "h1Count": 1,
+  "panelCount": 8,
+  "stageCount": 10,
+  "badgeCount": 4,
+  "hasOpenDesign": true,
+  "hasToolId": true,
+  "hasChecklist": true,
+  "hasAsciiBoundaries": true,
+  "imgCount": 1,
+  "natural": {
+    "nw": 1440,
+    "nh": 2197,
+    "complete": true
+  }
+}

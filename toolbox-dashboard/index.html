@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>个人工具箱工作台</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%232f6f5e'/%3E%3Cpath d='M16 18h32v8H16zm0 14h22v8H16zm0 14h30v6H16z' fill='white'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="分类">
+        <div class="brand-block">
+          <div class="brand-title">个人工具箱</div>
+          <div class="brand-subtitle">E:\临时项目</div>
+        </div>
+
+        <nav class="nav-stack" id="categoryNav"></nav>
+
+        <div class="side-section">
+          <div class="side-label">状态</div>
+          <div class="segmented vertical" id="statusFilters">
+            <button type="button" class="is-active" data-status="all">全部</button>
+            <button type="button" data-status="verified">已验证</button>
+            <button type="button" data-status="limited">有限可用</button>
+            <button type="button" data-status="indexed">已登记</button>
+            <button type="button" data-status="candidate">已发现</button>
+            <button type="button" data-status="blocked">阻止</button>
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">风险</div>
+          <div class="segmented vertical" id="riskFilters">
+            <button type="button" class="is-active" data-risk="all">全部</button>
+            <button type="button" data-risk="low">低</button>
+            <button type="button" data-risk="medium">中</button>
+            <button type="button" data-risk="high">高</button>
+            <button type="button" data-risk="blocked">阻止</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="search-wrap">
+            <label class="sr-only" for="searchInput">搜索</label>
+            <input id="searchInput" type="search" autocomplete="off" placeholder="搜索工具、标签、路径" />
+          </div>
+          <div class="top-actions">
+            <a class="ghost-button top-link" href="#openDesignSamples">样例</a>
+            <button class="ghost-button" id="showAuditButton" type="button">审核</button>
+            <button class="ghost-button" id="showDesignButton" type="button">交付</button>
+            <button class="primary-button" id="copyWorkspacePromptButton" type="button">复制总任务包</button>
+          </div>
+        </header>
+
+        <section class="summary-grid" aria-label="统计">
+          <div class="metric">
+            <span class="metric-label">工具</span>
+            <strong id="metricTotal">0</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">已验证</span>
+            <strong id="metricVerified">0</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">有限可用</span>
+            <strong id="metricLimited">0</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">高风险</span>
+            <strong id="metricHigh">0</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">设计交付</span>
+            <strong id="metricDesign">0</strong>
+          </div>
+        </section>
+
+        <section class="sample-panel" id="openDesignSamples" aria-label="Open Design 样例">
+          <div class="panel-title-row">
+            <div>
+              <div class="eyebrow">Open Design</div>
+              <h1>样例交付</h1>
+            </div>
+            <span id="sampleCount" class="count-pill">0</span>
+          </div>
+          <div id="openDesignSampleGrid" class="sample-grid"></div>
+        </section>
+
+        <section class="content-grid">
+          <div class="tool-list-panel">
+            <div class="panel-title-row">
+              <h1>工具索引</h1>
+              <span id="resultCount" class="count-pill">0</span>
+            </div>
+            <div id="toolGrid" class="tool-grid" aria-live="polite"></div>
+          </div>
+
+          <aside class="detail-panel" aria-label="详情">
+            <div id="detailEmpty" class="empty-state">
+              <strong>选择一个工具</strong>
+              <span>查看路径、状态、任务包和审核记录。</span>
+            </div>
+
+            <div id="detailContent" class="detail-content is-hidden">
+              <div class="detail-head">
+                <div>
+                  <div class="eyebrow" id="detailCategory"></div>
+                  <h2 id="detailName"></h2>
+                </div>
+                <button type="button" class="icon-button" id="closeDetailButton" aria-label="关闭详情">×</button>
+              </div>
+
+              <p id="detailSummary" class="detail-summary"></p>
+
+              <div class="badge-row" id="detailBadges"></div>
+
+              <dl class="fact-list">
+                <div>
+                  <dt>入口</dt>
+                  <dd id="detailEntrypoint"></dd>
+                </div>
+                <div>
+                  <dt>路径</dt>
+                  <dd id="detailPath"></dd>
+                </div>
+                <div>
+                  <dt>依赖</dt>
+                  <dd id="detailDeps"></dd>
+                </div>
+                <div>
+                  <dt>输出</dt>
+                  <dd id="detailOutputs"></dd>
+                </div>
+              </dl>
+
+              <div class="detail-section">
+                <h3>运行</h3>
+                <p id="detailRunHint"></p>
+              </div>
+
+              <div class="detail-section">
+                <h3>文档</h3>
+                <div id="docLinks" class="doc-list"></div>
+              </div>
+
+              <div class="detail-section">
+                <h3>Open Design 样例</h3>
+                <div id="artifactLinks" class="doc-list"></div>
+              </div>
+
+              <div class="detail-section">
+                <h3>动作</h3>
+                <div class="action-grid">
+                  <button type="button" data-action="codex">Codex 任务包</button>
+                  <button type="button" data-action="openclaw">OpenClaw 任务包</button>
+                  <button type="button" data-action="run">运行记录</button>
+                  <button type="button" data-action="audit">审核记录</button>
+                  <button type="button" data-action="design">Open Design Brief</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="outputDialog" class="output-dialog">
+      <form method="dialog" class="dialog-inner">
+        <div class="dialog-head">
+          <h2 id="dialogTitle">输出</h2>
+          <button type="submit" class="icon-button" aria-label="关闭">×</button>
+        </div>
+        <textarea id="generatedOutput" spellcheck="false"></textarea>
+        <div class="dialog-actions">
+          <button type="button" class="ghost-button" id="copyOutputButton">复制</button>
+          <button type="submit" class="primary-button">完成</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "seaside_hydrangea_summer": {
+    "styleVariant": "seaside_hydrangea_summer",
+    "label": "海边绣球夏日",
+    "lightboxScene": "bright seaside garden view, blue sky, soft clouds, ocean horizon, fresh summer atmosphere, soft faux sunlight",
+    "windowModule": "wooden cottage window facade, shallow pitched eave, wooden window frame, white sheer curtain, windowsill flower pots",
+    "planting": "faux hydrangea tree, blue and white hydrangea clusters, low mixed flower borders, fresh green foliage",
+    "props": "one small lace-covered round table, one flower basket nearby, small potted flowers",
+    "hostOutfit": "pale yellow fitted knit top paired with white high-waisted wide-leg pants",
+    "colorMood": "fresh summer blue, soft cream white, natural green, warm wood, clean sunlight"
+  },
+  "french_countryside_garden": {
+    "styleVariant": "french_countryside_garden",
+    "label": "法式乡村花园",
+    "lightboxScene": "French countryside garden view, soft blue sky, distant lavender field, warm sunlight, romantic rural atmosphere",
+    "windowModule": "French garden window facade, cream wall texture, arched wooden window, linen curtain, small wrought iron flower shelf",
+    "planting": "soft climbing roses, pale pink rose bushes, low romantic flower borders",
+    "props": "one small lace-covered round table, vintage flower basket, ceramic teacup, small linen napkin",
+    "hostOutfit": "cream short-sleeve blouse paired with a light beige A-line midi skirt",
+    "colorMood": "cream white, pale pink, lavender, soft green, warm sunlight"
+  },
+  "cream_soft_garden": {
+    "styleVariant": "cream_soft_garden",
+    "label": "奶油软装花园",
+    "lightboxScene": "soft cream garden window view, pale sky, gentle clouds, airy floral background, clean warm daylight",
+    "windowModule": "cream white cottage window facade, soft painted wood, shallow decorative eave, white sheer curtain, small ceramic flower pots",
+    "planting": "cream white flowers, pale yellow blossoms, low rounded flower borders, light fresh greenery",
+    "props": "one small lace-covered round table, cream woven flower basket nearby, small ceramic vase",
+    "hostOutfit": "cream white fitted short-sleeve top paired with light beige wide-leg pants",
+    "colorMood": "cream white, pale yellow, soft beige, natural green, gentle warm sunlight"
+  },
+  "modern_chinese_courtyard": {
+    "styleVariant": "modern_chinese_courtyard",
+    "label": "新中式庭院",
+    "lightboxScene": "modern Chinese courtyard garden view, soft misty sky, bamboo shadows, distant lake, elegant oriental atmosphere",
+    "windowModule": "modern Chinese wooden window facade, warm walnut wood, lattice window, linen curtain, ceramic flower pots, subtle bamboo details",
+    "planting": "bamboo branches, white orchids, low moss and fern planting, restrained oriental greenery",
+    "props": "one small wooden round table, ceramic vase, bamboo basket, small folded linen cloth",
+    "hostOutfit": "light beige modern Chinese-style blouse paired with white wide-leg pants, subtle linen texture",
+    "colorMood": "warm walnut brown, cream beige, bamboo green, misty gray, restrained oriental tone"
+  },
+  "autumn_wood_garden": {
+    "styleVariant": "autumn_wood_garden",
+    "label": "秋日暖木花园",
+    "lightboxScene": "warm autumn garden view, soft amber sunlight, distant trees, pale blue sky, calm seasonal atmosphere",
+    "windowModule": "warm wooden cottage window facade, shallow pitched eave, wood grain texture, beige linen curtain, windowsill dried flowers",
+    "planting": "soft autumn hydrangea, dried grasses, low warm-toned flower borders, muted green foliage",
+    "props": "one small lace-covered round table, woven harvest flower basket nearby, small amber glass vase",
+    "hostOutfit": "light camel knit top paired with cream white high-waisted wide-leg pants",
+    "colorMood": "warm wood, cream beige, muted green, soft amber, autumn sunlight"
+  },
+  "fresh_daisy_summer": {
+    "styleVariant": "fresh_daisy_summer",
+    "label": "清新雏菊夏日",
+    "lightboxScene": "fresh summer daisy garden view, blue sky, white clouds, clean sunny atmosphere, gentle garden depth",
+    "windowModule": "light wooden cottage window facade, shallow pitched eave, white curtain, simple window boxes with daisies",
+    "planting": "white daisies, pale yellow flowers, low fresh flower borders, light green foliage",
+    "props": "one small lace-covered round table, daisy flower basket nearby, small white ceramic pot",
+    "hostOutfit": "fresh pale yellow short-sleeve knit top paired with white wide-leg pants",
+    "colorMood": "clean white, pale yellow, summer blue, fresh green, bright soft sunlight"
+  }
+}

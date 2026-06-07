@@ -1,0 +1,8 @@
+interface:
+  display_name: "A股成长扫描"
+  short_description: "用本地数据源和公告筛选A股成长候选。"
+  brand_color: "#2563EB"
+  default_prompt: "Use $a-share-growth-scanner to scan A-share growth candidates with local data first, then rank the best research priorities."
+
+policy:
+  allow_implicit_invocation: true

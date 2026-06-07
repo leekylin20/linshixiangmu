@@ -1,0 +1,5 @@
+{"layer":"research","source":"AKShare 东方财富研报","date":"2026-05-24","title":"机器人行业跟踪：人形机器人产业链进入量产验证期","content":"多家机构认为人形机器人产业链进入量产验证阶段，关注执行器、减速器、传感器和整机厂商。风险包括订单落地不及预期、成本下降慢于预期。","symbols":[],"companies":[],"industries":["机器人"],"topics":["人形机器人","执行器","减速器"],"raw_ref":"demo://research/robotics-20260524"}
+{"layer":"announcement","source":"巨潮资讯","date":"2026-05-24","title":"某公司签订重大合同公告","content":"公司公告与下游客户签订重大供货合同，合同金额占上年营业收入比例较高，预计对未来经营业绩产生积极影响。","symbols":["000001.SZ"],"companies":["示例股份"],"industries":["高端制造"],"topics":["重大合同"],"raw_ref":"demo://announcement/000001-contract"}
+{"layer":"signal","source":"同花顺热点","date":"2026-05-24","title":"人形机器人概念强势","content":"人形机器人板块多股上涨，市场归因于产业政策催化与量产预期升温，资金关注执行器和传感器分支。","symbols":[],"companies":[],"industries":["机器人"],"topics":["人形机器人","产业政策","量产预期"],"raw_ref":"demo://signal/humanoid-robotics"}
+{"layer":"market","source":"通达信 + 腾讯财经","date":"2026-05-24","title":"示例股份出现放量突破","content":"示例股份当日成交额显著放大，换手率高于近 20 日均值，收盘价突破近 60 日高点。该记录为行情异动摘要，不保存原始盘口和逐笔成交。","symbols":["000001.SZ"],"companies":["示例股份"],"industries":["高端制造"],"topics":["放量突破"],"raw_ref":"demo://market/000001-anomaly"}
+

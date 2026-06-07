@@ -1,0 +1,112 @@
+[
+  {
+    "caseId": "Case 1",
+    "selectedRoute": "generic-fashion-live-room",
+    "selectedSceneStyle": "layered-window-scenic-live-room",
+    "sceneStyleFallback": false,
+    "matchedSceneStyleKeywords": [
+      "层次窗景"
+    ],
+    "sceneStyleChecklist": {
+      "selectedSceneStyle": "layered-window-scenic-live-room",
+      "has_framed_window_structure": true,
+      "has_far_background_carrier": true,
+      "has_foreground_midground_background_depth": true,
+      "has_host_presentation_zone": true,
+      "has_clean_standing_space": true,
+      "has_live_room_usability": true,
+      "props_do_not_block_subject": true,
+      "scenery_does_not_dominate_product": true,
+      "not_plain_store": true,
+      "not_photo_studio_set": true,
+      "not_wedding_backdrop": true,
+      "not_flat_backdrop_only": true,
+      "not_real_outdoor_location": true,
+      "status": "pass",
+      "missing": []
+    }
+  },
+  {
+    "caseId": "Case 2",
+    "selectedRoute": "generic-fashion-live-room",
+    "selectedSceneStyle": "layered-window-scenic-live-room",
+    "sceneStyleFallback": false,
+    "matchedSceneStyleKeywords": [
+      "仿真窗景"
+    ],
+    "sceneStyleChecklist": {
+      "selectedSceneStyle": "layered-window-scenic-live-room",
+      "has_framed_window_structure": true,
+      "has_far_background_carrier": true,
+      "has_foreground_midground_background_depth": true,
+      "has_host_presentation_zone": true,
+      "has_clean_standing_space": true,
+      "has_live_room_usability": true,
+      "props_do_not_block_subject": true,
+      "scenery_does_not_dominate_product": true,
+      "not_plain_store": true,
+      "not_photo_studio_set": true,
+      "not_wedding_backdrop": true,
+      "not_flat_backdrop_only": true,
+      "not_real_outdoor_location": true,
+      "status": "pass",
+      "missing": []
+    }
+  },
+  {
+    "caseId": "Case 3",
+    "selectedRoute": "generic-fashion-live-room",
+    "selectedSceneStyle": "layered-window-scenic-live-room",
+    "sceneStyleFallback": false,
+    "matchedSceneStyleKeywords": [
+      "景框窗"
+    ],
+    "sceneStyleChecklist": {
+      "selectedSceneStyle": "layered-window-scenic-live-room",
+      "has_framed_window_structure": true,
+      "has_far_background_carrier": true,
+      "has_foreground_midground_background_depth": true,
+      "has_host_presentation_zone": true,
+      "has_clean_standing_space": true,
+      "has_live_room_usability": true,
+      "props_do_not_block_subject": true,
+      "scenery_does_not_dominate_product": true,
+      "not_plain_store": true,
+      "not_photo_studio_set": true,
+      "not_wedding_backdrop": true,
+      "not_flat_backdrop_only": true,
+      "not_real_outdoor_location": true,
+      "status": "pass",
+      "missing": []
+    }
+  },
+  {
+    "caseId": "Case 4",
+    "selectedRoute": "denim-live-room",
+    "selectedSceneStyle": "layered-window-scenic-live-room",
+    "sceneStyleFallback": false,
+    "matchedSceneStyleKeywords": [
+      "层次窗景",
+      "层次窗景假景",
+      "景框窗"
+    ],
+    "sceneStyleChecklist": {
+      "selectedSceneStyle": "layered-window-scenic-live-room",
+      "has_framed_window_structure": true,
+      "has_far_background_carrier": true,
+      "has_foreground_midground_background_depth": true,
+      "has_host_presentation_zone": true,
+      "has_clean_standing_space": true,
+      "has_live_room_usability": true,
+      "props_do_not_block_subject": true,
+      "scenery_does_not_dominate_product": true,
+      "not_plain_store": true,
+      "not_photo_studio_set": true,
+      "not_wedding_backdrop": true,
+      "not_flat_backdrop_only": true,
+      "not_real_outdoor_location": true,
+      "status": "pass",
+      "missing": []
+    }
+  }
+]

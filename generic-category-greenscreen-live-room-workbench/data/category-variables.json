@@ -1,0 +1,74 @@
+{
+  "食品": {
+    "category": "食品",
+    "genericProductNames": ["速食汤品", "即食粥", "早餐谷物", "调味食品", "方便餐包", "罐装食品", "冲泡食品", "半成品菜"],
+    "packagingTypes": ["bowl cup packaging", "pouch packaging", "box packaging", "jar packaging", "combo pack"],
+    "safeSellingPoints": ["冲泡方便", "口味丰富", "家庭常备", "即开即享", "多款可选", "组合装"],
+    "sceneVariants": ["bright_home_kitchen", "warm_wood_food_counter", "cream_family_dining", "light_retail_food_shelf", "breakfast_table_room", "community_group_buying_counter", "clean_ingredient_kitchen", "soft_wood_live_room", "modern_food_display_room", "cozy_home_food_corner"],
+    "titleExamples": ["今日鲜食专场", "方便一餐轻松备"],
+    "subtitleExamples": ["方便一餐轻松备", "家庭常备多款选"],
+    "propSuggestions": ["ceramic bowl", "wooden spoon", "small ingredient tray", "linen placemat"],
+    "hostStyling": ["clean apron over cream knit top", "warm neutral shirt", "fresh home-kitchen styling"],
+    "forbiddenClaims": ["治疗", "药效", "根治", "100%有效"]
+  },
+  "零食": {
+    "category": "零食",
+    "genericProductNames": ["混合坚果", "膨化零食", "果干", "饼干", "糕点", "肉脯", "糖果", "小包装零食"],
+    "packagingTypes": ["snack bag", "stand-up pouch", "box pack", "jar pack", "family combo pack"],
+    "safeSellingPoints": ["独立小包", "多种口味", "休闲分享", "香脆口感", "下午茶", "组合更划算"],
+    "sceneVariants": ["snack_live_counter", "cream_snack_shop", "afternoon_tea_snack_table", "young_family_snack_room", "light_convenience_shelf", "warm_wood_snack_wall", "party_snack_display", "nut_and_fruit_snack_room", "office_snack_corner", "fresh_color_snack_counter"],
+    "titleExamples": ["休闲零食专场", "多口味分享更尽兴"],
+    "subtitleExamples": ["多口味分享更尽兴", "独立小包随手享"],
+    "propSuggestions": ["small snack bowl", "paper snack tray", "clear jar", "casual tea cup"],
+    "hostStyling": ["fresh casual sweatshirt", "cream short-sleeve knit", "young bright retail styling"],
+    "forbiddenClaims": ["瘦身", "治疗", "100%有效", "无敌"]
+  },
+  "面食": {
+    "category": "面食",
+    "genericProductNames": ["速食面", "汤面", "拌面", "米粉", "河粉", "方便面食", "地方风味粉面", "半干面"],
+    "packagingTypes": ["bowl cup", "pouch pack", "box pack", "multi-pack", "family combo"],
+    "safeSellingPoints": ["热水冲泡", "汤鲜味浓", "劲道口感", "多种口味", "一餐方便", "家庭囤货"],
+    "sceneVariants": ["warm_noodle_kitchen", "chinese_noodle_counter", "steam_food_live_room", "wooden_noodle_shop_window", "instant_noodle_display_counter", "home_late_night_noodle_room", "light_kitchen_noodle_table", "local_flavor_noodle_corner", "clean_white_bowl_noodle_room", "cozy_family_noodle_counter"],
+    "titleExamples": ["热汤面食专场", "冲泡方便一餐满足"],
+    "subtitleExamples": ["冲泡方便一餐满足", "热汤好味快速上桌"],
+    "propSuggestions": ["white noodle bowl", "wood chopsticks", "small sauce dish", "gentle steam prop"],
+    "hostStyling": ["warm apron styling", "simple cream shirt", "home food live-selling outfit"],
+    "forbiddenClaims": ["治疗", "药效", "100%有效", "根治"]
+  },
+  "美妆": {
+    "category": "美妆",
+    "genericProductNames": ["口红", "粉底液", "彩妆盘", "睫毛膏", "腮红", "遮瑕", "定妆粉", "彩妆套装"],
+    "packagingTypes": ["tube", "bottle", "compact case", "palette", "gift box", "combo set"],
+    "safeSellingPoints": ["日常妆感", "轻薄服帖", "多色可选", "通勤适用", "易上妆", "组合装"],
+    "sceneVariants": ["cream_vanity_room", "soft_pink_makeup_counter", "modern_beauty_live_room", "mirror_light_makeup_table", "clean_retail_makeup_shelf", "elegant_dressing_table", "young_fashion_makeup_room", "white_gold_makeup_counter", "soft_glam_beauty_room", "compact_makeup_studio"],
+    "titleExamples": ["日常彩妆专场", "清透妆感轻松打造"],
+    "subtitleExamples": ["清透妆感轻松打造", "多色可选通勤适用"],
+    "propSuggestions": ["small mirror", "makeup brush cup", "soft vanity tray", "compact display riser"],
+    "hostStyling": ["clean beauty host blouse", "soft pink knit top", "fresh makeup presenter styling"],
+    "forbiddenClaims": ["医美", "治疗", "永久", "100%有效"]
+  },
+  "护肤": {
+    "category": "护肤",
+    "genericProductNames": ["洁面乳", "爽肤水", "精华液", "面霜", "面膜", "乳液", "防晒霜", "护肤套装"],
+    "packagingTypes": ["pump bottle", "jar", "tube", "dropper bottle", "mask box", "skincare set"],
+    "safeSellingPoints": ["清爽肤感", "温和护理", "水润保湿", "日常护肤", "多肤质适用", "套装搭配"],
+    "sceneVariants": ["clean_bathroom_skincare", "water_glow_skincare_room", "cream_skincare_vanity", "botanical_skincare_counter", "white_gold_skincare_lab", "soft_window_skincare_table", "minimal_spa_skincare_room", "fresh_moisture_display", "gentle_daily_skincare_room", "premium_skincare_counter"],
+    "titleExamples": ["日常护肤专场", "水润清爽温和护理"],
+    "subtitleExamples": ["水润清爽温和护理", "日常护肤多肤质适用"],
+    "propSuggestions": ["clean towel", "water glass dish", "botanical branch", "minimal skincare tray"],
+    "hostStyling": ["white clean skincare blouse", "cream knit cardigan", "soft professional beauty host styling"],
+    "forbiddenClaims": ["治疗", "修复疾病", "祛斑保证", "医美治疗", "100%有效", "药效", "根治"]
+  },
+  "生鲜": {
+    "category": "生鲜",
+    "genericProductNames": ["新鲜水果", "绿色蔬菜", "冷鲜肉", "海鲜水产", "鸡蛋", "牛排", "鲜切果蔬", "生鲜组合"],
+    "packagingTypes": ["tray pack", "vacuum pack", "fresh box", "net bag", "insulated box", "basket display"],
+    "safeSellingPoints": ["新鲜到家", "产地直采", "冷链配送", "当季优选", "家庭餐桌", "多款可选"],
+    "sceneVariants": ["fresh_market_counter", "clean_kitchen_fresh_food", "cold_chain_display_room", "fruit_and_vegetable_table", "seafood_fresh_counter", "premium_meat_counter", "farm_fresh_live_room", "home_cooking_fresh_room", "natural_wood_fresh_market", "bright_refrigerated_counter"],
+    "titleExamples": ["新鲜到家专场", "家庭餐桌安心选"],
+    "subtitleExamples": ["家庭餐桌安心选", "当季优选新鲜到家"],
+    "propSuggestions": ["wood crate", "ice tray hint", "fresh basket", "clean kitchen knife block far behind"],
+    "hostStyling": ["clean market apron", "fresh light green shirt", "professional fresh-food seller styling"],
+    "forbiddenClaims": ["治疗", "药效", "100%有效", "绝对新鲜"]
+  }
+}

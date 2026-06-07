@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>file-to-md 批量转 Markdown - Open Design 交付说明页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #171b18;
+      --muted: #5a625d;
+      --paper: #f5f1e8;
+      --panel: #ffffff;
+      --line: #d9d1bf;
+      --red: #b03d34;
+      --red-soft: #f7e7e4;
+      --amber: #9a650c;
+      --amber-soft: #f5ead4;
+      --green: #167a54;
+      --green-soft: #e5f2ec;
+      --blue: #245f9d;
+      --blue-soft: #e7eef8;
+      --shadow: 0 18px 48px rgba(23, 27, 24, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand strong {
+      font-size: 15px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.red {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #e2c2bc;
+    }
+
+    .badge.amber {
+      color: var(--amber);
+      background: var(--amber-soft);
+      border-color: #e1c58f;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #b8d8c7;
+    }
+
+    .badge.blue {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-color: #b8cce4;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+      gap: 28px;
+      align-items: start;
+      padding: 34px 0 28px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quick-item,
+    .panel,
+    .preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .quick-item {
+      min-height: 108px;
+      padding: 14px;
+    }
+
+    .quick-item span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .quick-item strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.28;
+    }
+
+    .preview {
+      padding: 14px;
+    }
+
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .preview-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #17201b;
+      color: #f6f4ee;
+      padding: 16px;
+      min-height: 620px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .preview-box section {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .preview-box h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      color: #f6f4ee;
+    }
+
+    .preview-box p {
+      margin: 0;
+      font-size: 13px;
+      color: #d8ddd6;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin-bottom: 14px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .panel h3 {
+      margin: 18px 0 10px;
+      font-size: 15px;
+    }
+
+    .file-grid,
+    .flow-list,
+    .checks,
+    .rule-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .file-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .file-card,
+    .flow-step,
+    .rule-list li,
+    .checks li {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfaf6;
+      padding: 11px 12px;
+    }
+
+    .file-card span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .file-card strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .flow-step b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .rule-list li,
+    .checks li,
+    .flow-step p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .checks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .check-dot {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .check-dot::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      transform: rotate(-45deg);
+    }
+
+    code,
+    pre {
+      font-family: Consolas, "SFMono-Regular", "Liberation Mono", monospace;
+    }
+
+    code {
+      padding: 1px 5px;
+      border: 1px solid #d8d3c7;
+      border-radius: 4px;
+      background: #eeeadf;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 14px;
+      border-radius: 8px;
+      background: #17201b;
+      color: #f7f4ec;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 18px 14px 32px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .lead {
+        font-size: 15px;
+      }
+
+      .quick,
+      .file-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar" aria-label="交付状态">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">FM</div>
+        <div>
+          <strong>Open Design 样例交付 04</strong>
+          <span>个人工具箱工作台 / file-to-md</span>
+        </div>
+      </div>
+      <div class="status-row">
+        <span class="badge red">limited</span>
+        <span class="badge amber">high risk</span>
+        <span class="badge blue">API key required</span>
+        <span class="badge green">internal task-pack</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">File to Markdown</p>
+        <h1 id="page-title">高风险批量转写工具的任务包说明页</h1>
+        <p class="lead">
+          <code>file-to-md</code> 会递归扫描目录，把 PDF 转成 Markdown，
+          并把音频 / 视频转成 16k 单声道片段后调用转写接口。它依赖 <code>OPENAI_API_KEY</code>、<code>OPENAI_BASE_URL</code> 和 <code>ffmpeg</code>，
+          适合做高风险边界展示，但本页只生成任务包，不执行扫描、不转写、不写文件。
+        </p>
+        <div class="quick" aria-label="工具概览">
+          <div class="quick-item">
+            <span>入口</span>
+            <strong><code>node index.js --input ... --dry-run</code></strong>
+          </div>
+          <div class="quick-item">
+            <span>高风险点</span>
+            <strong>API Key、网关、音视频转写、递归扫描</strong>
+          </div>
+          <div class="quick-item">
+            <span>本页边界</span>
+            <strong>只展示，不执行，不联网</strong>
+          </div>
+        </div>
+      </div>
+
+      <aside class="preview" aria-label="高风险任务包预览">
+        <div class="preview-head">
+          <span>任务包预览</span>
+          <span>no execute / no upload</span>
+        </div>
+        <div class="preview-box">
+          <section>
+            <h4>目标</h4>
+            <p>对目录中的 PDF / 音频 / 视频文件做批量转 Markdown 的只读风险展示。</p>
+          </section>
+          <section>
+            <h4>允许范围</h4>
+            <p>只读查看 README、PROJECT-LOG、NEXT-STEPS、index.js 和 package.json；只生成任务包和运行记录。</p>
+          </section>
+          <section>
+            <h4>禁止事项</h4>
+            <p>不执行扫描、不调用 OpenAI、不读取 API Key、不写输出、不创建 _run-summary.json、不上传、不自动化批处理。</p>
+          </section>
+          <section>
+            <h4>关键依赖</h4>
+            <p>OpenAI 音频转写接口、ffmpeg、pdf-parse、Node CLI、递归目录扫描。</p>
+          </section>
+          <section>
+            <h4>建议验证</h4>
+            <p>先做 dry-run，再做极小样本，再决定是否扩大；对外版必须脱敏路径和密钥字段。</p>
+          </section>
+        </div>
+        <p class="caption">这是任务包展示，不是执行按钮，也不是可点击操作区。</p>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="文件与流程">
+      <article class="panel">
+        <h2>核心文件</h2>
+        <div class="file-grid">
+          <div class="file-card"><span>README</span><strong>运行方式与限制</strong></div>
+          <div class="file-card"><span>PROJECT-LOG</span><strong>迁移与修复记录</strong></div>
+          <div class="file-card"><span>NEXT-STEPS</span><strong>后续验证顺序</strong></div>
+          <div class="file-card"><span>index.js</span><strong>扫描、输出、转写主逻辑</strong></div>
+          <div class="file-card"><span>package.json</span><strong>Node 依赖与 scan 脚本</strong></div>
+          <div class="file-card"><span>output/</span><strong>默认 Markdown 输出目录</strong></div>
+        </div>
+
+        <h3>高风险触点</h3>
+        <pre><code>OPENAI_API_KEY
+OPENAI_BASE_URL
+FFMPEG_PATH
+--input / --output / --dry-run
+递归扫描目录
+音频 / 视频转写
+_run-summary.json</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>推荐流程</h2>
+        <ol class="flow-list">
+          <li class="flow-step"><b>1</b><span><strong>只读核对</strong><p>确认 README、PROJECT-LOG、NEXT-STEPS、index.js 和 package.json。</p></span></li>
+          <li class="flow-step"><b>2</b><span><strong>风险定级</strong><p>把 API Key、转写、递归扫描、输出目录和网关依赖单独标高风险。</p></span></li>
+          <li class="flow-step"><b>3</b><span><strong>任务包</strong><p>只生成任务包、运行记录和审查说明，不触发真实处理。</p></span></li>
+          <li class="flow-step"><b>4</b><span><strong>后续再测</strong><p>若要执行，必须单独走 dry-run 和小样本路线。</p></span></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="输出与边界">
+      <article class="panel">
+        <h2>输出边界</h2>
+        <ul class="rule-list">
+          <li><code>--output</code> 默认指向 <code>output/</code>，但本页不写入。</li>
+          <li>音视频转写结果原本会写入 <code>.md</code> 和 <code>_run-summary.json</code>，本页不生成这些文件。</li>
+          <li>PDF 路径仍可提取文本，但本页不解析任何输入文件。</li>
+          <li>默认支持递归扫描，但本页不扫描目录。</li>
+        </ul>
+
+        <h3>运行记录必须写明</h3>
+        <pre><code>未执行真实工具
+未处理用户数据
+未上传
+未读取 secret
+未自动发布</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>审核边界</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>本页是静态说明页，不执行扫描、转写或写盘。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不读取 secret、API Key、Cookie 或账号登录态。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>不联网、不上传、不自动发布、不调用外部服务。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>高风险仅用于说明，不进入真实处理链路。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>对外展示前必须脱敏本地绝对路径和示例网关配置。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="风险说明与文件">
+      <article class="panel">
+        <h2>为什么适合做样例 04</h2>
+        <ul class="rule-list">
+          <li>这是第一个明确高风险但不执行的样例，能验证“风险展示页”和“任务包”边界。</li>
+          <li>API Key、Base URL、ffmpeg 和转写链路都很明确，适合做审核示范。</li>
+          <li>可以把“可执行”与“可展示”拆开，防止高风险工具被误当成低风险工具。</li>
+          <li>它的产物类型清楚：任务包、运行记录、审查说明，而不是执行结果。</li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>终审 checklist</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>用途限定为内部 artifact。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>无执行入口、无上传、无外部资源、无实时通信通道。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>风险触点已明确标注为高风险，仅作展示。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>运行记录写明未执行真实工具、未读取 secret。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="交付文件">
+      <article class="panel">
+        <h2>交付文件</h2>
+        <ul class="rule-list">
+          <li>页面：<code>toolbox-artifacts/file-to-md-open-design.html</code></li>
+          <li>原工具：<code>file-to-md/</code></li>
+          <li>README：<code>file-to-md/README.md</code></li>
+          <li>项目日志：<code>file-to-md/PROJECT-LOG.md</code></li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>后续可扩展</h2>
+        <ul class="rule-list">
+          <li>补一版“只读任务包”模板，专门承接 high 风险项目。</li>
+          <li>把 API Key / Base URL / ffmpeg / 输出目录的审查项标准化。</li>
+          <li>若未来真要执行，再单独生成 dry-run 验证页，不复用展示页。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span>生成日期：2026-05-18</span>
+      <span>交付类型：Open Design task-pack / doc artifact</span>
+      <span>安全边界：内部静态说明页，仅展示高风险任务包</span>
+    </footer>
+  </main>
+</body>
+</html>

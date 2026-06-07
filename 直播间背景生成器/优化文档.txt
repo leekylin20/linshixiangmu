@@ -1,0 +1,883 @@
+下面这份可以直接丢给 Codex，让它按文档重构你的网页生成器。
+
+---
+
+# 直播间背景生成器开发优化文档
+
+## 0. 项目目标
+
+当前系统问题：
+
+用户上传「产品图」和「参考模板图」后，系统直接把两张图和补充指令丢给图像生成 API，导致结果不稳定：
+
+* 参考图框架学到了，但画面没有原图精美。
+* 产品比例不受控，经常过大。
+* “左右缩进 90px”被误解成整体拉伸或缩窄。
+* 有效信息容易贴边，推流时被裁切。
+* 文案、价格、赠品、卖点容易被模型乱编。
+* 多轮修改靠用户一句一句追着改，效率低。
+* 生成后没有自动审核，坏图直接展示给用户。
+
+目标：
+
+把系统从「单次 prompt 生图」升级成：
+
+```text
+产品图识别
+↓
+模板图结构识别
+↓
+生成结构化 JSON
+↓
+编译强约束生图 Prompt
+↓
+调用图像生成 API
+↓
+自动审核边距 / 产品比例 / 构图 / 文案
+↓
+不合格自动重试
+↓
+合格输出 PNG
+```
+
+OpenAI 官方文档也建议：单次生成可以用 Image API；如果要做多轮编辑、带图像上下文的可编辑体验，Responses API 更适合。两者都支持设置尺寸、质量、格式等输出参数。([OpenAI Developers][1])
+
+---
+
+# 1. 核心原则
+
+## 1.1 不要直接用用户口语指令生图
+
+错误方式：
+
+```text
+参考图一的配色和产品信息，借用图二图片框架，左右缩进90px。
+```
+
+这个太模糊，模型会误解。
+
+正确方式：
+
+先把用户口语指令转成结构化设计规范：
+
+```text
+画布为 1080x1920。
+有效信息安全区为 x=90px 到 x=990px。
+左侧 0-90px 和右侧 990-1080px 只能放背景、渐变、低权重装饰，不能放文字、价格、产品、人物脸、主徽章、主图标。
+上下高度不变，不添加上下留白，不改变画布比例。
+主产品高度约为画布高度的 25%-30%，不能超过 35%。
+```
+
+## 1.2 “缩进 90px”要改成“安全区约束”
+
+不要再写：
+
+```text
+左右缩进90px
+```
+
+统一改成：
+
+```text
+All key information must stay inside the broadcast-safe area: x=90px to x=990px on a 1080px wide canvas.
+The left 90px and right 90px margins may contain only soft background, gradients, low-contrast decorative leaves, bubbles, or light effects.
+No text, product, badge, logo, price panel, face, hands, or main visual object may enter the outer 90px margins.
+Do not stretch or squeeze the layout.
+Do not add side padding by scaling the whole poster.
+Keep the canvas size and top-bottom composition unchanged.
+```
+
+## 1.3 产品比例要用数字限制
+
+不要写：
+
+```text
+产品小一点
+```
+
+统一改成：
+
+```text
+Main foreground product height should be around 25%-30% of full canvas height.
+The product should be medium-sized, not oversized, not dominating the presenter.
+The product must not cover more than 35% of the poster height.
+```
+
+---
+
+# 2. API 建议
+
+## 2.1 模型
+
+优先使用：
+
+```text
+gpt-image-2
+```
+
+GPT Image 2 支持文本和图像输入，适合高质量生成与编辑。([OpenAI Developers][2])
+
+## 2.2 尺寸
+
+建议默认：
+
+```text
+1088x1920
+```
+
+原因：
+
+* 9:16 接近直播间竖图。
+* 宽高均可被 16 整除。
+* 适合当前前端预览。
+* 后续可裁切或缩放到 1080x1920。
+
+GPT Image 2 支持自定义 `WIDTHxHEIGHT` 尺寸，宽高需能被 16 整除，比例需在 1:3 到 3:1 之间；官方也提醒超过 2560x1440 的高分辨率结果会更不稳定，最高支持 3840x2160。([OpenAI Developers][3])
+
+## 2.3 输出格式
+
+默认：
+
+```text
+PNG
+```
+
+原因：
+
+* 电商海报文字边缘更清晰。
+* 后续再压缩 WebP/JPEG。
+* 方便保存为素材。
+
+## 2.4 quality
+
+默认：
+
+```text
+quality: "high"
+```
+
+如果用户选择快速预览，可以用：
+
+```text
+quality: "medium"
+```
+
+生成最终商用图时，不建议低质量。
+
+---
+
+# 3. 系统模块设计
+
+## 3.1 前端新增参数
+
+当前只有产品图、参考模板、补充指令，不够。
+
+需要新增以下控制项：
+
+```json
+{
+  "canvas_width": 1080,
+  "canvas_height": 1920,
+  "safe_margin_left": 90,
+  "safe_margin_right": 90,
+  "top_bottom_lock": true,
+  "layout_lock": true,
+  "product_scale": "medium",
+  "main_product_height_ratio": 0.28,
+  "reference_layout_strength": "high",
+  "product_color_strength": "high",
+  "text_accuracy_priority": "high",
+  "auto_audit": true,
+  "auto_retry": true,
+  "max_retry": 2
+}
+```
+
+前端按钮建议：
+
+```text
+产品配色
+边距90px
+上下不变
+加电视框
+坐播模式
+产品缩小
+产品中等
+产品放大
+右侧卖点栏
+底部包邮栏
+```
+
+这些按钮不要直接拼中文，要映射成 prompt 片段。
+
+---
+
+# 4. 数据结构
+
+## 4.1 ProductAnalysis JSON
+
+产品图识别后输出：
+
+```json
+{
+  "brand": "Joya 洁宜佳",
+  "category": "柠檬洗洁精",
+  "product_type": "食品用洗洁精",
+  "package_shape": "1.2L绿色带提手泵头大瓶",
+  "main_colors": ["亮绿色", "柠檬黄", "白色", "深蓝色logo"],
+  "secondary_colors": ["水蓝色", "浅绿色"],
+  "visual_assets": ["柠檬", "水花", "绿叶", "清洁感厨房"],
+  "key_selling_points": [
+    "1.2L大容量",
+    "柠檬清香",
+    "超强去油",
+    "清新祛味",
+    "不伤手",
+    "厨房餐具通用"
+  ],
+  "forbidden_claims": [
+    "杀菌",
+    "消毒",
+    "医疗级",
+    "食品级安全认证",
+    "100%无残留"
+  ],
+  "preferred_scene": "明亮清新厨房直播间"
+}
+```
+
+## 4.2 TemplateAnalysis JSON
+
+参考模板图识别后输出：
+
+```json
+{
+  "canvas": {
+    "aspect_ratio": "9:16",
+    "width": 1080,
+    "height": 1920
+  },
+  "layout": {
+    "top_area": "品牌logo + 大标题 + 副标题",
+    "icon_row": "横向卖点图标栏",
+    "center_area": "主播/模特 + 背景场景",
+    "main_product_area": "底部中前景产品展示台",
+    "left_badge": "核心容量/卖点徽章",
+    "right_panel": "直播专享礼/价格/赠品/卖点列表",
+    "bottom_bar": "包邮到家/官方旗舰店/售后承诺"
+  },
+  "safe_area": {
+    "left": 90,
+    "right": 990,
+    "top": 0,
+    "bottom": 1920
+  },
+  "style": {
+    "visual_type": "直播间电商海报",
+    "lighting": "高亮、干净、商业柔光",
+    "composition": "中心主视觉，右侧信息栏，底部保障栏",
+    "density": "中高信息密度"
+  }
+}
+```
+
+## 4.3 UserInstruction JSON
+
+把用户补充指令归一化：
+
+```json
+{
+  "use_product_color": true,
+  "use_reference_layout": true,
+  "safe_margin_px": 90,
+  "keep_top_bottom_unchanged": true,
+  "product_scale": "smaller",
+  "generate_livestream_form": true,
+  "avoid_stretching": true
+}
+```
+
+---
+
+# 5. Prompt 编译器
+
+新增一个函数：
+
+```ts
+buildImagePrompt(productAnalysis, templateAnalysis, userInstruction): string
+```
+
+输出必须包含以下段落：
+
+```text
+1. Canvas
+2. Broadcast Safe Area
+3. Product Identity
+4. Color System
+5. Layout Framework
+6. Text Content
+7. Product Scale
+8. Style Direction
+9. Negative Constraints
+10. Final Compliance Rules
+```
+
+---
+
+# 6. 标准生图 Prompt 模板
+
+下面是可直接用于 Codex 的 prompt 模板。
+
+```text
+Create a vertical 9:16 livestream e-commerce poster.
+
+CANVAS:
+- Output size: 1080x1920 vertical poster.
+- Keep the top and bottom composition unchanged.
+- Do not add extra padding at the top or bottom.
+- Do not stretch, squeeze, or distort the whole layout.
+
+BROADCAST SAFE AREA:
+- The poster has a broadcast crop-safe margin.
+- All important information must stay inside x=90px to x=990px.
+- The left 0-90px and right 990-1080px areas may contain only soft background gradient, low-contrast leaves, bubbles, water splash, or light effects.
+- No text, product, badge, logo, price panel, face, hand, icon, or main decorative fruit may enter the outer 90px side margins.
+- Do not solve the margin requirement by stretching the image.
+- Do not solve the margin requirement by adding blank side borders.
+- Keep the visual composition natural and premium.
+
+PRODUCT:
+- Brand: {{brand}}
+- Product category: {{category}}
+- Product shape: {{package_shape}}
+- Main packaging colors: {{main_colors}}
+- Product visual assets: {{visual_assets}}
+- Preserve the recognizable product type, packaging color, cap/pump/handle shape, and label style from the product reference image.
+- Do not invent a different product category.
+
+COLOR SYSTEM:
+- The entire livestream scene must follow the product packaging colors.
+- Use {{main_colors}} as the dominant color palette.
+- Background, shelves, lights, badges, and bottom bar should harmonize with product colors.
+- Avoid unrelated color systems.
+
+LAYOUT FRAMEWORK:
+- Borrow the reference poster framework:
+  1. Top brand logo area.
+  2. Large headline area.
+  3. Subheadline and icon row.
+  4. Center presenter or livestream host area.
+  5. Main product display area on a round glossy platform.
+  6. Left circular badge for key selling point.
+  7. Right vertical offer panel.
+  8. Bottom delivery and official-store bar.
+- Keep the layout like a polished Chinese Douyin livestream product poster.
+
+MAIN PRODUCT SCALE:
+- The main foreground product must be medium-sized.
+- Main product height should be about {{main_product_height_ratio}} of full poster height.
+- It must not exceed 35% of the canvas height.
+- Do not make the front product too large.
+- Product should sit naturally on the platform and not cover the presenter’s face or main text.
+
+TEXT CONTENT:
+Use clear Chinese e-commerce livestream text.
+
+Main headline:
+{{headline}}
+
+Subheadline:
+{{subheadline}}
+
+Left badge:
+{{left_badge}}
+
+Right panel:
+{{right_panel}}
+
+Bottom bar:
+{{bottom_bar}}
+
+STYLE:
+- High-end livestream e-commerce poster.
+- Clean commercial lighting.
+- Glossy 3D product display.
+- Realistic but polished product rendering.
+- Fresh, bright, attractive, suitable for Douyin livestream room background.
+- Keep text bold, readable, and inside the safe area.
+
+NEGATIVE CONSTRAINTS:
+- Do not place important information within 90px of the left or right edge.
+- Do not stretch the poster horizontally.
+- Do not simply scale the entire poster narrower.
+- Do not crop top or bottom.
+- Do not make the main product oversized.
+- Do not generate extra hands or malformed fingers.
+- Do not invent unrelated brands.
+- Do not change the product into another category.
+- Do not create unreadable tiny text.
+- Do not place price or selling points outside the safe area.
+```
+
+---
+
+# 7. 针对“左右缩进 90px”的专用 Prompt 片段
+
+前端按钮「边距90px」应该插入这段，不要插入中文：
+
+```text
+BROADCAST SAFE MARGIN REQUIREMENT:
+The final poster is 1080px wide.
+The effective information safe area is x=90px to x=990px.
+All key text, logos, faces, products, badges, price panels, icons, and selling-point cards must stay inside this safe area.
+The outer 90px on both left and right sides must contain only non-essential background, soft gradient, light, bubbles, leaves, or low-contrast decorative elements.
+Do not stretch the image.
+Do not add blank borders.
+Do not reduce the whole poster by scaling it down.
+Keep the same top and bottom composition.
+```
+
+---
+
+# 8. 针对“产品太大”的专用 Prompt 片段
+
+前端按钮「产品缩小」应该插入：
+
+```text
+PRODUCT SCALE ADJUSTMENT:
+Reduce the main foreground product size by about 20%-30%.
+The main product should be medium-sized, not dominant.
+The product height should be about 25%-28% of the full canvas height.
+Keep the product fully visible on the display platform.
+Do not let the product cover the presenter or the right-side panel.
+```
+
+---
+
+# 9. 自动审核模块
+
+新增函数：
+
+```ts
+auditGeneratedPoster(imageUrl, spec): Promise<AuditResult>
+```
+
+审核维度：
+
+```json
+{
+  "safe_margin": {
+    "passed": false,
+    "issues": [
+      "right price panel enters the right 90px margin",
+      "left badge too close to left edge"
+    ]
+  },
+  "product_scale": {
+    "passed": false,
+    "main_product_too_large": true,
+    "estimated_height_ratio": 0.42,
+    "target_height_ratio": 0.28
+  },
+  "top_bottom_lock": {
+    "passed": true
+  },
+  "layout": {
+    "passed": true
+  },
+  "text": {
+    "passed": false,
+    "issues": [
+      "brand text slightly misspelled",
+      "price text unclear"
+    ]
+  },
+  "overall_passed": false,
+  "retry_instruction": "Regenerate with stricter 90px safe margins and reduce main foreground product by 25%."
+}
+```
+
+审核 prompt：
+
+```text
+You are auditing a generated 1080x1920 Chinese livestream e-commerce poster.
+
+Check the following:
+1. Are all important elements inside x=90px to x=990px?
+2. Are the outer 90px left and right margins free of key text, logos, products, badges, faces, and price panels?
+3. Is the main foreground product medium-sized, around 25%-30% of canvas height?
+4. Is the product not oversized?
+5. Are top and bottom composition preserved?
+6. Is the product category consistent with the input product?
+7. Is the background color consistent with product packaging?
+8. Are there obvious extra hands, distorted faces, broken products, or unreadable key text?
+
+Return JSON only.
+```
+
+---
+
+# 10. 自动重试逻辑
+
+伪代码：
+
+```ts
+async function generateWithAudit(input) {
+  const productAnalysis = await analyzeProductImage(input.productImage)
+  const templateAnalysis = await analyzeTemplateImage(input.templateImage)
+
+  let prompt = buildImagePrompt(productAnalysis, templateAnalysis, input.userInstruction)
+
+  for (let attempt = 1; attempt <= input.maxRetry + 1; attempt++) {
+    const image = await generateImage({
+      model: "gpt-image-2",
+      size: "1088x1920",
+      quality: input.final ? "high" : "medium",
+      output_format: "png",
+      prompt,
+      images: [input.productImage, input.templateImage]
+    })
+
+    const audit = await auditGeneratedPoster(image, {
+      safeMarginLeft: 90,
+      safeMarginRight: 90,
+      mainProductHeightRatio: input.mainProductHeightRatio || 0.28
+    })
+
+    if (audit.overall_passed) {
+      return {
+        image,
+        audit,
+        attempts: attempt
+      }
+    }
+
+    prompt = prompt + "\n\nSTRICT RETRY CORRECTION:\n" + audit.retry_instruction
+  }
+
+  return {
+    image,
+    audit,
+    warning: "Generated image did not fully pass audit after retries."
+  }
+}
+```
+
+---
+
+# 11. 前端交互优化
+
+## 11.1 当前问题
+
+用户以为点了“边距90px”，模型会精确理解。
+
+实际上，图像模型不是 PS，不会严格按像素执行，必须通过：
+
+* 安全区 prompt
+* 生成后审核
+* 不合格重试
+* 必要时后处理
+
+才能接近稳定。
+
+## 11.2 新增生成状态
+
+生成流程显示：
+
+```text
+1. 正在识别产品信息
+2. 正在拆解参考模板
+3. 正在生成设计规范
+4. 正在生成直播间背景
+5. 正在检查安全边距
+6. 正在检查产品比例
+7. 正在二次修正
+8. 生成完成
+```
+
+## 11.3 历史记录保存
+
+每次保存：
+
+```json
+{
+  "id": "run_xxx",
+  "product_image": "...",
+  "template_image": "...",
+  "user_instruction": "...",
+  "product_analysis": {},
+  "template_analysis": {},
+  "compiled_prompt": "...",
+  "generated_image": "...",
+  "audit_result": {},
+  "created_at": "..."
+}
+```
+
+这样后面可以复盘为什么一张图好，一张图差。
+
+---
+
+# 12. 必须增加“局部修图模式”
+
+用户后续经常说：
+
+```text
+产品太大了
+左侧缩进90px
+右侧缩进90px
+删除多余手
+换成绿幕
+```
+
+这种不应该每次重新生成整张图。
+
+需要增加编辑模式：
+
+```text
+edit_mode: true
+source_image: 上一张生成图
+mask_area: 可选
+instruction: 用户修改指令
+```
+
+局部修改 prompt：
+
+```text
+Edit the existing poster while preserving the overall design, layout, colors, text, presenter, and background.
+Only adjust the requested element:
+- reduce the main foreground product by 25%
+- keep the product on the same platform
+- preserve top and bottom composition
+- preserve all text and right-side panel
+- keep all important information inside x=90px to x=990px
+```
+
+Image edits endpoint 支持传入一张或多张源图进行编辑，GPT image 模型的编辑输入支持 png、webp、jpg，单张小于 50MB，并可提供多张参考图。([OpenAI Developers][4])
+
+---
+
+# 13. 后处理建议：真正精确的 90px 不要全靠模型
+
+如果业务上必须严格做到左右 90px 安全区，建议生成后加一个 canvas 后处理层：
+
+## 13.1 简单方案
+
+生成时让模型大致遵守 90px。
+
+然后前端/后端用图像处理检查：
+
+* 检测文字/主要物体是否贴边比较难。
+* 但可以至少添加 90px 安全参考线预览。
+* 用户可以打开/关闭安全线。
+
+## 13.2 更稳方案
+
+设计器里叠加透明安全框：
+
+```text
+x=90px
+x=990px
+```
+
+用户预览时看到：
+
+```text
+灰色外侧 = 推流可能裁切区
+中间区域 = 有效信息区
+```
+
+## 13.3 不建议
+
+不要把整张图压窄放进 90px 内。
+
+这会导致用户说的：
+
+```text
+你直接拉长的？
+```
+
+正确做法是：
+
+* 画布不变。
+* 背景铺满全屏。
+* 重要元素重新布局到中间安全区。
+* 左右边缘只留装饰和背景。
+
+---
+
+# 14. Codex 修改任务清单
+
+## 任务 1：新增产品识别模块
+
+文件建议：
+
+```text
+src/services/analyzeProductImage.ts
+```
+
+功能：
+
+* 输入产品图。
+* 输出 ProductAnalysis JSON。
+* 识别品牌、品类、颜色、包装形态、核心卖点、禁止乱编内容。
+
+## 任务 2：新增模板拆解模块
+
+文件建议：
+
+```text
+src/services/analyzeTemplateImage.ts
+```
+
+功能：
+
+* 输入参考图。
+* 输出 TemplateAnalysis JSON。
+* 识别版式区域，而不是照抄内容。
+
+## 任务 3：新增 prompt 编译器
+
+文件建议：
+
+```text
+src/services/buildImagePrompt.ts
+```
+
+功能：
+
+* 输入 ProductAnalysis、TemplateAnalysis、UserInstruction。
+* 输出强约束英文 prompt。
+* 必须内置 safe area 规则。
+
+## 任务 4：新增自动审核模块
+
+文件建议：
+
+```text
+src/services/auditGeneratedPoster.ts
+```
+
+功能：
+
+* 输入生成图。
+* 输出 JSON 审核结果。
+* 检查边距、产品比例、品类一致性、文字可读性、构图问题。
+
+## 任务 5：新增自动重试模块
+
+文件建议：
+
+```text
+src/services/generateWithAudit.ts
+```
+
+功能：
+
+* 第一次生成。
+* 审核。
+* 不合格自动补充 retry instruction。
+* 最多重试 2 次。
+* 返回最终图和审核报告。
+
+## 任务 6：前端新增参数
+
+UI 增加：
+
+```text
+安全边距：默认90px
+产品比例：小 / 中 / 大
+是否保持上下不变：默认开启
+是否自动审核：默认开启
+是否自动重试：默认开启
+```
+
+## 任务 7：预览区加安全线
+
+在生成结果预览图上叠加：
+
+```text
+左侧 90px 半透明遮罩
+右侧 90px 半透明遮罩
+中间有效信息框
+```
+
+用户可以开关。
+
+---
+
+# 15. 验收标准
+
+## 15.1 基础生成验收
+
+上传产品图 + 模板图后，结果必须满足：
+
+```text
+1. 产品品类正确。
+2. 背景配色跟产品包装一致。
+3. 参考模板框架明显保留。
+4. 主产品不能过大。
+5. 顶部和底部不被裁切。
+6. 左右 90px 内没有重要文字、价格、logo、产品主体。
+7. 右侧信息栏不贴边。
+8. 底部包邮栏不贴边。
+```
+
+## 15.2 修改指令验收
+
+用户输入：
+
+```text
+最前面的产品太大了
+```
+
+系统应只改产品比例，不重画整张风格。
+
+用户输入：
+
+```text
+左右各缩进90px，上下不变
+```
+
+系统应保持画布高度和上下内容不变，只把重要信息收进安全区，不能直接把整张图横向压缩或拉长。
+
+用户输入：
+
+```text
+删除多余手
+```
+
+系统应进入局部编辑模式，保留整体图。
+
+---
+
+# 16. 重点结论
+
+这次优化不是简单改 prompt，而是重构成：
+
+```text
+识别层
+编译层
+生成层
+审核层
+重试层
+局部编辑层
+```
+
+你现在缺的核心是：
+
+```text
+1. 产品图结构化识别
+2. 参考图版式结构化识别
+3. 90px 安全区 prompt 编译
+4. 生成后自动审核
+5. 不合格自动重试
+6. 局部编辑而不是整图重生
+```
+
+Codex 优先实现这六个点。
+
+[1]: https://developers.openai.com/api/docs/guides/image-generation?utm_source=chatgpt.com "Image generation | OpenAI API"
+[2]: https://developers.openai.com/api/docs/models/gpt-image-2?utm_source=chatgpt.com "GPT Image 2 Model | OpenAI API"
+[3]: https://developers.openai.com/api/reference/python/resources/images/methods/generate/?utm_source=chatgpt.com "Create image | OpenAI API Reference"
+[4]: https://developers.openai.com/api/reference/python/resources/images/methods/edit/?utm_source=chatgpt.com "Create image edit | OpenAI API Reference"

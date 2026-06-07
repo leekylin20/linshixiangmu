@@ -1,0 +1,72 @@
+{
+  "projectName": "3C 数码坐播直播间提示词工作台｜独立专用版",
+  "version": "3c_digital_seated_live_room_random_style_pool_v04",
+  "category": "3c_digital",
+  "sceneType": "seated_livestream",
+  "lockedSkeleton": [
+    "竖版 9:16 中国抖音 3C 数码坐播直播间",
+    "一位年轻成年中国女主播，年龄感 23-28 岁，亲和自然，有真实讲解感",
+    "真实坐播机位，摄像机高度 120-125cm，等效 35mm，轻微下俯 2-3°",
+    "桌台不过宽，产品、桌台、主播、背景统一透视",
+    "前景产品清楚，主产品 + 桌面展示产品 + 辅助产品 + 无品牌包装盒",
+    "信息牌必须是不透明实体牌，禁止透明亚克力牌、悬浮 UI、全息屏",
+    "无真实品牌、真实 LOGO、真实商标、真实价格、平台 UI"
+  ],
+  "productTypes": [
+    "power_bank｜充电宝",
+    "fast_charger｜快充头",
+    "cable｜数据线",
+    "wireless_charger｜无线充",
+    "earbuds｜蓝牙耳机",
+    "storage｜数码收纳",
+    "phone_stand｜手机支架",
+    "multi_port_charger｜多口快充设备",
+    "travel_kit｜出行数码套装",
+    "small_digital_appliance｜小家电数码周边"
+  ],
+  "styleRoutes": [
+    "cold_blue_tech_cabin｜冷蓝科技舱风",
+    "silver_white_minimal｜银白极简科技风",
+    "black_gold_business｜黑金商务科技风",
+    "white_blue_office｜白蓝办公效率风",
+    "black_purple_gaming｜黑紫电竞风",
+    "orange_black_utility｜橙黑机能风",
+    "green_smart_home｜青绿智能生活风",
+    "deep_space_geek｜深空银灰极客风",
+    "cream_light_digital｜奶油白轻数码风",
+    "bright_retail_digital｜明亮新零售数码店风"
+  ],
+  "styleDistributionRules": [
+    "单张生成：用户未指定风格时，从 styleRoutes 自动抽取 1 个风格路线",
+    "批量生成：不能整批使用同一个风格，不能连续重复同一风格",
+    "2-3 张至少 2 种风格，4-6 张至少 3 种风格，7-10 张至少 5 种风格",
+    "同一批次中，同一种风格最多占总量 30%",
+    "用户指定 style_route 时，只锁定该风格，不再随机"
+  ],
+  "styleRandomModes": [
+    "fixed｜关闭随机（固定）",
+    "route_random｜母版随机",
+    "route_local_random｜母版 + 局部随机",
+    "high_diversity｜高多样化随机"
+  ],
+  "localRandomPools": {
+    "backgroundStructures": ["弧形科技墙", "直线灯带墙", "层叠展示架", "参数屏幕区", "电池图形屏", "电路纹理背板", "模块化格栅", "立体发光边框", "局部发光壁龛", "深色玻璃展示区"],
+    "tableMaterials": ["深灰磨砂金属桌台", "石墨灰哑光桌台", "冷银色金属桌台", "深蓝灰科技桌台", "浅灰高端磨砂桌台"],
+    "infoCardStyles": ["深蓝实体牌", "黑银硬板牌", "模块参数牌", "竖向功能牌", "圆角矩形科技牌", "横向短参数块", "立式厚边说明牌", "双层底板参数牌"],
+    "titleBoardStyles": ["发光灯箱", "科技硬板", "切角模块牌", "一体嵌墙标题", "悬挂式科技标题板", "舱门式切角标题框"],
+    "backgroundDisplays": ["手机模型陈列", "耳机 / 小音箱陈列", "充电配件陈列", "数码盒装陈列", "镜头 / 器材摆件", "极简设备模型", "电子元件感摆设"],
+    "accentColors": ["电蓝", "冰蓝", "紫蓝", "银灰", "白光", "青蓝", "冷紫", "钢铁蓝"],
+    "hostStyles": ["年轻清爽", "时尚数码", "轻商务", "极简科技"]
+  },
+  "outputSchema": {
+    "category": "3c_digital",
+    "sceneType": "seated_livestream",
+    "styleRoute": "英文风格路由 ID",
+    "styleRouteCn": "中文风格名",
+    "productType": "英文品类 ID",
+    "productTypeCn": "中文品类名",
+    "prompt": "positivePrompt 的别名",
+    "positivePrompt": "正向生图提示词",
+    "negativePrompt": "负面提示词"
+  }
+}

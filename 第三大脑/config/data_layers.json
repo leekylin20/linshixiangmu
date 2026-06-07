@@ -1,0 +1,56 @@
+{
+  "project": "第三大脑",
+  "principle": "Store interpreted knowledge in memory, not raw high-frequency market data.",
+  "layers": [
+    {
+      "id": "market",
+      "name": "行情层",
+      "memory_policy": "only_events_and_summaries",
+      "recommended_sources": ["通达信", "腾讯财经"],
+      "keep_in_memory": ["行情异动", "估值变化", "换手率异常", "新高新低", "技术形态摘要"],
+      "avoid_in_memory": ["完整 K 线", "五档盘口快照", "逐笔成交明细"]
+    },
+    {
+      "id": "research",
+      "name": "研报层",
+      "memory_policy": "full_summary_and_opinion_history",
+      "recommended_sources": ["AKShare 东方财富研报", "同花顺一致预期"],
+      "keep_in_memory": ["研报摘要", "核心假设", "盈利预测变化", "目标价变化", "风险提示", "机构观点变化"]
+    },
+    {
+      "id": "semantic_search",
+      "name": "语义搜索层",
+      "memory_policy": "query_results_as_clues",
+      "recommended_sources": ["i问财"],
+      "keep_in_memory": ["语义查询", "查询条件", "命中股票", "筛选逻辑", "人工确认结论"]
+    },
+    {
+      "id": "news",
+      "name": "新闻资讯层",
+      "memory_policy": "event_extraction",
+      "recommended_sources": ["财联社", "东方财富新闻"],
+      "keep_in_memory": ["政策事件", "行业事件", "公司事件", "海外事件", "市场催化"]
+    },
+    {
+      "id": "fundamental",
+      "name": "基础数据层",
+      "memory_policy": "entity_profile",
+      "recommended_sources": ["通达信", "AKShare"],
+      "keep_in_memory": ["公司概况", "主营业务", "行业分类", "财务摘要", "股东结构", "上市时间", "关联题材"]
+    },
+    {
+      "id": "announcement",
+      "name": "公告层",
+      "memory_policy": "official_event_extraction",
+      "recommended_sources": ["巨潮资讯", "通达信公告摘要"],
+      "keep_in_memory": ["业绩预告", "定期报告", "分红", "回购", "减持", "增持", "并购重组", "重大合同", "风险提示"]
+    },
+    {
+      "id": "signal",
+      "name": "信号与热点归因层",
+      "memory_policy": "market_narrative",
+      "recommended_sources": ["同花顺热点"],
+      "keep_in_memory": ["涨停原因", "强势股归因", "题材热度", "龙头切换", "催化事件", "叙事衰减"]
+    }
+  ]
+}

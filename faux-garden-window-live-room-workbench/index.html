@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>仿真花园窗景直播间提示词生成器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f5f2;
+      --panel: #ffffff;
+      --ink: #1e2525;
+      --muted: #60706c;
+      --line: #d9dfd8;
+      --green: #3f7a5b;
+      --blue: #426f8f;
+      --wood: #9a6a41;
+      --fail: #b44848;
+      --pass: #2f7d54;
+      --shadow: 0 12px 36px rgba(35, 48, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.8), rgba(244,245,242,0.95)),
+        radial-gradient(circle at 12% 10%, rgba(63,122,91,0.12), transparent 28%),
+        radial-gradient(circle at 85% 4%, rgba(66,111,143,0.12), transparent 30%),
+        var(--bg);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 34px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .route {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status.pass {
+      color: var(--pass);
+      border-color: rgba(47,125,84,0.28);
+      background: rgba(47,125,84,0.08);
+    }
+
+    .status.fail {
+      color: var(--fail);
+      border-color: rgba(180,72,72,0.28);
+      background: rgba(180,72,72,0.08);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 18px;
+      padding: 16px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+      color: var(--ink);
+      outline: none;
+    }
+
+    select,
+    input {
+      min-height: 42px;
+      padding: 9px 11px;
+    }
+
+    textarea {
+      min-height: 76px;
+      padding: 10px 11px;
+      resize: vertical;
+      line-height: 1.48;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: rgba(63,122,91,0.65);
+      box-shadow: 0 0 0 3px rgba(63,122,91,0.13);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      color: white;
+      background: var(--green);
+      font-weight: 700;
+    }
+
+    button.secondary {
+      color: var(--ink);
+      background: #e8ece7;
+      border: 1px solid var(--line);
+    }
+
+    .output-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .output-panel {
+      padding: 16px;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .prompt-box {
+      min-height: 220px;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      max-height: 420px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fbfcfa;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .audit-case {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfa;
+    }
+
+    .audit-case h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .check {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 5px 0;
+      border-top: 1px solid rgba(217,223,216,0.7);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .check:first-of-type {
+      border-top: 0;
+    }
+
+    .check strong {
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .ok {
+      color: var(--pass);
+      font-weight: 800;
+    }
+
+    .bad {
+      color: var(--fail);
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      .layout,
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+
+      .topbar {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>仿真花园窗景直播间提示词生成器</h1>
+        <div class="route">faux_garden_window_scenic_livestream_room / shared_scene_dna_two_9x16_v01</div>
+      </div>
+      <div id="globalStatus" class="status">等待生成</div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <div class="panel-title">生成控制</div>
+
+        <label for="styleVariant">风格变量</label>
+        <select id="styleVariant"></select>
+
+        <label for="caseSelect">生成内容</label>
+        <select id="caseSelect">
+          <option value="both_9x16">两张 9:16（空场 + 主播）</option>
+          <option value="empty_front_9x16">空场景正面图 9:16</option>
+          <option value="host_final_9x16">带主播最终成片 9:16</option>
+        </select>
+
+        <label for="lightboxScene">灯箱画面</label>
+        <textarea id="lightboxScene"></textarea>
+
+        <label for="windowModule">右侧窗景模块</label>
+        <textarea id="windowModule"></textarea>
+
+        <label for="planting">植物与花境</label>
+        <textarea id="planting"></textarea>
+
+        <label for="props">桌子、花篮与小道具</label>
+        <textarea id="props"></textarea>
+
+        <label for="hostOutfit">主播服装</label>
+        <textarea id="hostOutfit"></textarea>
+
+        <label for="colorMood">整体色调</label>
+        <textarea id="colorMood"></textarea>
+
+        <div class="button-row">
+          <button id="generateBtn" type="button">生成提示词</button>
+          <button id="copyJsonBtn" class="secondary" type="button">复制 JSON</button>
+        </div>
+      </aside>
+
+      <section class="output-stack">
+        <section class="panel output-panel">
+          <div class="panel-title">共享 Scene DNA</div>
+          <textarea id="sharedDnaOut" class="prompt-box" readonly></textarea>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">提示词输出</div>
+          <div id="promptOutputs" class="output-stack"></div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">审计结果</div>
+          <div id="auditOutput" class="audit-grid"></div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-title">JSON 输出</div>
+          <pre id="jsonOut"></pre>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="./workbench.js"></script>
+  <script>
+    const wb = window.FauxGardenWorkbench;
+    const fields = ["lightboxScene", "windowModule", "planting", "props", "hostOutfit", "colorMood"];
+    const styleSelect = document.getElementById("styleVariant");
+    const caseSelect = document.getElementById("caseSelect");
+    const globalStatus = document.getElementById("globalStatus");
+    const jsonOut = document.getElementById("jsonOut");
+    const sharedDnaOut = document.getElementById("sharedDnaOut");
+    const promptOutputs = document.getElementById("promptOutputs");
+    const auditOutput = document.getElementById("auditOutput");
+    const caseLabels = {
+      both_9x16: "两张 9:16（空场 + 主播）",
+      empty_front_9x16: "空场景正面图 9:16",
+      host_final_9x16: "带主播最终成片 9:16"
+    };
+    const auditLabels = {
+      status: "状态",
+      sharedSceneDNAIncluded: "已拼入共享 Scene DNA",
+      commonNegativeIncluded: "已拼入共享负面词",
+      sameFrontCameraAxis: "同一正面机位轴线",
+      differentCropAllowed: "仅允许远近裁切不同",
+      noDifferentAngle: "禁止不同角度",
+      noRedesignedLayout: "禁止重新设计布局",
+      sameSceneRelativePositions: "场景元素相对位置一致",
+      topStudioLocked: "空场顶部片场结构锁定",
+      leftOpenStudioSpace: "左侧开放工作区存在且不抢画面",
+      rearWallBehindLightbox: "灯箱背后墙体保留",
+      rearWallOnlyLightbox: "后墙-only 灯箱成立",
+      coveTransition: "墙顶 R 角过渡成立",
+      grassWidthRule: "草坪宽度规则成立",
+      cottageOverlapRule: "木屋压灯箱遮边成立",
+      noVisibleEquipment: "负面词包含设备禁项",
+      hostHidesStudioShell: "主播成片隐藏片场外壳",
+      chineseDouyinRealismPriority: "中国抖音直播真实感优先",
+      hostFullBodyGrounded: "主播全身落地",
+      hostYouthfulFashionStyle: "主播青春清爽时尚",
+      hostTableNotBlockingBody: "桌子不挡主播身体",
+      foregroundLeavesIncluded: "顶部前景叶子压角",
+      noVisibleWhiteBoxBoundary: "隐藏白盒边界",
+      notes: "备注"
+    };
+
+    function fillStyleOptions() {
+      Object.values(wb.STYLE_VARIANTS).forEach((variant) => {
+        const option = document.createElement("option");
+        option.value = variant.styleVariant;
+        option.textContent = `${variant.label}（${variant.styleVariant}）`;
+        styleSelect.appendChild(option);
+      });
+      const custom = document.createElement("option");
+      custom.value = "custom";
+      custom.textContent = "自定义（custom）";
+      styleSelect.appendChild(custom);
+    }
+
+    function fillFields(variantName) {
+      const variant = wb.STYLE_VARIANTS[variantName] || wb.STYLE_VARIANTS.seaside_hydrangea_summer;
+      fields.forEach((field) => {
+        document.getElementById(field).value = variant[field] || "";
+      });
+    }
+
+    function collectOverrides() {
+      return fields.reduce((acc, field) => {
+        acc[field] = document.getElementById(field).value.trim();
+        return acc;
+      }, {});
+    }
+
+    function renderPromptCase(item) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "grid-two";
+      const caseName = caseLabels[item.caseId] || item.caseId;
+      wrapper.innerHTML = `
+        <div>
+          <label>${caseName}｜正向提示词</label>
+          <textarea class="prompt-box" readonly>${escapeHtml(item.positivePrompt)}</textarea>
+        </div>
+        <div>
+          <label>${caseName}｜负向提示词</label>
+          <textarea class="prompt-box" readonly>${escapeHtml(item.negativePrompt)}</textarea>
+        </div>
+      `;
+      return wrapper;
+    }
+
+    function renderAuditCase(item) {
+      const box = document.createElement("div");
+      box.className = "audit-case";
+      const rows = Object.entries(item.audit)
+        .filter(([key]) => key !== "notes")
+        .map(([key, value]) => `
+          <div class="check">
+            <strong>${auditLabels[key] || key}</strong>
+            <span class="${value === true || value === "pass" ? "ok" : "bad"}">${formatAuditValue(value)}</span>
+          </div>
+        `)
+        .join("");
+      const notes = item.audit.notes && item.audit.notes.length
+        ? `<div class="check"><strong>备注</strong><span class="bad">${item.audit.notes.join("; ")}</span></div>`
+        : "";
+      box.innerHTML = `<h3>${caseLabels[item.caseId] || item.caseId}</h3>${rows}${notes}`;
+      return box;
+    }
+
+    function formatAuditValue(value) {
+      if (value === true) return "通过";
+      if (value === false) return "未通过";
+      if (value === "pass") return "通过";
+      if (value === "fail") return "失败";
+      return escapeHtml(value);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function generate() {
+      const styleVariant = styleSelect.value;
+      const result = wb.generatePrompts({
+        styleVariant,
+        caseId: caseSelect.value,
+        overrides: collectOverrides()
+      });
+
+      sharedDnaOut.value = result.sharedSceneDNA;
+      promptOutputs.innerHTML = "";
+      auditOutput.innerHTML = "";
+      result.cases.forEach((item) => {
+        promptOutputs.appendChild(renderPromptCase(item));
+        auditOutput.appendChild(renderAuditCase(item));
+      });
+      jsonOut.textContent = JSON.stringify(result, null, 2);
+
+      const allPass = result.cases.every((item) => item.audit.status === "pass");
+      globalStatus.className = `status ${allPass ? "pass" : "fail"}`;
+      globalStatus.textContent = allPass ? "审计通过" : "审计失败";
+    }
+
+    styleSelect.addEventListener("change", () => {
+      if (styleSelect.value !== "custom") {
+        fillFields(styleSelect.value);
+      }
+      generate();
+    });
+
+    caseSelect.addEventListener("change", generate);
+    fields.forEach((field) => document.getElementById(field).addEventListener("input", () => {
+      if (styleSelect.value !== "custom") {
+        styleSelect.value = "custom";
+      }
+      generate();
+    }));
+
+    document.getElementById("generateBtn").addEventListener("click", generate);
+    document.getElementById("copyJsonBtn").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(jsonOut.textContent);
+    });
+
+    fillStyleOptions();
+    styleSelect.value = "seaside_hydrangea_summer";
+    caseSelect.value = "both_9x16";
+    fillFields("seaside_hydrangea_summer");
+    generate();
+  </script>
+</body>
+</html>

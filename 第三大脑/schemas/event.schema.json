@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InvestmentEvent",
+  "type": "object",
+  "required": ["date", "source", "event_type", "summary"],
+  "properties": {
+    "date": {"type": "string"},
+    "source": {"type": "string"},
+    "event_type": {
+      "type": "string",
+      "enum": ["policy", "earnings", "order", "mna", "buyback", "holding_change", "risk", "market_anomaly", "topic_catalyst", "other"]
+    },
+    "symbols": {"type": "array", "items": {"type": "string"}},
+    "companies": {"type": "array", "items": {"type": "string"}},
+    "topics": {"type": "array", "items": {"type": "string"}},
+    "summary": {"type": "string"},
+    "impact": {"type": "string", "enum": ["positive", "negative", "neutral", "unknown"]},
+    "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+    "raw_ref": {"type": "string"}
+  }
+}
+

@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>批量图片水印工具包 - Open Design 交付说明页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201b;
+      --muted: #5c665f;
+      --paper: #f7f4ec;
+      --panel: #ffffff;
+      --line: #d7d1c4;
+      --green: #1f7a4c;
+      --blue: #255f9c;
+      --amber: #9a651b;
+      --red: #a33a31;
+      --soft-green: #e7f3ec;
+      --soft-blue: #e7eef8;
+      --soft-amber: #f5ead7;
+      --shadow: 0 18px 50px rgba(23, 32, 27, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--ink);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      background: #fff;
+      flex: 0 0 auto;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand strong {
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--soft-green);
+      border-color: #b8d8c5;
+    }
+
+    .badge.blue {
+      color: var(--blue);
+      background: var(--soft-blue);
+      border-color: #b8cbe4;
+    }
+
+    .badge.amber {
+      color: var(--amber);
+      background: var(--soft-amber);
+      border-color: #e0c693;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.95fr);
+      gap: 28px;
+      align-items: stretch;
+      padding: 34px 0 30px;
+    }
+
+    .hero-copy {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 820px;
+      font-size: 44px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quick-item,
+    .panel,
+    .preview-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .quick-item {
+      padding: 14px;
+      min-height: 104px;
+    }
+
+    .quick-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .quick-item strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .preview-panel {
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-height: 460px;
+    }
+
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .image-frame {
+      background: #111;
+      border-radius: 6px;
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .image-frame img {
+      display: block;
+      width: 100%;
+      height: min(62vh, 680px);
+      object-fit: contain;
+      background: #111;
+    }
+
+    .caption {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .panel h3 {
+      margin: 20px 0 10px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfaf6;
+      min-height: 142px;
+    }
+
+    .step b {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .step p,
+    .rule-list li,
+    .checks li {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .config-table th,
+    .config-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .config-table th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    code,
+    pre {
+      font-family: Consolas, "SFMono-Regular", "Liberation Mono", monospace;
+    }
+
+    code {
+      background: #ece7da;
+      border: 1px solid #d7d1c4;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      background: #17201b;
+      color: #f7f4ec;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    pre code {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .rule-list,
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li,
+    .checks li {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fbfaf6;
+    }
+
+    .checks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .check-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid var(--green);
+      position: relative;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .check-dot::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      transform: rotate(-45deg);
+      left: 4px;
+      top: 4px;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 18px 0 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 940px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .preview-panel {
+        min-height: auto;
+      }
+
+      .image-frame img {
+        height: min(70vh, 640px);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 18px 14px 32px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .lead {
+        font-size: 15px;
+      }
+
+      .quick,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .shell {
+        max-width: none;
+        padding: 18mm;
+      }
+
+      .quick-item,
+      .panel,
+      .preview-panel {
+        box-shadow: none;
+      }
+
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar" aria-label="交付状态">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">OD</div>
+        <div>
+          <strong>Open Design 样例交付 01</strong>
+          <span>个人工具箱工作台 / watermark-batch</span>
+        </div>
+      </div>
+      <div class="status-row">
+        <span class="badge green">verified</span>
+        <span class="badge green">low risk</span>
+        <span class="badge blue">local only</span>
+        <span class="badge amber">Windows</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">批量图片水印工具包</p>
+        <h1 id="page-title">给 Windows 用户的一页式交付说明</h1>
+        <p class="lead">
+          这个工具把图片放入 <code>input</code>，通过 <code>一键加水印.bat</code> 调用本地 PowerShell 脚本，
+          按 <code>config.ini</code> 批量生成带文字水印的图片。默认输出到 <code>output\水印结果_时间戳</code>，
+          不覆盖原图，不联网，不需要 secret 或 API key。
+        </p>
+        <div class="quick" aria-label="工具概览">
+          <div class="quick-item">
+            <span>入口</span>
+            <strong>双击 bat 或传入目录参数</strong>
+          </div>
+          <div class="quick-item">
+            <span>参数</span>
+            <strong>文字、位置、透明度、字号、角度、递归</strong>
+          </div>
+          <div class="quick-item">
+            <span>输出</span>
+            <strong>新目录图片结果，可再打包 ZIP 分发</strong>
+          </div>
+        </div>
+      </div>
+
+      <aside class="preview-panel" aria-label="验证样张">
+        <div class="preview-head">
+          <span>已验证样张</span>
+          <span>1080 × 1920 PNG</span>
+        </div>
+        <div class="image-frame">
+          <img src="../_package_watermark_test_output_bat/sample.png" alt="批量水印工具输出的验证样张，图片中部左中右三处带有文字水印">
+        </div>
+        <p class="caption">来源：本地测试输出 <code>_package_watermark_test_output_bat\sample.png</code>。本页只引用本地文件，不上传图片。</p>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="使用流程与参数">
+      <article class="panel">
+        <h2>交付流程</h2>
+        <div class="flow">
+          <div class="step">
+            <b>1</b>
+            <strong>解压工具包</strong>
+            <p>保持 <code>fonts</code>、<code>tools</code>、<code>input</code>、<code>output</code> 和入口 bat 在同一目录。</p>
+          </div>
+          <div class="step">
+            <b>2</b>
+            <strong>放入图片</strong>
+            <p>把需要处理的图片放进 <code>input</code>，或把图片目录拖到 <code>一键加水印.bat</code> 上。</p>
+          </div>
+          <div class="step">
+            <b>3</b>
+            <strong>检查配置</strong>
+            <p>按需修改 <code>config.ini</code>，默认是中部三处文字水印、80% 透明度、小四字号。</p>
+          </div>
+          <div class="step">
+            <b>4</b>
+            <strong>查看结果</strong>
+            <p>结果写入 <code>output\水印结果_时间戳</code>，原始输入文件保持不变。</p>
+          </div>
+        </div>
+
+        <h3>命令行调用</h3>
+        <pre><code>一键加水印.bat "D:\图片目录"
+一键加水印.bat "D:\图片目录" "D:\输出目录"</code></pre>
+      </article>
+
+      <aside class="panel">
+        <h2>本地目录关系</h2>
+        <ul class="rule-list">
+          <li><code>input/</code>：默认输入目录。</li>
+          <li><code>output/</code>：默认输出目录，开启时间戳子目录。</li>
+          <li><code>config.ini</code>：水印文字、位置、透明度、字号等参数。</li>
+          <li><code>fonts/</code>：随包 Noto Sans SC 字体与 OFL 许可证。</li>
+          <li><code>tools/watermark.ps1</code>：实际处理脚本。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="配置与审核">
+      <article class="panel">
+        <h2>默认配置</h2>
+        <table class="config-table">
+          <thead>
+            <tr>
+              <th>字段</th>
+              <th>当前值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>WatermarkText</code></td>
+              <td>图明索高清调试</td>
+              <td>写入图片上的文字水印。</td>
+            </tr>
+            <tr>
+              <td><code>Position</code></td>
+              <td><code>middle-sides</code></td>
+              <td>图片中部左侧、中间、右侧三处。</td>
+            </tr>
+            <tr>
+              <td><code>Opacity</code></td>
+              <td><code>80</code></td>
+              <td>1-100，数值越高越明显。</td>
+            </tr>
+            <tr>
+              <td><code>FontSize</code></td>
+              <td><code>small4</code></td>
+              <td>小四，约 12pt / 16px。</td>
+            </tr>
+            <tr>
+              <td><code>Angle</code></td>
+              <td><code>-35</code></td>
+              <td>文字旋转角度。</td>
+            </tr>
+            <tr>
+              <td><code>Recursive</code></td>
+              <td><code>false</code></td>
+              <td>默认不递归扫描子目录。</td>
+            </tr>
+            <tr>
+              <td><code>JpegQuality</code></td>
+              <td><code>92</code></td>
+              <td>JPG/JPEG 输出质量。</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <aside class="panel">
+        <h2>审核边界</h2>
+        <ul class="checks">
+          <li><span class="check-dot" aria-hidden="true"></span><span>本页不执行 <code>bat</code>、PowerShell 或任何 shell 命令。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>工具运行不需要网络、secret、API key 或账号登录。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>默认输出新目录，不覆盖原图。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>已验证入口、字体加载和样张输出。</span></li>
+          <li><span class="check-dot" aria-hidden="true"></span><span>适合进入低风险闭环，后续前端工作台仍只生成任务包和记录。</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid" aria-label="交付说明">
+      <article class="panel">
+        <h2>适合交付的原因</h2>
+        <ul class="rule-list">
+          <li>目标用户清楚：普通 Windows 用户可以通过解压、放图、双击完成。</li>
+          <li>风险面小：没有联网、没有 secret、没有自动采集或发布。</li>
+          <li>验收标准明确：入口存在、配置存在、输出目录清晰、原图不被覆盖。</li>
+          <li>Open Design artifact 可以先作为说明页交付，不需要接真实执行。</li>
+        </ul>
+      </article>
+
+      <aside class="panel">
+        <h2>交付文件</h2>
+        <ul class="rule-list">
+          <li>页面：<code>toolbox-artifacts/watermark-batch-open-design.html</code></li>
+          <li>闭环文档：<code>toolbox-artifacts/low-risk-closures/watermark-batch-closure.md</code></li>
+          <li>归档日志：<code>水印工具包-归档日志.md</code></li>
+          <li>工具包：<code>批量图片水印工具包/</code></li>
+        </ul>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span>生成日期：2026-05-15</span>
+      <span>交付类型：Open Design prototype / doc artifact</span>
+      <span>安全边界：本地静态页面，仅引用本地样张</span>
+    </footer>
+  </main>
+</body>
+</html>
