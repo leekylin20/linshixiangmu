@@ -19,6 +19,9 @@
 - 中国抖音坐播直播间。
 - `Camera Geometry Lock｜透视母版锁定` 放在每条正向提示词最前面。
 - `Foreground Anchor Lock｜前景锚点锁定` 放在透视母版之后。
+- `Space Integration Engine｜空间一体化引擎` 放在前景锚点之后、品类风格之前。
+- 生成前先拆成七个模块：摄影机、空间分层、灯光、材质、物体落点、反射、景深。
+- 目标是像 C4D / 商品摄影棚里真实搭了一个直播棚，而不是一张平面海报。
 - 35mm equivalent lens，正面中近景坐播直播机位。
 - 摄像机高度固定 125cm。
 - 轻微下俯 2°。
@@ -72,6 +75,6 @@ node -e "const wb=require('./workbench.js'); const b=wb.generateBatch({count:7})
 - 默认 7 条覆盖 7 个背景路由。
 - 单条 audit 全部 pass。
 - 背景分散 audit pass。
-- 已加入 `premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0` 透视锁定补丁。
+- 已升级到 `premium_makeup_foreground_transaction_space_integration_engine_v1_0`，接入空间一体化七模块引擎。
 - TXT 一条一行，无空行、无分隔符。
 - 未生图。

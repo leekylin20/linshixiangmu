@@ -1,6 +1,6 @@
 {
   "projectName": "高端大牌彩妆直播间提示词工作台｜前景成交骨架锁定版｜35mm",
-  "version": "premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0",
+  "version": "premium_makeup_foreground_transaction_space_integration_engine_v1_0",
   "category": "premium_makeup",
   "sceneType": "seated_livestream",
   "corePrinciple": "只锁定前景直播成交关系，不锁死背景空间；背景可以多样化，但主播、黑镜桌台、中央主推眼影盘、35mm 正面坐播机位必须稳定成立。",
@@ -9,6 +9,8 @@
     "中国抖音坐播直播间画面",
     "Camera Geometry Lock｜透视母版锁定模块放在每条正向提示词最前面",
     "Foreground Anchor Lock｜前景锚点锁定模块放在透视母版之后",
+    "Space Integration Engine｜空间一体化引擎放在前景锚点之后、品类风格之前",
+    "七模块统一：摄影机、空间分层、灯光、材质、物体落点、反射、景深",
     "35mm equivalent lens, normal front-facing seated livestream perspective",
     "摄像机高度固定 125cm",
     "轻微下俯 2°",
@@ -46,7 +48,7 @@
   "outputSchema": {
     "category": "premium_makeup",
     "sceneType": "seated_livestream",
-    "templateVersion": "premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0",
+    "templateVersion": "premium_makeup_foreground_transaction_space_integration_engine_v1_0",
     "mainProduct": "eyeshadow_palette",
     "mainProductCn": "高端眼影盘",
     "backgroundRoute": "英文背景路由 ID",
@@ -54,5 +56,14 @@
     "prompt": "positivePrompt 的别名",
     "positivePrompt": "正向生图提示词",
     "negativePrompt": "负面提示词"
-  }
+  },
+  "spaceIntegrationEngine": [
+    "camera｜摄影机：画幅比例、焦段、相机高度、相机距离、俯仰角、消失点、地平线、桌台前沿线、人物眼线、产品中心点",
+    "spatialLayering｜空间分层：前景桌台、中景产品与主播、后景背景墙和陈列元素属于同一空间",
+    "lighting｜灯光：面部主光、补光、轮廓光、产品高光、亚克力边缘光方向统一",
+    "material｜材质：黑镜桌台、透明亚克力、银色金属、珠光粉质、哑光背景都响应同一光源",
+    "objectLanding｜物体落点：所有产品、刷具、亚克力台阶有明确接触点、接触阴影和重量",
+    "reflection｜反射：黑色镜面桌台反射位于物体正下方，强弱有主次",
+    "depthOfField｜景深：眼影盘、主播脸和手清晰，背景略柔但结构可读"
+  ]
 }

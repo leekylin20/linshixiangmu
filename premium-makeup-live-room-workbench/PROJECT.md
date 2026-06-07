@@ -34,6 +34,9 @@ Start-Process 'E:\临时项目\premium-makeup-live-room-workbench\index.html'
 - 中国抖音坐播直播间画面。
 - `Camera Geometry Lock｜透视母版锁定` 必须位于每条正向提示词最前面。
 - `Foreground Anchor Lock｜前景锚点锁定` 必须位于透视母版之后。
+- `Space Integration Engine｜空间一体化引擎` 必须位于前景锚点之后、品类风格之前。
+- 七模块统一：摄影机、空间分层、灯光、材质、物体落点、反射、景深。
+- 生成目标是 C4D / 商品摄影棚式真实直播棚，不是好看的平面海报。
 - 35mm equivalent lens，正面中近景坐播直播机位。
 - 摄像机高度固定 125cm。
 - 轻微下俯 2°。
@@ -65,6 +68,7 @@ Start-Process 'E:\临时项目\premium-makeup-live-room-workbench\index.html'
 - 单条 audit 全部 pass。
 - 背景分散 audit pass。
 - 2026-06-06 已加入 `premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0` 透视锁定补丁，修复“只写 35mm 但透视母版未锁”问题。
+- 2026-06-07 已升级到 `premium_makeup_foreground_transaction_space_integration_engine_v1_0`，新增空间一体化七模块引擎，要求人物、产品、桌台、背景、灯光、反射、阴影、景深属于同一个物理空间。
 - TXT 输出一条一行，适配批量生图软件读取。
 - 本轮未生图。
 

@@ -7,7 +7,7 @@
 })(typeof self !== "undefined" ? self : this, function () {
   const WORKBENCH = "premium-makeup-live-room-workbench";
   const PROJECT_NAME = "高端大牌彩妆直播间提示词工作台｜前景成交骨架锁定版｜35mm";
-  const VERSION = "premium_makeup_foreground_transaction_35mm_geometry_lock_v1_0";
+  const VERSION = "premium_makeup_foreground_transaction_space_integration_engine_v1_0";
 
   const CAMERA_GEOMETRY_LOCK = [
     "【Camera Geometry Lock｜透视母版锁定】",
@@ -30,6 +30,19 @@
     "6. Acrylic display stands must be low and wide, not tall towers, not floating, not slanted.",
     "7. Product reflections on the black table must align vertically under each product.",
     "中文锁定理解：桌台前沿横平，眼影盘居中，主播在后面坐播，人物不要冲到镜头前，亚克力不要变成高塔，所有产品在同一个桌面上，反射方向要对。"
+  ].join("\n\n");
+
+  const SPACE_INTEGRATION_ENGINE = [
+    "【Space Integration Engine｜空间一体化引擎】",
+    "Build the image like a real C4D / product-photography livestream studio, not like a flat poster. The host, products, black mirror table, acrylic stands, background wall, display shelves, lights, shadows, reflections and depth of field must all belong to one continuous physical space.",
+    "1. Camera module: vertical 9:16, 35mm equivalent lens, camera height 125cm, camera distance about 160-180cm from the host and about 70-90cm from the table front edge, slight downward pitch 2 degrees, single front-facing vanishing point, horizon line aligned near the host eye line, table front edge horizontal, host eye line upper-middle, product center lower-middle.",
+    "2. Spatial layering module: foreground table edge in the lower 15%-20%, main eyeshadow palette in the lower-middle product zone, auxiliary cosmetics on the same tabletop plane, host seated in the midground behind the product, background wall and display elements behind the host on the same axis. Do not flatten these layers into a graphic poster.",
+    "3. Lighting module: use one coherent beauty livestream studio lighting setup. Soft frontal key light for the host face, controlled fill light, subtle rim light on hair and shoulders, small product highlight on the eyeshadow palette, gentle edge highlights on acrylic and metal. Shadows must fall consistently on the same tabletop plane.",
+    "4. Material module: black piano-lacquer mirror table with glossy reflection, transparent thick acrylic with real refraction edges, silver metal logo with cool highlights, pearl eyeshadow powder with fine shimmer, matte black or deep navy background surfaces, low-density premium display materials. Materials must react to the same light sources.",
+    "5. Object landing module: every product, brush, palette, acrylic riser and auxiliary cosmetic must have a clear landing point, contact shadow and weight on the tabletop. Nothing floats, nothing cuts through the table, no product sits on a different invisible plane.",
+    "6. Reflection module: reflections on the black mirror table must align vertically under each object, with soft falloff and correct intensity. The main eyeshadow palette has the strongest controlled reflection, auxiliary products have lighter reflections, acrylic edges create subtle refracted highlights.",
+    "7. Depth-of-field module: use moderate product-photography depth of field. The main eyeshadow palette, host face and hands are sharp and readable; background is slightly softer but still structurally clear. Do not use heavy bokeh, flat poster sharpness, or mismatched focus planes.",
+    "中文锁定理解：先搭一个真实直播棚空间，再生成品类内容。摄影机、空间分层、灯光、材质、物体落点、反射、景深必须统一；背景和风格只能在这个统一空间里变化。"
   ].join("\n\n");
 
   const SCENE_THEMES = [
@@ -207,7 +220,25 @@
     "vertical lines leaning",
     "room tilted",
     "camera rotated",
-    "inconsistent vanishing point"
+    "inconsistent vanishing point",
+    "flat poster composition",
+    "graphic layout instead of real studio",
+    "no spatial layering",
+    "objects without contact shadows",
+    "missing table contact",
+    "floating shadow",
+    "wrong shadow direction",
+    "inconsistent lighting direction",
+    "multiple conflicting light sources",
+    "material mismatch",
+    "acrylic without refraction",
+    "mirror table without reflection",
+    "reflection not under object",
+    "random reflection direction",
+    "depth of field mismatch",
+    "background sharper than main product",
+    "heavy bokeh hiding structure",
+    "products and host on different focus planes"
   ].join("、");
 
   function normalize(value) {
@@ -274,6 +305,7 @@
     const positivePrompt = [
       CAMERA_GEOMETRY_LOCK,
       FOREGROUND_ANCHOR_LOCK,
+      SPACE_INTEGRATION_ENGINE,
       `生成一张竖版 9:16 高端大牌彩妆坐播直播间商品展示图，主题为${theme.label}。画面必须是中国抖音坐播直播间视角：35mm equivalent lens, normal front-facing seated livestream perspective, no wide-angle distortion, no telephoto compression, no showroom diagonal view. 摄像机高度固定 125cm，正面中近景构图，轻微下俯 2 度，观众像坐在彩妆顾问台对面，看主播讲解主推眼影盘。35mm 只是镜头感，不允许模型理解成探店广角、广告斜拍或空间展示视角。`,
       "前景直播成交骨架必须固定：一位成年女性高端品牌彩妆顾问坐在黑色镜面直播桌台后方，正面对镜头自然讲解。她年龄感约 28-35 岁，成熟、专业、冷静、可信赖，穿黑色西装或高级黑色顾问服，深色内搭，精致眼妆，高级底妆，自然高级唇色，利落盘发或精致低盘发。人物不能像韩系女团、甜妹网红、写真模特或普通店员，必须像高端品牌彩妆顾问。",
       `主播动作：${gesture}。动作必须克制、专业、有顾问感，不能夸张促销，不能遮挡主推眼影盘。`,
@@ -307,6 +339,8 @@
         "前景直播成交骨架",
         "Camera Geometry Lock 透视母版锁定",
         "Foreground Anchor Lock 前景锚点锁定",
+        "Space Integration Engine 空间一体化引擎",
+        "摄影机/空间分层/灯光/材质/物体落点/反射/景深七模块统一",
         "中国抖音坐播直播间",
         "35mm 正面中近景机位",
         "125cm 摄像机高度",
@@ -374,6 +408,12 @@
     const audit = {
       cameraGeometryLockPass: includesAll(positive, ["Camera Geometry Lock", "one fixed front-facing seated livestream camera geometry", "camera height 125cm", "one stable front-facing one-point perspective", "Vertical background lines remain vertical"]),
       foregroundAnchorLockPass: includesAll(positive, ["Foreground Anchor Lock", "black mirror table front edge stays horizontal", "main eyeshadow palette is centered", "host is seated behind the product", "Product reflections on the black table must align vertically"]),
+      spaceIntegrationEnginePass: includesAll(positive, ["Space Integration Engine", "C4D / product-photography livestream studio", "one continuous physical space", "Camera module", "Spatial layering module", "Lighting module", "Material module", "Object landing module", "Reflection module", "Depth-of-field module"]),
+      cameraModulePass: includesAll(positive, ["camera distance about 160-180cm", "horizon line aligned near the host eye line", "product center lower-middle"]),
+      spatialLayeringPass: includesAll(positive, ["foreground table edge", "host seated in the midground", "background wall and display elements behind the host", "Do not flatten these layers"]),
+      lightingMaterialPass: includesAll(positive, ["Soft frontal key light", "controlled fill light", "subtle rim light", "Materials must react to the same light sources"]),
+      objectLandingReflectionPass: includesAll(positive, ["clear landing point", "contact shadow", "Nothing floats", "reflections on the black mirror table must align vertically under each object"]),
+      depthOfFieldPass: includesAll(positive, ["moderate product-photography depth of field", "main eyeshadow palette, host face and hands are sharp", "background is slightly softer"]),
       foregroundSkeletonPass: includesAll(positive, ["前景直播成交骨架必须固定", "黑色镜面直播桌台", "眼影盘必须是整张画面的第一主角"]),
       camera35mmPass: includesAll(positive, ["9:16", "35mm equivalent lens", "125cm", "正面中近景", "轻微下俯 2 度", "no telephoto compression"]),
       hostConsultantPass: includesAll(positive, ["成年女性高端品牌彩妆顾问", "28-35 岁", "成熟、专业、冷静、可信赖", "黑色西装"]),
@@ -385,6 +425,7 @@
       liveCommerceRelationPass: includesAll(positive, ["主播正对镜头", "产品在前景中心", "黑色镜面桌台清楚", "不是专柜探店图"]),
       negativePromptPass: includesAll(negative, ["普通卖货直播间", "口红成为第一主角", "专柜探店图", "广告大片视角", "强广角", "真实品牌 LOGO"]),
       perspectiveNegativePass: includesAll(negative, ["tilted table plane", "diagonal table front edge", "mismatched product perspective", "products on different planes", "background perspective not matching table", "inconsistent vanishing point"]),
+      spaceNegativePass: includesAll(negative, ["flat poster composition", "no spatial layering", "objects without contact shadows", "inconsistent lighting direction", "reflection not under object", "depth of field mismatch"]),
       outputSchemaPass: promptObject.category === "premium_makeup" && promptObject.sceneType === "seated_livestream" && Boolean(promptObject.backgroundRoute) && Boolean(promptObject.prompt),
       notes
     };
@@ -400,6 +441,9 @@
     WORKBENCH,
     PROJECT_NAME,
     VERSION,
+    CAMERA_GEOMETRY_LOCK,
+    FOREGROUND_ANCHOR_LOCK,
+    SPACE_INTEGRATION_ENGINE,
     SCENE_THEMES,
     BACKGROUND_ROUTES,
     BACKGROUND_RANDOM_MODES,
